@@ -7,8 +7,13 @@ let express     = require("express"),
 /*
  * Set up server parsing and logging
  */
-app.use(bodyParser.json());;
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(morgan(config.logging))
+app.use(morgan(config.logging));
+
+/*
+ *Register routes on api 
+ */
+app.use("/api", require("./controllers/index"));
 
 module.exports = app;
