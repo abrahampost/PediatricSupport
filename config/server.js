@@ -1,3 +1,9 @@
+let test = {
+    mode: 'test',
+    logging: '',
+    port: process.env.PORT || 8800
+}
+
 let dev = {
     mode: 'dev',
     logging: 'dev',
@@ -11,8 +17,9 @@ let prod = {
 }
 
 let configs = {
+    test,
     dev,
     prod
 }
 
-module.exports = process.env.NODE_ENV == "prod" ? configs["prod"] : configs["dev"];
+module.exports = configs[process.env.NODE_ENV];

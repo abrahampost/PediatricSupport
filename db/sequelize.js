@@ -4,7 +4,8 @@ if (!process.env.DATABASE_URL) {
     require("dotenv").config()
 }
 
-const sequelize = module.exports = new Sequelize(process.env.DATABASE_URL, {
+let options = {
+    dialect: 'postgres',
     pool: {
         max: 5,
         min: 0,
@@ -13,4 +14,16 @@ const sequelize = module.exports = new Sequelize(process.env.DATABASE_URL, {
     },
     operatorsAliases: false,
     logging: false
-});
+}
+
+let sequelize;
+if (process.env.NODE_ENV != "test") {
+    sequelize = new Sequelize(process.env.DATABASE_URL, options);
+} else {
+    //this only tests locally
+    options['dialect'] = 'sqlite';
+    options['storage'] = 'db/data.db';
+    sequelize = new Sequelize("local", "root", "pass", options);
+}
+
+module.exports = sequelize;

@@ -15,7 +15,9 @@ dotenv.config()
  */
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(morgan(config.logging));
+if (process.env.NODE_ENV != "test") {
+    app.use(morgan(config.logging));
+}
 
 /*
  *Register routes on api 

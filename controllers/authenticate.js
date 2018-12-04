@@ -26,7 +26,7 @@ router.post('/signup', async function(req, res) {
         let status = await User.sign_up(username, password, lastName, firstName);
         res.sendStatus(status);
     } catch (e) {
-        res.status(400).send("Unable to parse request");
+        res.sendStatus(400);
     }
 });
 

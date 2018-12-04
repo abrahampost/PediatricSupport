@@ -4,15 +4,18 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
+    "test": "sh scripts/run-tests.sh",
+    "dev": "cross-env NODE_ENV=dev nodemon index.js",
     "prod": "node index.js",
-    "postinstall": "node db/init-db.js"
+    "start": "npm run prod",
+    "init-db": "node db/init-db.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
+    "cross-env": "^5.2.0",
     "dotenv": "^6.1.0",
     "express": "^4.16.4",
     "jsonwebtoken": "^8.4.0",
@@ -23,6 +26,9 @@
     "sqlite3": "^4.0.4"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.2.0",
+    "mocha": "^5.2.0",
     "nodemon": "^1.18.7"
   }
 }

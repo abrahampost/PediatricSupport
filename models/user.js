@@ -4,7 +4,7 @@ const   Sequelize   = require("sequelize"),
         jwt         = require("jsonwebtoken");
 
 
-const User = sequelize.define('user', {
+const User = exports.Model = sequelize.define('user', {
     id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
@@ -23,11 +23,7 @@ const User = sequelize.define('user', {
     password: {
         type: Sequelize.TEXT,
         allowNull: false,
-        require: true,
-        validate: {
-            min: 7,
-            max: 40
-        }
+        require: true
     },
     last_name: {
         type: Sequelize.STRING,
@@ -72,6 +68,7 @@ exports.check_login = async function (username, password) {
  */
 exports.sign_up = async function(username, unhashed_password, last_name, first_name) {
     try {
+        ValidatePassword(unhashed_password);
         let salt = await bcrypt.genSalt(10);
         let password = await bcrypt.hash(unhashed_password, salt);
         let user = await User.build({
@@ -86,6 +83,13 @@ exports.sign_up = async function(username, unhashed_password, last_name, first_n
         if (e.name == "SequelizeUniqueConstraintError") {
             return 409;
         }
-        return 401;
+        return 400;
+    }
+}
+
+let ValidatePassword = (password) => {
+    //TODO: Add more password validations
+    if (password.length < 7 || password.length > 40) {
+        throw new Error("password length not valid");
     }
 }
