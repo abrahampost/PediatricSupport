@@ -2,7 +2,13 @@ let express     = require("express"),
     app         = express(),
     bodyParser  = require("body-parser"),
     morgan      = require("morgan"),
-    config      = require("./config/server");
+    config      = require("./config/server"),
+    dotenv      = require("dotenv");
+
+/*
+ * Import environment variables for local testing
+ */
+dotenv.config()
 
 /*
  * Set up server parsing and logging
