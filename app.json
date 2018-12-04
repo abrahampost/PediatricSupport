@@ -1,0 +1,17 @@
+{
+    "name": "PickleballManager",
+    "description": "An app to manage round robin Pickleball tournaments easily and efficiently",
+    "keywords": [
+        "tournament",
+        "express",
+        "pickleball"
+    ],
+    "addons": ["heroku-postgresql:hobby-dev"],
+    "env": {
+        "NODE_ENV": "production",
+        "SIGN_KEY": {
+            "description": "Sign key used to sign JWTs",
+            "generator": "secret"
+        }
+    }
+}
