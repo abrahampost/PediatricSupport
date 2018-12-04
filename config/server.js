@@ -1,7 +1,7 @@
 let dev = {
     mode: 'dev',
     logging: 'dev',
-    port: 8080
+    port: process.env.PORT || 8080,
 }
 
 let prod = {
