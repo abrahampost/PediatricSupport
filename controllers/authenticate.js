@@ -10,10 +10,10 @@ router.post('/login', async function(req, res) {
         if (verify) {
             res.json({token: verify});
         } else {
-            res.status(401).send("Incorrect username and password combination")
+            res.status(401).send({error: "Incorrect username and password combination"})
         }
     } catch (e) {
-        res.status(401).send("Incorrect username and password combination")
+        res.status(401).send({error: "Incorrect username and password combination"})
     }
 });
 

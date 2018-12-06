@@ -27,11 +27,12 @@ describe('Users', () => {
                 .post("/api/authenticate/signup")
                 .send(user)
                 .end((err, res) => {
+                    should.not.exist(err);
                     res.should.have.status(201);
                         done();
                     });
         });
-        it('it should not allow creation of an account with missing required data', (done) =>{
+        it('it should not allow creation of an account with missing required data', (done) => {
             let user = {
                 username: "johndoe2",
                 lastName: "Doe",
@@ -41,11 +42,12 @@ describe('Users', () => {
                 .post("/api/authenticate/signup")
                 .send(user)
                 .end((err, res) => {
+                    should.not.exist(err);
                     res.should.have.status(400);
                     done();
                 });
         })
-        it('it should not allow creation of an account with too-short password', (done) =>{
+        it('it should not allow creation of an account with too-short password', (done) => {
             let user = {
                 username: "johndoe3",
                 password: "pass",
@@ -56,11 +58,12 @@ describe('Users', () => {
                 .post("/api/authenticate/signup")
                 .send(user)
                 .end((err, res) => {
+                    should.not.exist(err);
                     res.should.have.status(400);
                         done();
                     });
         });
-        it('it should not allow creation of an account with non-alphanumeric username', (done) =>{
+        it('it should not allow creation of an account with non-alphanumeric username', (done) => {
             let user = {
                 username: "john%%&",
                 password: "password",
@@ -71,9 +74,88 @@ describe('Users', () => {
                 .post("/api/authenticate/signup")
                 .send(user)
                 .end((err, res) => {
+                    should.not.exist(err);
                     res.should.have.status(400);
                     done();
                 });
         });
     })
+
+    describe("/POST login", () => {
+        it("it should login account with proper credentials", (done) => {
+            let user = {
+                username: "johndoe",
+                password: "password",
+                lastName: "Doe",
+                firstName: "John"
+            }
+            chai.request(server)
+                .post("/api/authenticate/signup")
+                .send(user)
+                .end((err, res) => {
+                    should.not.exist(err);
+                    res.should.have.status(201);
+                    chai.request(server)
+                        .post("/api/authenticate/login")
+                        .send({
+                            username: "johndoe",
+                            password: "password"
+                        })
+                        .end((err, res) => {
+                            should.not.exist(err);
+                            res.should.have.status(200);
+                            res.body.should.be.a("object");
+                            res.body.should.have.property("token");
+                            done();
+                        });
+                });
+        })
+        it("it should not login with bad credentials", (done) => {
+            let user = {
+                username: "johndoe",
+                password: "password",
+                lastName: "Doe",
+                firstName: "John"
+            }
+            chai.request(server)
+                .post("/api/authenticate/signup")
+                .send(user)
+                .end((err, res) => {
+                    should.not.exist(err);
+                    res.should.have.status(201);
+                    chai.request(server)
+                        .post("/api/authenticate/login")
+                        .send({
+                            username: "johndoe",
+                            password: "badpassword"
+                        })
+                        .end((err, res) => {
+                            should.not.exist(err);
+                            res.should.have.status(401);
+                            res.body.should.be.an("object");
+                            res.body.should.have.property('error');
+                            res.body.error.should.be.a('string');
+                            res.body.error.should.be.eql('Incorrect username and password combination');
+                            done();
+                        });
+                });
+        });
+        it("it should not return an error when attempting to login a non-existent password", (done) => {
+            chai.request(server)
+                .post("/api/authenticate/login")
+                .send({
+                    username: "johndoe",
+                    password: "password"
+                })
+                .end((err, res) => {
+                    should.not.exist(err);
+                    res.should.have.status(401);
+                    res.body.should.be.an("object");
+                    res.body.should.have.property('error');
+                    res.body.error.should.be.a('string');
+                    res.body.error.should.be.eql('Incorrect username and password combination');
+                    done();
+                })
+        })
+    });
 });
