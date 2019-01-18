@@ -1,10 +1,10 @@
 {
-    "name": "PickleballManager",
-    "description": "An app to manage round robin Pickleball tournaments easily and efficiently",
+    "name": "Auth Scaffold",
+    "description": "Scaffold for a node/sequelize project with basic authentication implemented",
     "keywords": [
-        "tournament",
-        "express",
-        "pickleball"
+        "node",
+        "sequelize",
+        "authentication"
     ],
     "addons": ["heroku-postgresql:hobby-dev"],
     "env": {
