@@ -15,4 +15,10 @@ run `npm install`
 * init-db - will initialize the database tables
   * `npm run init-db`
 
+## Technologies used within the app
+* [express](https://expressjs.com/en/api.html) as a server
+* [sequelize](http://docs.sequelizejs.com/) as an orm
+* [mocha](https://mochajs.org/) and [chai](https://www.chaijs.com/) as a testing framework
+* [bcryptjs](https://www.npmjs.com/package/bcryptjs) and [jsonwebtoken](https://jwt.io/) for authentication and security
+
 NOTE: Must have `.env` files in root level of repository with database information in order to run.
