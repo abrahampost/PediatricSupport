@@ -14,3 +14,5 @@ run `npm install`
   * `npm run test`
 * init-db - will initialize the database tables
   * `npm run init-db`
+
+NOTE: Must have `.env` files in root level of repository with database information in order to run.
