@@ -6,7 +6,14 @@
         "sequelize",
         "authentication"
     ],
-    "addons": ["heroku-postgresql:hobby-dev"],
+    "addons": [
+        {
+        "plan": "heroku-postgresql",
+        "options": {
+            "version": "9.5"
+        }
+    }
+],
     "env": {
         "NODE_ENV": "production",
         "SIGN_KEY": {
