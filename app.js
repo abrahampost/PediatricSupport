@@ -15,7 +15,7 @@ dotenv.config()
  */
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-if (process.env.NODE_ENV != "test") {
+if (process.env.NODE_ENV != "test" && process.env.NODE_ENV != "testlocal") {
     app.use(morgan(config.logging));
 }
 

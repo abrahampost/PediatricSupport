@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "sh scripts/run-tests.sh",
+    "test": "cross-env NODE_ENV=test sh scripts/run-tests.sh",
+    "test-local": "cross-env NODE_ENV=testlocal scripts/run-tests.sh",
     "dev": "cross-env NODE_ENV=dev nodemon index.js",
     "prod": "node index.js",
     "start": "npm run prod",

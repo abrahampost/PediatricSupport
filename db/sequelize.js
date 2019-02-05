@@ -17,7 +17,9 @@ let options = {
 }
 
 let sequelize;
-if (process.env.NODE_ENV != "test") {
+if (process.env.NODE_ENV == 'test') {
+    sequelize = new Sequelize(process.env.TEST_DATABASE_URL, options);
+} else if (process.env.NODE_ENV != "testlocal") {
     sequelize = new Sequelize(process.env.DATABASE_URL, options);
 } else {
     //this only tests locally

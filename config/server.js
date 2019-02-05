@@ -4,6 +4,12 @@ let test = {
     port: process.env.PORT || 8800
 }
 
+let testlocal = {
+    mode: 'test-local',
+    logging: '',
+    port: process.env.PORT || 8800
+}
+
 let dev = {
     mode: 'dev',
     logging: 'dev',
@@ -18,6 +24,7 @@ let prod = {
 
 let configs = {
     test,
+    testlocal,
     dev,
     prod
 }

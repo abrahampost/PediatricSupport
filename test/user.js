@@ -140,11 +140,11 @@ describe('Users', () => {
                         });
                 });
         });
-        it("it should not return an error when attempting to login a non-existent password", (done) => {
+        it("it should not authenticate when attempting to login a non-existent password", (done) => {
             chai.request(server)
                 .post("/api/authenticate/login")
                 .send({
-                    username: "johndoe",
+                    username: "johndoe5",
                     password: "password"
                 })
                 .end((err, res) => {
