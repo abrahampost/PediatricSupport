@@ -149,7 +149,7 @@ describe('Users', () => {
                 })
                 .end((err, res) => {
                     should.not.exist(err);
-                    res.should.have.status(401);
+                    res.should.have.status(200);
                     res.body.should.be.an("object");
                     res.body.should.have.property('error');
                     res.body.error.should.be.a('string');
