@@ -20,5 +20,8 @@
             "description": "Sign key used to sign JWTs",
             "generator": "secret"
         }
+    },
+    "scripts": {
+        "postdeploy": "sh scripts/bootstrap"
     }
 }
