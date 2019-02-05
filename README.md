@@ -1,3 +1,5 @@
+[![Build Status](https://semaphoreci.com/api/v1/abrahampost/pediatricsupport/branches/master/badge.svg)](https://semaphoreci.com/abrahampost/pediatricsupport)
+
 # PediatricSupport
 The Pediatric Support Group App connects children at UNC Children’s Hospital with others children with common interests and similar situations in order to foster friendship and a more supportive atmosphere.
 
