@@ -6,12 +6,22 @@
         "sequelize",
         "authentication"
     ],
-    "addons": ["heroku-postgresql:hobby-dev"],
+    "addons": [
+        {
+        "plan": "heroku-postgresql",
+        "options": {
+            "version": "9.5"
+        }
+    }
+],
     "env": {
-        "NODE_ENV": "production",
+        "NODE_ENV": "dev",
         "SIGN_KEY": {
             "description": "Sign key used to sign JWTs",
             "generator": "secret"
         }
+    },
+    "scripts": {
+        "postdeploy": "sh scripts/bootstrap.sh"
     }
 }
