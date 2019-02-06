@@ -4,11 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "cd app && npm run build",
     "test": "cross-env NODE_ENV=test sh scripts/run-tests.sh",
     "test-local": "cross-env NODE_ENV=testlocal scripts/run-tests.sh",
     "dev": "cross-env NODE_ENV=dev nodemon index.js",
     "prod": "node index.js",
     "start": "npm run prod",
+    "postinstall": "npm run build",
     "init-db": "node db/init-db.js"
   },
   "author": "",

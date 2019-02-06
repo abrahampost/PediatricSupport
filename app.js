@@ -24,4 +24,6 @@ if (process.env.NODE_ENV != "test" && process.env.NODE_ENV != "testlocal") {
  */
 app.use("/api", require("./controllers/index"));
 
+app.use(express.static('./app/dist'));
+
 module.exports = app;
