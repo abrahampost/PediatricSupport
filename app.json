@@ -15,6 +15,7 @@
     }
 ],
     "env": {
+        "NODE_ENV": "dev",
         "SIGN_KEY": {
             "description": "Sign key used to sign JWTs",
             "generator": "secret"
