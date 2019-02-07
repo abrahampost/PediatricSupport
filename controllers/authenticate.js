@@ -1,12 +1,12 @@
 let express = require("express"),
     router  = express.Router(),
-    User    = require("../models/user");
+    userService    = require("../services/user-service");
 
 router.post('/login', async function(req, res) {
     try {
         let username = req.body.username;
         let password = req.body.password;
-        verify = await User.check_login(username, password);
+        verify = await userService.check_login(username, password);
         if (verify) {
             res.json({token: verify});
         } else {
@@ -23,7 +23,7 @@ router.post('/signup', async function(req, res) {
         let password = req.body.password;
         let lastName = req.body.lastName;
         let firstName = req.body.firstName;
-        let status = await User.sign_up(username, password, lastName, firstName);
+        let status = await userService.sign_up(username, password, lastName, firstName);
         res.sendStatus(status);
     } catch (e) {
         res.sendStatus(400);

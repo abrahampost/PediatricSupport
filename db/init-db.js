@@ -1,4 +1,4 @@
-const User = require("../models/user").Model;
+const User = require("../models/user");
 
 async function createTables() {
     try {

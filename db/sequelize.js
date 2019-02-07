@@ -19,13 +19,14 @@ let options = {
 let sequelize;
 if (process.env.NODE_ENV == 'test') {
     sequelize = new Sequelize(process.env.TEST_DATABASE_URL, options);
-} else if (process.env.NODE_ENV != "testlocal") {
-    sequelize = new Sequelize(process.env.DATABASE_URL, options);
-} else {
+} else if (process.env.NODE_ENV == "testlocal") {
     //this only tests locally
     options['dialect'] = 'sqlite';
     options['storage'] = 'db/data.db';
     sequelize = new Sequelize("local", "root", "pass", options);
+} else {
+    sequelize = new Sequelize(process.env.DATABASE_URL, options);
+
 }
 
 module.exports = sequelize;
