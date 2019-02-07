@@ -9,7 +9,8 @@
                 v-model="username"
                 name="username" 
                 placeholder="Username"
-                autocomplete="username">
+                autocomplete="username"
+                @change="error=''">
         </div>
         <div class="field">
           <label>Password</label>
@@ -17,27 +18,41 @@
                 v-model="password"
                 name="password" 
                 placeholder="Password"
-                autocomplete="current-password">
+                autocomplete="current-password"
+                @change="error=''">
         </div>
         <button class="ui button" type="submit">Submit</button>
+        <div class="ui negative message" v-if="error">
+          <div class="header">
+            {{ error }}
+          </div>
+        </div>
       </form>
     </div>
   </div>
 </template>
 
 <script>
+import axios from '../config/axiosInstance';
 
 export default {
   name: 'Login',
   data: function () {
     return {
       username: '',
-      password: ''
+      password: '',
+      error: ''
     }
   },
   methods: {
     login: function() {
-      console.log(this.username, btoa(this.password));
+      axios.post('authenticate/login', {
+        username: this.username, password: this.password
+      }).then(res => {
+        console.log(res)
+      }).catch(err => {
+        this.error = err.data.error;
+      });
     }
   }
 };
