@@ -7,16 +7,16 @@
           <label>Username</label>
           <input type="text"
                 v-model="username"
-                name="username" 
+                name="username"
                 placeholder="Username"
                 autocomplete="username"
                 @change="error=''">
         </div>
         <div class="field">
           <label>Password</label>
-          <input type="password" 
+          <input type="password"
                 v-model="password"
-                name="password" 
+                name="password"
                 placeholder="Password"
                 autocomplete="current-password"
                 @change="error=''">
@@ -37,24 +37,28 @@ import axios from '../config/axiosInstance';
 
 export default {
   name: 'Login',
-  data: function () {
+  data() {
     return {
       username: '',
       password: '',
-      error: ''
-    }
+      error: '',
+    };
   },
   methods: {
-    login: function() {
+    login() {
       axios.post('authenticate/login', {
         username: this.username, password: this.password
-      }).then(res => {
-        console.log(res)
-      }).catch(err => {
-        this.error = err.data.error;
+      }).then((res) => {
+        console.log(res);
+      }).catch((err) => {
+        if (err) {
+          this.error = err.data.error;
+        } else {
+          this.error = 'An unspecified error occured during the login attempt.';
+        }
       });
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped>
@@ -64,7 +68,9 @@ export default {
     justify-content: center;
     align-items: center;
   }
-  .padded {
+
+  .ui.card.padded {
     padding: 5%;
+    min-width: 40%
   }
 </style>
