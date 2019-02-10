@@ -1,6 +1,7 @@
 const User              = require("../models/user"),
       PatientInfo       = require("../models/patient-info"),
-      PatientXParent    = require("../models/patient_x_parent");
+      PatientXParent    = require("../models/patient-x-parent"),
+      Attribute         = require("../models/attribute");
 
 async function dropTables() {
     try {
@@ -10,6 +11,8 @@ async function dropTables() {
         console.log("Successfully dropped patient-info table");
         await PatientXParent.drop();
         console.log("Successfully dropped patient-x-parent table");
+        await Attribute.drop();
+        console.log("Successfully dropped attribute table");
         process.exit(0);
     } catch (e) {
         console.error(e);

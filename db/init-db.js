@@ -1,6 +1,7 @@
 const User              = require("../models/user"),
       PatientInfo       = require("../models/patient-info"),
-      PatientXParent    = require("../models/patient_x_parent");
+      PatientXParent    = require("../models/patient-x-parent"),
+      Attribute         = require("../models/attribute");
 
 async function createTables() {
     try {
@@ -10,6 +11,8 @@ async function createTables() {
         console.log("Successfully created patient-info table");
         await PatientXParent.sync();
         console.log("Successfully created patient-x-parent table");
+        await Attribute.sync();
+        console.log("Successfully created attribute table");
         process.exit(0);
     } catch (e) {
         console.error(e);
