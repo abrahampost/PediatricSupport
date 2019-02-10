@@ -1,9 +1,9 @@
-const sequelize = require("./sequelize");
+const User = require("../models/user");
 
 async function dropTables() {
     try {
-        await sequelize.drop();
-        console.log("Successfully dropped all tables");
+        await User.drop();
+        console.log("Successfully dropped user table");
         process.exit(0);
     } catch (e) {
         console.error(e);

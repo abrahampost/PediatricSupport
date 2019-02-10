@@ -21,7 +21,9 @@ describe('Users', () => {
                 username: "johndoe1",
                 password: "johndoepassword",
                 lastName: "Doe",
-                firstName: "John"
+                firstName: "John",
+                email: "johndoe@gmail.com",
+                type: "patient"
             }
             chai.request(server)
                 .post("/api/authenticate/signup")
@@ -36,7 +38,9 @@ describe('Users', () => {
             let user = {
                 username: "johndoe2",
                 lastName: "Doe",
-                firstName: "John"
+                firstName: "John",
+                email: "johndoe@gmail.com",
+                type: "patient"
             }
             chai.request(server)
                 .post("/api/authenticate/signup")
@@ -52,7 +56,9 @@ describe('Users', () => {
                 username: "johndoe3",
                 password: "pass",
                 lastName: "Doe",
-                firstName: "John"
+                firstName: "John",
+                email: "johndoe@gmail.com",
+                type: "patient"
             }
             chai.request(server)
                 .post("/api/authenticate/signup")
@@ -68,7 +74,63 @@ describe('Users', () => {
                 username: "john%%&",
                 password: "password",
                 lastName: "Doe",
-                firstName: "John"
+                firstName: "John",
+                email: "johndoe@gmail.com",
+                type: "patient"
+            }
+            chai.request(server)
+                .post("/api/authenticate/signup")
+                .send(user)
+                .end((err, res) => {
+                    should.not.exist(err);
+                    res.should.have.status(400);
+                    done();
+                });
+        });
+        it('it should not allow creation of an account with non-alphanumeric username', (done) => {
+            let user = {
+                username: "john%%&",
+                password: "password",
+                lastName: "Doe",
+                firstName: "John",
+                email: "johndoe@gmail.com",
+                type: "patient"
+            }
+            chai.request(server)
+                .post("/api/authenticate/signup")
+                .send(user)
+                .end((err, res) => {
+                    should.not.exist(err);
+                    res.should.have.status(400);
+                    done();
+                });
+        });
+        it('it should not allow creation of an account with an invalid email', (done) => {
+            let user = {
+                username: "johndoe4",
+                password: "password",
+                lastName: "Doe",
+                firstName: "John",
+                email: "johndoegmail.com",
+                type: "patient"
+            }
+            chai.request(server)
+                .post("/api/authenticate/signup")
+                .send(user)
+                .end((err, res) => {
+                    should.not.exist(err);
+                    res.should.have.status(400);
+                    done();
+                });
+        });
+        it('it should not allow creation of an account with an invalid type', (done) => {
+            let user = {
+                username: "johndoe5",
+                password: "password",
+                lastName: "Doe",
+                firstName: "John",
+                email: "johndoe@gmail.com",
+                type: "notpatient"
             }
             chai.request(server)
                 .post("/api/authenticate/signup")
@@ -87,7 +149,9 @@ describe('Users', () => {
                 username: "johndoe",
                 password: "password",
                 lastName: "Doe",
-                firstName: "John"
+                firstName: "John",
+                email: "johndoe@gmail.com",
+                type: "patient"
             }
             chai.request(server)
                 .post("/api/authenticate/signup")
@@ -115,7 +179,9 @@ describe('Users', () => {
                 username: "johndoe",
                 password: "password",
                 lastName: "Doe",
-                firstName: "John"
+                firstName: "John",
+                email: "johndoe@gmail.com",
+                type: "patient"
             }
             chai.request(server)
                 .post("/api/authenticate/signup")

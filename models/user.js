@@ -10,18 +10,36 @@ module.exports = sequelize.define('user', {
         primaryKey: true
     },
     username: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING,
         allowNull: false,
         require: true,
         unique: true,
         validate: {
-            isAlphanumeric: true
+            isAlphanumeric: true,
+            len: [5,32]
         }
     },
     password: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING,
         allowNull: false,
         require: true
+    },
+    email: {
+        type: Sequelize.STRING,
+        require: true,
+        unique: true,
+        allowNull: false,
+        validate: {
+            isEmail: true
+        }
+    },
+    type: {
+        type: Sequelize.STRING,
+        require: true,
+        allowNull: false,
+        validate: {
+            isIn: [['admin','parent','patient']]
+        }
     },
     last_name: {
         type: Sequelize.STRING,
