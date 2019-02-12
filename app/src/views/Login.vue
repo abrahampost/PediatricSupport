@@ -10,7 +10,7 @@
                 name="username"
                 placeholder="Username"
                 autocomplete="username"
-                @change="error=''">
+                required>
         </div>
         <div class="field">
           <label>Password</label>
@@ -19,7 +19,7 @@
                 name="password"
                 placeholder="Password"
                 autocomplete="current-password"
-                @change="error=''">
+                required>
         </div>
         <button class="ui button" type="submit">Submit</button>
         <div class="ui negative message" v-if="error">
@@ -51,7 +51,7 @@ export default {
       }).then((res) => {
         console.log(res);
       }).catch((err) => {
-        if (err) {
+        if (err && err.data && err.data.error) {
           this.error = err.data.error;
         } else {
           this.error = 'An unspecified error occured during the login attempt.';

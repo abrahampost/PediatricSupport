@@ -3,12 +3,16 @@ let express     = require("express"),
     bodyParser  = require("body-parser"),
     morgan      = require("morgan"),
     config      = require("./config/server"),
-    dotenv      = require("dotenv");
+    dotenv      = require("dotenv"),
+    cors        = require("cors");
 
 /*
  * Import environment variables for local testing
  */
-dotenv.config()
+if (process.env.NODE_ENV !== 'production') {
+    dotenv.config()
+    app.use(cors());
+}
 
 /*
  * Set up server parsing and logging
