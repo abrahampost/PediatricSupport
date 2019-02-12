@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import axios from '../config/axiosInstance';
+import axios from '../../config/axiosInstance';
 
 export default {
   name: 'Login',
