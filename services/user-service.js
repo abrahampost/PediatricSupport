@@ -1,6 +1,6 @@
 const   bcrypt  = require("bcryptjs"),
         jwt     = require("jsonwebtoken"),
-        User    = require("../models/user");
+        User    = require("../db/sequelize").user;
 
 /**
  * Check Login

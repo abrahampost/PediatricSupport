@@ -1,20 +1,28 @@
 const Sequelize = require("sequelize");
 
 exports.init_table = function (sequelize) {
-    return sequelize.define('patient_x_attribute', {
+    return sequelize.define('user_match', {
         id: {
             type: Sequelize.INTEGER,
             autoIncrement: true,
             require: true,
             primaryKey: true
         },
-        patient_id: {
+        user_one_id: {
             type: Sequelize.INTEGER,
             require: true
         },
-        attribute_id: {
+        user_two_id: {
             type: Sequelize.INTEGER,
             require: true
+        },
+        type: {
+            type: Sequelize.STRING,
+            require: true,
+            allowNull: false,
+            validate: {
+                isIn: [['pending', 'matched', 'blocked']]
+            }
         }
     });
 }

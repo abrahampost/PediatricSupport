@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
 
-let User = require("../models/user");
+let User = require("../db/sequelize").user;
 
 let chai = require("chai");
 let chaiHttp = require("chai-http");

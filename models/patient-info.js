@@ -1,20 +1,17 @@
-const   Sequelize   = require("sequelize"),
-        sequelize   = require("../db/sequelize"),
-        User        = require("./user");
+const Sequelize = require("sequelize");
 
-
-let patient_info = module.exports = sequelize.define('patient_info', {
-    id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        require: true,
-        primaryKey: true
-    },
-    biography: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        require: true
-    }
-});
-
-patient_info.belongsTo(User, {foreignKey: 'user_id'});
+exports.init_table = function (sequelize) {
+    return sequelize.define('patient_info', {
+        id: {
+            type: Sequelize.INTEGER,
+            autoIncrement: true,
+            require: true,
+            primaryKey: true
+        },
+        biography: {
+            type: Sequelize.STRING,
+            allowNull: true,
+            require: true
+        }
+    });
+}
