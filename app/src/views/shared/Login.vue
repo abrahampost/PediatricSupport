@@ -44,9 +44,11 @@ export default {
       error: '',
     };
   },
+  created() {
+    localStorage.removeItem('token');
+  },
   methods: {
     login() {
-      console.log(this);
       this.$http
         .post('authenticate/login', {
           username: this.username,
@@ -54,7 +56,18 @@ export default {
         })
         .then((res) => {
           this.error = '';
-          console.log(res);
+          if (res.data && res.data.token) {
+            localStorage.setItem('token', res.data.token);
+          }
+
+          /* NOTE: This will change whenever we have the backend set up correctly.
+          For now this allows me to get to the admin portal if I log in correctly.
+          */
+          if (res.data && res.data.redirect) {
+            this.$router.push(res.data.redirect);
+          } else {
+            this.$router.push('admin');
+          }
         })
         .catch((err) => {
           if (err && err.data && err.data.error) {
