@@ -1,6 +1,7 @@
-const   bcrypt  = require("bcryptjs"),
-        jwt     = require("jsonwebtoken"),
-        User    = require("../db/sequelize").user;
+const   bcrypt              = require("bcryptjs"),
+        jwt                 = require("jsonwebtoken"),
+        User                = require("../db/sequelize").user,
+        BadRequestException = require("../exceptions/bad-request-exception");
 
 /**
  * Check Login
@@ -32,8 +33,9 @@ exports.check_login = async function (username, password) {
  * the user to the database. It will return the status code of the 
  */
 exports.sign_up = async function(username, unhashed_password, last_name, first_name, email, type) {
+    ValidatePassword(unhashed_password);
+
     try {
-        ValidatePassword(unhashed_password);
         let salt = await bcrypt.genSalt(10);
         let password = await bcrypt.hash(unhashed_password, salt);
         let user = await User.build({
@@ -57,6 +59,6 @@ exports.sign_up = async function(username, unhashed_password, last_name, first_n
 let ValidatePassword = (password) => {
     //TODO: Add more password validations
     if (password.length < 7 || password.length > 40) {
-        throw new Error("password length not valid");
+        throw new BadRequestException("password length not valid");
     }
 }
