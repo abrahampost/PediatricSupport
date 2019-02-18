@@ -1,9 +1,10 @@
-let express     = require("express"),
-    app         = express(),
-    bodyParser  = require("body-parser"),
-    morgan      = require("morgan"),
-    config      = require("./config/server"),
-    dotenv      = require("dotenv");
+let express             = require("express"),
+    app                 = express(),
+    bodyParser          = require("body-parser"),
+    morgan              = require("morgan"),
+    config              = require("./config/server"),
+    dotenv              = require("dotenv"),
+    ExceptionHandler    = require("./exceptions/exception-handler");
 
 /*
  * Import environment variables for local testing
@@ -25,5 +26,7 @@ if (process.env.NODE_ENV != "test" && process.env.NODE_ENV != "testlocal") {
 app.use("/api", require("./controllers/index"));
 
 app.use(express.static('./app/dist'));
+
+app.use(ExceptionHandler);
 
 module.exports = app;
