@@ -1,7 +1,9 @@
 const   bcrypt              = require("bcryptjs"),
         jwt                 = require("jsonwebtoken"),
         User                = require("../db/sequelize").user,
-        BadRequestException = require("../exceptions/bad-request-exception");
+        BadRequestException = require("../exceptions/bad-request-exception"),
+        InternalErrorException = require("../exceptions/internal-error-exception"),
+        Sequelize     =require("sequelize");
 
 /**
  * Check Login
@@ -49,10 +51,15 @@ exports.sign_up = async function(username, unhashed_password, last_name, first_n
         await user.save();
         return 201;
     } catch (e) {
-        if (e.name == "SequelizeUniqueConstraintError") {
-            return 409;
+        if(e instanceof Sequelize.ValidationError){ 
+            let errorMessage = "The following values are invalid:";
+            e.errors.forEach((error) => {
+                errorMessage += `\n${error.path}: ${error.message}`;
+            });
+            throw new BadRequestException(errorMessage);
         }
-        return 400;
+        console.error(`A problem occurred when saving a user: ${e.stack}`);
+        throw new InternalErrorException("A problem occurred when saving the user");
     }
 }
 
