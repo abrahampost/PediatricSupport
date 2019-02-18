@@ -31,10 +31,8 @@ exports.check_login = async function (username, password) {
  * Pass a username, unhashed_password, last_name, first_name, and it will save
  * the user to the database. It will return the status code of the 
  */
-exports.sign_up = async function(username, password, last_name, first_name, email, type) {
+exports.sign_up = async function(username, unhashed_password, last_name, first_name, email, type) {
     try {
-        let username = username;
-        let unhashed_password = password;
         ValidatePassword(unhashed_password);
         let salt = await bcrypt.genSalt(10);
         let password = await bcrypt.hash(unhashed_password, salt);
