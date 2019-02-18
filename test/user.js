@@ -201,7 +201,7 @@ describe('Users', () => {
                             res.body.should.be.an("object");
                             res.body.should.have.property('error');
                             res.body.error.should.be.a('string');
-                            res.body.error.should.be.eql('Incorrect username and password combination');
+                            res.body.error.should.be.eql('Incorrect username and password combination.');
                             done();
                         });
                 });
@@ -219,7 +219,7 @@ describe('Users', () => {
                     res.body.should.be.an("object");
                     res.body.should.have.property('error');
                     res.body.error.should.be.a('string');
-                    res.body.error.should.be.eql('Incorrect username and password combination');
+                    res.body.error.should.be.eql('Incorrect username and password combination.');
                     done();
                 })
         })

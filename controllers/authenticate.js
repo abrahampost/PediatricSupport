@@ -2,18 +2,14 @@ let express = require("express"),
     router = express.Router(),
     userService = require("../services/user-service");
 
-router.post('/login', async function (req, res) {
+router.post('/login', async function (req, res, next) {
     try {
         let username = req.body.username;
         let password = req.body.password;
         verify = await userService.check_login(username, password);
-        if (verify) {
-            res.json({ token: verify });
-        } else {
-            res.status(401).send({ error: "Incorrect username and password combination" })
-        }
+        res.json({ token: verify });
     } catch (e) {
-        res.status(401).send({ error: "Incorrect username and password combination" })
+        next(e);
     }
 });
 

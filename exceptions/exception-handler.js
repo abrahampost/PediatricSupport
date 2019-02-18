@@ -6,6 +6,6 @@ module.exports = function (err, req, res, next) {
     } else {
         //log uncaught exception and throw internal exception
         console.error(`Uncaught exception occurred: ${err.stack}`);
-        res.status(500).send({error: "An internal exception occurred"});
+        res.status(500).send({error: "An unspecified error occurred while completing your request."});
     }
 }
