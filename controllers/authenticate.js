@@ -19,8 +19,6 @@ router.post('/login', async function(req, res) {
 
 router.post('/signup', async function(req, res) {
     try {
-        let username = req.body.username;
-        let password = req.body.password;
         let email = req.body.email;
         let type = req.body.type;
         let lastName = req.body.lastName;
