@@ -10,6 +10,6 @@ async function dropTables() {
         console.error(e);
         process.exit(1);
     }
-}
+} 
 
 dropTables();

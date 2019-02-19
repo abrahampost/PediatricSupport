@@ -3,6 +3,7 @@ const User = require("./sequelize").user;
 
 async function seedDB() {
     try {
+        console.log(__dirname);
         console.log("Beginning seed db");
         await userService.signUp('richardle', 'richardle', 'Le', 'Richard', 'richyle@live.unc.edu', 'patient');
         await userService.signUp('abrahampost', 'abrahampost', 'Post', 'Abraham', 'abrahamp@live.unc.edu', 'admin');
