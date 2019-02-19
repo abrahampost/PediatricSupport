@@ -3,6 +3,7 @@ const sequelize         = require("./sequelize");
 async function dropTables() {
     try {
         await sequelize.drop();
+        console.log("Successfully dropped table");
         process.exit(0);
     } catch (e) {
         console.error(e);
