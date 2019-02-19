@@ -1,6 +1,7 @@
 let express = require("express"),
     router = express.Router(),
-    userService = require("../services/user-service");
+    userService = require("../services/user-service"),
+    emailService = require("../services/email-service");
 
 router.post('/login', async function (req, res, next) {
     try {
@@ -13,7 +14,7 @@ router.post('/login', async function (req, res, next) {
     }
 });
 
-router.post('/signup', async function(req, res) {
+router.post('/signup', async function(req, res, next) {
     try {
         let username = userService.generateRandom();
         let password = userService.generateRandom();
@@ -21,7 +22,8 @@ router.post('/signup', async function(req, res) {
         let type = req.body.type;
         let lastName = req.body.lastName;
         let firstName = req.body.firstName;
-        let status = await userService.sign_up(username, password, lastName, firstName, email, type)
+        let status = await userService.signUp(username, password, lastName, firstName, email, type)
+        await emailService.sendSignupEmail(username, email, password);
         res.sendStatus(status);
     } catch(e)  {
         next(e);

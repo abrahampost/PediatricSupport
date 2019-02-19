@@ -1,5 +1,6 @@
 
-const nodemailer = require("nodemailer");
+const nodemailer = require("nodemailer"),
+      InternalErrorException = require("../exceptions/internal-error-exception");
 
 // sets up info for email medium being used
 let transporter = nodemailer.createTransport({
@@ -17,6 +18,7 @@ async function deliver(mail){
     console.log("Message sent: %s", info.messageId);
   } catch (e) {
     console.error(e);
+    throw new InternalErrorException("Unable to send email.");
   }
 }
 
