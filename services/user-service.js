@@ -49,8 +49,12 @@ exports.signUp = async function (username, unhashed_password, last_name, first_n
             first_name
         });
         await user.save();
+        //TODO: Email account owner.
         return 201;
     } catch (e) {
+        if (e.name == "SequelizeUniqueConstraintError") {
+            return sign_up(last_name, first_name, email, type);
+        }
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";
             e.errors.forEach((error) => {
@@ -62,6 +66,30 @@ exports.signUp = async function (username, unhashed_password, last_name, first_n
         throw new InternalErrorException("A problem occurred when saving the user");
     }
 }
+
+exports.generateRandom = function() {
+    let firstWord = ["Busy", "Nimble", "Brave", "Mighty", "Clever", "Proud",
+        "Fair", "Wise", "Loyal", "Happy", "Cheerful", "Joyful", "Friendly", "Powerful",
+        "Excited", "Calm", "Alert", "Tough", "Polite", "Amusing", "Kind", "Gentle", "Caring",
+        "Good", "Cozy", "Great", "Beautiful", "Glowing", "Snug"];
+
+    let lastWord = ["Shepherd", "Cake", "Moon", "Apple", "Banana", "Bike",
+        "Clover", "Crowd", "Lake", "Pear", "River", "Road", "Rose", "Water",
+        "Chicken", "Deer", "Drum", "Goose", "Grape", "Horse", "Kitten", "Owl", "Spoon",
+        "Ladybug", "Pancake", "Pear", "Quilt", "Scarf", "Stream", "Throne", "Badge", "Magic",
+        "Bubble", "Island", "Lamp", "Marble"];
+
+    let randNum = Math.floor(Math.random() * 100);
+    if (randNum == 13 | randNum == 69) {
+        randNum++;
+    }
+    
+    let randString = firstWord[Math.floor(Math.random() * firstWord.length)] +
+    lastWord[Math.floor(Math.random() * lastWord.length)] + randNum;
+    
+    return randString;
+    
+};
 
 let ValidatePassword = (password) => {
     //TODO: Add more password validations
