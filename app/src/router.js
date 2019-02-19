@@ -35,8 +35,8 @@ const router = new Router({
       name: 'parent',
       component: () => import('./views/parent/Parent'),
       meta: {
-        permission: 'parent'
-      }
+        permission: 'parent',
+      },
     },
     {
       path: '/*',
@@ -50,10 +50,10 @@ router.beforeEach((to, from, next) => {
     next();
   }
 
-  if (store.user != undefined && store.user.type == to.meta.permission) {
+  if (store.user !== undefined && store.user.type === to.meta.permission) {
     next();
   } else {
-    next("/login");
+    next('/login');
   }
 });
 
