@@ -1,4 +1,4 @@
 #!/usr/bin/sh
-node /app/db/drop-tables.js
-node /app/db/init-db.js
-node /app/db/seed-db.js
+node db/drop-tables.js
+node db/init-db.js
+node db/seed-db.js
