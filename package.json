@@ -10,7 +10,7 @@
     "prod": "node index.js",
     "start": "npm run prod",
     "init-db": "node db/init-db.js",
-    "postinstall": "cd app && npm install && npm run build"
+    "heroku-postbuild": "cd app && npm install && npm run build"
   },
   "author": "",
   "license": "ISC",
