@@ -35,6 +35,8 @@
 </template>
 
 <script>
+import store from '../../config/store';
+
 export default {
   name: 'Login',
   data() {
@@ -46,6 +48,7 @@ export default {
   },
   created() {
     localStorage.removeItem('token');
+    store.user = undefined;
   },
   methods: {
     login() {
@@ -56,18 +59,9 @@ export default {
         })
         .then((res) => {
           this.error = '';
-          if (res.data && res.data.token) {
-            localStorage.setItem('token', res.data.token);
-          }
-
-          /* NOTE: This will change whenever we have the backend set up correctly.
-          For now this allows me to get to the admin portal if I log in correctly.
-          */
-          if (res.data && res.data.redirect) {
-            this.$router.push(res.data.redirect);
-          } else {
-            this.$router.push('admin');
-          }
+          localStorage.setItem('token', res.data.token);
+          store.user = res.data.user;
+          this.$router.push(store.user.type);
         })
         .catch((err) => {
           if (err && err.data && err.data.error) {
