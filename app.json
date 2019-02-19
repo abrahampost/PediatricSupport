@@ -22,6 +22,6 @@
         }
     },
     "scripts": {
-        "postdeploy": "sh scripts/bootstrap.sh"
+        "release": "sh scripts/bootstrap.sh"
     }
 }
