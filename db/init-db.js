@@ -2,6 +2,7 @@ const sequelize         = require("./sequelize");
 
 async function createTables() {
     try {
+        console.log("Attempting to create tables");
         await sequelize.sync();
         console.log("Successfully created table");
         process.exit(0);
@@ -11,4 +12,4 @@ async function createTables() {
     }
 }
 
-createTables()
+await createTables()
