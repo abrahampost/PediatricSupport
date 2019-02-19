@@ -9,8 +9,7 @@
     "dev": "cross-env NODE_ENV=dev nodemon index.js",
     "prod": "node index.js",
     "start": "npm run prod",
-    "init-db": "node db/init-db.js",
-    "postinstall": "cd app && npm install && npm run build"
+    "init-db": "node db/init-db.js"
   },
   "author": "",
   "license": "ISC",
