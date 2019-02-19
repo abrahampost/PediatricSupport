@@ -17,4 +17,4 @@ async function seedDB() {
     }
 }
 
-await seedDB()
+seedDB()

@@ -12,4 +12,4 @@ async function createTables() {
     }
 }
 
-await createTables()
+createTables()
