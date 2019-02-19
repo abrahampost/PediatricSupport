@@ -8,4 +8,6 @@ else
     node db/init-db.js
 fi
 
-cd app && npm install && npm run build
+cd app
+npm install
+npm run build
