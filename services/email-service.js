@@ -20,10 +20,12 @@ async function deliver(mail){
   }
 }
 
-// functions for sending specific email types
-function sendSignupEmail(user, email, pass){
+/**
+ * Takes user, email, password
+ */
+exports.sendSignupEmail = async function(user, email, pass) {
   let mail = {
-      from: '"UNC Hospitals" <523pediatrics@gmail.com>',
+      from: '"UNC Pediatric Support" <523pediatrics@gmail.com>',
       to: email,
       subject: "UNC Pediatrics - Account Created",
       text: "Hello; you have successfully registered with UNC Pediatrics! Your account username is " 
@@ -31,11 +33,15 @@ function sendSignupEmail(user, email, pass){
       html: "<p>Hello; you have successfully registered with UNC Pediatrics!</p><p>Your account username is " 
             + user + ", and your password is " + pass + ".</p>"
   };
-  deliver(mail);
+  await deliver(mail);
 }
-function sendPasswordChangeEmail(user, email, pass) {
+
+/**
+ * Takes user, email, password
+ */
+exports.sendPasswordReset = async function(user, email, pass) {
   let mail = {
-      from: '"UNC Hospitals" <523pediatrics@gmail.com>',
+      from: '"UNC Pediatric Support" <523pediatrics@gmail.com>',
       to: email,
       subject: "UNC Pediatrics - Password Changed",
       text: "Hello; you have successfully changed the password of your UNC Pediatrics account, " 
@@ -43,5 +49,5 @@ function sendPasswordChangeEmail(user, email, pass) {
       html: "<p>Hello; you have successfully changed the password of your UNC Pediatrics account, " 
             + user + ".</p><p>Your new password is " + pass + ".</p>"
   };
-  deliver(mail);
+  await deliver(mail);
 }
