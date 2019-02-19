@@ -5,6 +5,7 @@ let express     = require("express"),
     config      = require("./config/server"),
     dotenv      = require("dotenv"),
     cors        = require("cors");
+    ExceptionHandler    = require("./exceptions/exception-handler");
 
 /*
  * Import environment variables for local testing
@@ -29,5 +30,7 @@ if (process.env.NODE_ENV != "test" && process.env.NODE_ENV != "testlocal") {
 app.use("/api", require("./controllers/index"));
 
 app.use(express.static('./app/dist'));
+
+app.use(ExceptionHandler);
 
 module.exports = app;

@@ -1,32 +1,32 @@
 let express = require("express"),
-    router  = express.Router(),
-    User    = require("../models/user");
+    router = express.Router(),
+    userService = require("../services/user-service"),
+    emailService = require("../services/email-service");
 
-router.post('/login', async function(req, res) {
+router.post('/login', async function (req, res, next) {
     try {
         let username = req.body.username;
         let password = req.body.password;
-        verify = await User.check_login(username, password);
-        if (verify) {
-            res.json({token: verify});
-        } else {
-            res.status(401).send({error: "Incorrect username and password combination"})
-        }
+        verify = await userService.checkLogin(username, password);
+        res.json({ token: verify });
     } catch (e) {
-        res.status(401).send({error: "Incorrect username and password combination"})
+        next(e);
     }
 });
 
-router.post('/signup', async function(req, res) {
+router.post('/signup', async function(req, res, next) {
     try {
-        let username = req.body.username;
-        let password = req.body.password;
+        let username = userService.generateRandom();
+        let password = userService.generateRandom();
+        let email = req.body.email;
+        let type = req.body.type;
         let lastName = req.body.lastName;
         let firstName = req.body.firstName;
-        let status = await User.sign_up(username, password, lastName, firstName);
+        let status = await userService.signUp(username, password, lastName, firstName, email, type)
+        await emailService.sendSignupEmail(username, email, password);
         res.sendStatus(status);
-    } catch (e) {
-        res.sendStatus(400);
+    } catch(e)  {
+        next(e);
     }
 });
 

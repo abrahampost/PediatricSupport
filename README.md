@@ -25,4 +25,4 @@ run `npm install`
 * [mocha](https://mochajs.org/) and [chai](https://www.chaijs.com/) as a testing framework
 * [bcryptjs](https://www.npmjs.com/package/bcryptjs) and [jsonwebtoken](https://jwt.io/) for authentication and security
 
-NOTE: Must have `.env` file in root level of repository with database information in order to run. File must contain `DATABASE_URL`, `SIGN_KEY`, and `TEST_DATABSE_URL` (if you want to test on an actual postgres instance).
+NOTE: Must have `.env` file in root level of repository with database information in order to run. File must contain `DATABASE_URL`, `SIGN_KEY`, and `TEST_DATABASE_URL` (if you want to test on an actual postgres instance).

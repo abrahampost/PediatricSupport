@@ -1,6 +1,7 @@
 process.env.NODE_ENV = 'test';
 
-let User = require("../models/user").Model;
+let User = require("../db/sequelize").user;
+let userService = require("../services/user-service");
 
 let chai = require("chai");
 let chaiHttp = require("chai-http");
@@ -11,17 +12,17 @@ chai.use(chaiHttp);
 
 describe('Users', () => {
     beforeEach((done) => {
-        User.destroy({where: {}})
+        User.destroy({ where: {} })
             .then(done())
     })
-    
+
     describe("/POST signup", () => {
         it('it should create an account', (done) => {
             let user = {
-                username: "johndoe1",
-                password: "johndoepassword",
                 lastName: "Doe",
-                firstName: "John"
+                firstName: "John",
+                email: "523pediatrics@gmail.com",
+                type: "patient"
             }
             chai.request(server)
                 .post("/api/authenticate/signup")
@@ -29,14 +30,14 @@ describe('Users', () => {
                 .end((err, res) => {
                     should.not.exist(err);
                     res.should.have.status(201);
-                        done();
-                    });
+                    done();
+                });
         });
         it('it should not allow creation of an account with missing required data', (done) => {
             let user = {
-                username: "johndoe2",
                 lastName: "Doe",
-                firstName: "John"
+                firstName: "John",
+                email: "523pediatrics@gmail.com"
             }
             chai.request(server)
                 .post("/api/authenticate/signup")
@@ -46,13 +47,13 @@ describe('Users', () => {
                     res.should.have.status(400);
                     done();
                 });
-        })
-        it('it should not allow creation of an account with too-short password', (done) => {
+        });
+        it('it should not allow creation of an account with an invalid email', (done) => {
             let user = {
-                username: "johndoe3",
-                password: "pass",
                 lastName: "Doe",
-                firstName: "John"
+                firstName: "John",
+                email: "johndoegmail.com",
+                type: "patient"
             }
             chai.request(server)
                 .post("/api/authenticate/signup")
@@ -60,15 +61,15 @@ describe('Users', () => {
                 .end((err, res) => {
                     should.not.exist(err);
                     res.should.have.status(400);
-                        done();
-                    });
+                    done();
+                });
         });
-        it('it should not allow creation of an account with non-alphanumeric username', (done) => {
+        it('it should not allow creation of an account with an invalid type', (done) => {
             let user = {
-                username: "john%%&",
-                password: "password",
                 lastName: "Doe",
-                firstName: "John"
+                firstName: "John",
+                email: "523pediatrics@gmail.com",
+                type: "notpatient"
             }
             chai.request(server)
                 .post("/api/authenticate/signup")
@@ -87,58 +88,52 @@ describe('Users', () => {
                 username: "johndoe",
                 password: "password",
                 lastName: "Doe",
-                firstName: "John"
+                firstName: "John",
+                email: "johndoe@gmail.com",
+                type: "patient"
             }
-            chai.request(server)
-                .post("/api/authenticate/signup")
-                .send(user)
-                .end((err, res) => {
-                    should.not.exist(err);
-                    res.should.have.status(201);
-                    chai.request(server)
-                        .post("/api/authenticate/login")
-                        .send({
-                            username: "johndoe",
-                            password: "password"
-                        })
-                        .end((err, res) => {
-                            should.not.exist(err);
-                            res.should.have.status(200);
-                            res.body.should.be.a("object");
-                            res.body.should.have.property("token");
-                            done();
-                        });
-                });
+            userService.signUp(user.username, user.password, user.lastName, user.firstName, user.email, user.type).then(() => {
+                chai.request(server)
+                    .post("/api/authenticate/login")
+                    .send({
+                        username: "johndoe",
+                        password: "password"
+                    })
+                    .end((err, res) => {
+                        should.not.exist(err);
+                        res.should.have.status(200);
+                        res.body.should.be.a("object");
+                        res.body.should.have.property("token");
+                        done();
+                    });
+            });
         })
         it("it should not login with bad credentials", (done) => {
             let user = {
                 username: "johndoe",
                 password: "password",
                 lastName: "Doe",
-                firstName: "John"
+                firstName: "John",
+                email: "johndoe@gmail.com",
+                type: "patient"
             }
-            chai.request(server)
-                .post("/api/authenticate/signup")
-                .send(user)
-                .end((err, res) => {
-                    should.not.exist(err);
-                    res.should.have.status(201);
-                    chai.request(server)
-                        .post("/api/authenticate/login")
-                        .send({
-                            username: "johndoe",
-                            password: "badpassword"
-                        })
-                        .end((err, res) => {
-                            should.not.exist(err);
-                            res.should.have.status(401);
-                            res.body.should.be.an("object");
-                            res.body.should.have.property('error');
-                            res.body.error.should.be.a('string');
-                            res.body.error.should.be.eql('Incorrect username and password combination');
-                            done();
-                        });
-                });
+            userService.signUp(user.username, user.password, user.lastName, user.firstName, user.email, user.type).then(() => {
+                chai.request(server)
+                    .post("/api/authenticate/login")
+                    .send({
+                        username: "johndoe",
+                        password: "badpassword"
+                    })
+                    .end((err, res) => {
+                        should.not.exist(err);
+                        res.should.have.status(401);
+                        res.body.should.be.an("object");
+                        res.body.should.have.property('error');
+                        res.body.error.should.be.a('string');
+                        res.body.error.should.be.eql('Incorrect username and password combination.');
+                        done();
+                    });
+            });
         });
         it("it should not authenticate when attempting to login a non-existent password", (done) => {
             chai.request(server)
@@ -153,9 +148,9 @@ describe('Users', () => {
                     res.body.should.be.an("object");
                     res.body.should.have.property('error');
                     res.body.error.should.be.a('string');
-                    res.body.error.should.be.eql('Incorrect username and password combination');
+                    res.body.error.should.be.eql('Incorrect username and password combination.');
                     done();
-                })
+                });
         })
     });
 });
