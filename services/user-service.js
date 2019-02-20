@@ -13,17 +13,25 @@ const bcrypt = require("bcryptjs"),
  */
 exports.checkLogin = async function (username, password) {
     let user = await User.findOne({ where: { username: username } });
-    if(!user) {
+    if (!user) {
         throw new UnauthorizedRequestException("Incorrect username and password combination.");
     }
     let result = await bcrypt.compare(password, user.password);
-    
+
     if (result) {
-        return jwt.sign({
+        let token = jwt.sign({
             id: user.id
         }, process.env.SIGN_KEY, {
                 expiresIn: "2 weeks"
-            });
+            })
+        return {
+            token,
+            user: {
+                username: user.username,
+                email: user.email,
+                type: user.type
+            }
+        };
     } else {
         throw new UnauthorizedRequestException("Incorrect username and password combination.");
     }
@@ -49,12 +57,8 @@ exports.signUp = async function (username, unhashed_password, last_name, first_n
             first_name
         });
         await user.save();
-        //TODO: Email account owner.
         return 201;
     } catch (e) {
-        if (e.name == "SequelizeUniqueConstraintError") {
-            return sign_up(last_name, first_name, email, type);
-        }
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";
             e.errors.forEach((error) => {
@@ -67,7 +71,7 @@ exports.signUp = async function (username, unhashed_password, last_name, first_n
     }
 }
 
-exports.generateRandom = function() {
+exports.generateRandom = function () {
     let firstWord = ["Busy", "Nimble", "Brave", "Mighty", "Clever", "Proud",
         "Fair", "Wise", "Loyal", "Happy", "Cheerful", "Joyful", "Friendly", "Powerful",
         "Excited", "Calm", "Alert", "Tough", "Polite", "Amusing", "Kind", "Gentle", "Caring",
@@ -83,12 +87,12 @@ exports.generateRandom = function() {
     if (randNum == 13 | randNum == 69) {
         randNum++;
     }
-    
+
     let randString = firstWord[Math.floor(Math.random() * firstWord.length)] +
-    lastWord[Math.floor(Math.random() * lastWord.length)] + randNum;
-    
+        lastWord[Math.floor(Math.random() * lastWord.length)] + randNum;
+
     return randString;
-    
+
 };
 
 let ValidatePassword = (password) => {
