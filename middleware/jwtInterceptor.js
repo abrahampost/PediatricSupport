@@ -11,10 +11,13 @@ module.exports = (req, res, next) => {
 
     let token = req.headers.authorization;
     jwt.verify(token, process.env.SIGN_KEY, function(err, decoded) {
-        if(err) {
+        if(err || decoded.iss != "pediatricsupport") {
             throw new UnauthorizedRequestException("Did not provide valid token")
         }
-        req.decoded = decoded.data;
+        req.decoded = {
+            id: decoded.sub,
+            level: decoded.lvl
+        };
         next();
     });
 }
