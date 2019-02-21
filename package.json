@@ -10,6 +10,7 @@
     "prod": "node index.js",
     "start": "npm run prod",
     "init-db": "node db/init-db.js",
+    "bootstrap": "cross-env NODE_ENV=dev sh scripts/bootstrap.sh",
     "heroku-postbuild": "sh scripts/build.sh"
   },
   "author": "",
