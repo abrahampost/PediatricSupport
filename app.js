@@ -4,8 +4,9 @@ let express     = require("express"),
     morgan      = require("morgan"),
     config      = require("./config/server"),
     dotenv      = require("dotenv"),
-    cors        = require("cors");
-    ExceptionHandler    = require("./exceptions/exception-handler");
+    cors        = require("cors"),
+    ExceptionHandler    = require("./exceptions/exception-handler"),
+    jwtInterceptor      = require("./middleware/jwtInterceptor");
 
 /*
  * Import environment variables for local testing
@@ -24,12 +25,14 @@ if (process.env.NODE_ENV != "test" && process.env.NODE_ENV != "testlocal") {
     app.use(morgan(config.logging));
 }
 
+app.use(express.static('./app/dist'));
+
+app.use(jwtInterceptor);
+
 /*
  *Register routes on api 
  */
 app.use("/api", require("./controllers/index"));
-
-app.use(express.static('./app/dist'));
 
 app.use(ExceptionHandler);
 

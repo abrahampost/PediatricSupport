@@ -20,7 +20,9 @@ exports.checkLogin = async function (username, password) {
 
     if (result) {
         let token = jwt.sign({
-            id: user.id
+            iss: "pediatricsupport",
+            sub: user.id,
+            lvl: user.type
         }, process.env.SIGN_KEY, {
                 expiresIn: "2 weeks"
             })
