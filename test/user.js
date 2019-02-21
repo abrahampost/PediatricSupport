@@ -135,10 +135,10 @@ describe('Users', () => {
                         });
                 });
         });
-    })
+    });
 
     describe("/POST login", () => {
-        it("it should login account with proper credentials", (done) => {
+        it("it should login patient account with proper credentials", (done) => {
             let user = {
                 username: "johndoe",
                 password: "password",
@@ -159,10 +159,84 @@ describe('Users', () => {
                         res.should.have.status(200);
                         res.body.should.be.a("object");
                         res.body.should.have.property("token");
+                        res.body.should.have.property("user");
+                        res.body.user.should.be.a("object");
+                        res.body.user.should.have.property("username");
+                        res.body.user.should.have.property("email");
+                        res.body.user.should.have.property("type");
+                        res.body.user.username.should.be.eql(user.username);
+                        res.body.user.email.should.be.eql(user.email);
+                        res.body.user.type.should.be.eql(user.type, "should be " + user.type);
                         done();
                     });
             });
         })
+        it("it should login admin account with proper credentials", (done) => {
+            let user = {
+                username: "johndoe",
+                password: "password",
+                lastName: "Doe",
+                firstName: "John",
+                email: "johndoe@gmail.com",
+                type: "admin"
+            }
+            userService.signUp(user.username, user.password, user.lastName, user.firstName, user.email, user.type).then(() => {
+                chai.request(server)
+                    .post("/api/authenticate/login")
+                    .send({
+                        username: "johndoe",
+                        password: "password"
+                    })
+                    .end((err, res) => {
+                        should.not.exist(err);
+                        res.should.have.status(200);
+                        res.body.should.be.a("object");
+                        res.body.should.have.property("token");
+                        res.body.should.have.property("user");
+                        res.body.user.should.be.a("object");
+                        res.body.user.should.have.property("username");
+                        res.body.user.should.have.property("email");
+                        res.body.user.should.have.property("type");
+                        res.body.user.username.should.be.eql(user.username);
+                        res.body.user.email.should.be.eql(user.email);
+                        res.body.user.type.should.be.eql(user.type, "should be " + user.type);
+                        done();
+                    });
+            });
+        });
+        it("it should login parent account with proper credentials", (done) => {
+            let user = {
+                username: "johndoe",
+                password: "password",
+                lastName: "Doe",
+                firstName: "John",
+                email: "johndoe@gmail.com",
+                type: "parent"
+            }
+            userService.signUp(user.username, user.password, user.lastName, user.firstName, user.email, user.type).then(() => {
+                chai.request(server)
+                    .post("/api/authenticate/login")
+                    .send({
+                        username: "johndoe",
+                        password: "password"
+                    })
+                    .end((err, res) => {
+                        should.not.exist(err);
+                        res.should.have.status(200);
+                        res.body.should.be.a("object");
+                        res.body.should.have.property("token");
+                        res.body.should.have.property("user");
+                        res.body.user.should.be.a("object");
+                        res.body.user.should.have.property("username");
+                        res.body.user.should.have.property("email");
+                        res.body.user.should.have.property("type");
+                        res.body.user.username.should.be.eql(user.username);
+                        res.body.user.email.should.be.eql(user.email);
+                        res.body.user.type.should.be.eql(user.type, "should be " + user.type);
+                        done();
+                    });
+            });
+        });
         it("it should not login with bad credentials", (done) => {
             let user = {
                 username: "johndoe",
@@ -190,7 +264,7 @@ describe('Users', () => {
                     });
             });
         });
-        it("it should not authenticate when attempting to login a non-existent password", (done) => {
+        it("it should not authenticate when attempting to login a non-existent user", (done) => {
             chai.request(server)
                 .post("/api/authenticate/login")
                 .send({
