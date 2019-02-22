@@ -1,6 +1,6 @@
 <template>
   <div class="header">
-    <div class="ui top sticky borderless stackable menu">
+    <div class="ui top borderless stackable menu">
       <div class="header item">UNC Pediatric Support Admin Page</div>
       <router-link class="right aligned item" :to="{name:'admin'}">Create Accounts</router-link>
       <router-link class="item" :to="{name:'adminManageUsers'}">Manage Accounts</router-link>
@@ -17,7 +17,7 @@ export default {
 <style scoped>
 
 .menu {
-  height: 8em;
+  min-height: 8em;
 }
 
 .menu .item {

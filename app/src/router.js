@@ -8,8 +8,7 @@ Vue.use(Router);
 const router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
-  routes: [
-    {
+  routes: [{
       path: '/login',
       name: 'login',
       component: Login,
@@ -20,8 +19,7 @@ const router = new Router({
       meta: {
         permission: 'admin',
       },
-      children: [
-        {
+      children: [{
           path: '',
           name: 'admin',
           component: () => import('./views/admin/CreateUsers'),
@@ -57,11 +55,35 @@ const router = new Router({
     },
     {
       path: '/patient',
-      name: 'patient',
       component: () => import('./views/patient/Patient'),
       meta: {
         permission: 'patient',
       },
+      children: [{
+          path: '',
+          name: 'patient',
+          component: () => import('./views/patient/Matches'),
+          meta: {
+            permission: 'patient',
+          },
+        },
+        {
+          path: 'matches',
+          name: 'patientMatches',
+          component: () => import('./views/patient/Messages'),
+          meta: {
+            permission: 'patient',
+          },
+        },
+        {
+          path: 'preferences',
+          name: 'patientPreferences',
+          component: () => import('./views/patient/Preferences'),
+          meta: {
+            permission: 'patient',
+          },
+        },
+      ],
     },
     {
       path: '/parent',

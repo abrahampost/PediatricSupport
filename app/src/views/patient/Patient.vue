@@ -1,11 +1,16 @@
 <template>
   <div class="patient">
-    <h1>This is the patient portal!</h1>
+    <Header></Header>
+    <router-view></router-view>
   </div>
 </template>
 <script>
+import Header from "./Header.vue";
 export default {
-  name: 'Patient',
+  name: "Patient",
+  components: {
+    Header
+  },
 };
 </script>
 <style scoped>
