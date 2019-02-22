@@ -36,4 +36,8 @@ app.use("/api", require("./controllers/index"));
 
 app.use(ExceptionHandler);
 
+app.get("*", function(req, res) {
+    res.redirect("/");
+});
+
 module.exports = app;

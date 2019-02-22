@@ -3,7 +3,7 @@ const   jwt                 = require("jsonwebtoken"),
 
 module.exports = (req, res, next) => {
     
-    if(req.path.endsWith("/api/authenticate/login")) {
+    if(req.path.endsWith("/api/authenticate/login") || !req.path.includes("/api/")) {
         //if the user is trying to log in, don't require a token
         next();
         return;
