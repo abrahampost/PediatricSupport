@@ -16,11 +16,44 @@ const router = new Router({
     },
     {
       path: '/admin',
-      name: 'admin',
       component: () => import('./views/admin/Admin'),
       meta: {
         permission: 'admin',
       },
+      children: [
+        {
+          path: '',
+          name: 'admin',
+          component: () => import('./views/admin/CreateUsers'),
+          meta: {
+            permission: 'admin',
+          },
+        },
+        {
+          path: 'attributes',
+          name: 'adminManageAttributes',
+          component: () => import('./views/admin/ManageAttributes'),
+          meta: {
+            permission: 'admin',
+          },
+        },
+        {
+          path: 'reports',
+          name: 'adminManageReports',
+          component: () => import('./views/admin/ManageReports'),
+          meta: {
+            permission: 'admin',
+          },
+        },
+        {
+          path: 'users',
+          name: 'adminManageUsers',
+          component: () => import('./views/admin/ManageUsers'),
+          meta: {
+            permission: 'admin',
+          },
+        },
+      ],
     },
     {
       path: '/patient',
@@ -49,7 +82,6 @@ router.beforeEach((to, from, next) => {
   if (!to.meta.permission) {
     next();
   }
-
   if (store.user !== undefined && store.user.type === to.meta.permission) {
     next();
   } else {
