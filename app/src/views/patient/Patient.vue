@@ -5,11 +5,12 @@
   </div>
 </template>
 <script>
-import Header from "./Header.vue";
+import Header from './Header.vue';
+
 export default {
-  name: "Patient",
+  name: 'Patient',
   components: {
-    Header
+    Header,
   },
 };
 </script>
