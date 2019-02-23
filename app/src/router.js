@@ -8,73 +8,95 @@ Vue.use(Router);
 const router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
-  routes: [
-    {
-      path: '/login',
-      name: 'login',
-      component: Login,
+  routes: [{
+    path: '/login',
+    name: 'login',
+    component: Login,
+  },
+  {
+    path: '/admin',
+    component: () => import('./views/admin/Admin'),
+    meta: {
+      permission: 'admin',
     },
-    {
-      path: '/admin',
-      component: () => import('./views/admin/Admin'),
+    children: [{
+      path: '',
+      name: 'admin',
+      component: () => import('./views/admin/CreateUsers'),
       meta: {
         permission: 'admin',
       },
-      children: [
-        {
-          path: '',
-          name: 'admin',
-          component: () => import('./views/admin/CreateUsers'),
-          meta: {
-            permission: 'admin',
-          },
-        },
-        {
-          path: 'attributes',
-          name: 'adminManageAttributes',
-          component: () => import('./views/admin/ManageAttributes'),
-          meta: {
-            permission: 'admin',
-          },
-        },
-        {
-          path: 'reports',
-          name: 'adminManageReports',
-          component: () => import('./views/admin/ManageReports'),
-          meta: {
-            permission: 'admin',
-          },
-        },
-        {
-          path: 'users',
-          name: 'adminManageUsers',
-          component: () => import('./views/admin/ManageUsers'),
-          meta: {
-            permission: 'admin',
-          },
-        },
-      ],
     },
     {
-      path: '/patient',
+      path: 'attributes',
+      name: 'adminManageAttributes',
+      component: () => import('./views/admin/ManageAttributes'),
+      meta: {
+        permission: 'admin',
+      },
+    },
+    {
+      path: 'reports',
+      name: 'adminManageReports',
+      component: () => import('./views/admin/ManageReports'),
+      meta: {
+        permission: 'admin',
+      },
+    },
+    {
+      path: 'users',
+      name: 'adminManageUsers',
+      component: () => import('./views/admin/ManageUsers'),
+      meta: {
+        permission: 'admin',
+      },
+    },
+    ],
+  },
+  {
+    path: '/patient',
+    component: () => import('./views/patient/Patient'),
+    meta: {
+      permission: 'patient',
+    },
+    children: [{
+      path: '',
       name: 'patient',
-      component: () => import('./views/patient/Patient'),
+      component: () => import('./views/patient/Matches'),
       meta: {
         permission: 'patient',
       },
     },
     {
-      path: '/parent',
-      name: 'parent',
-      component: () => import('./views/parent/Parent'),
+      path: 'matches',
+      name: 'patientMatches',
+      component: () => import('./views/patient/Messages'),
       meta: {
-        permission: 'parent',
+        permission: 'patient',
       },
     },
     {
-      path: '/*',
-      redirect: '/login',
+      path: 'preferences',
+      name: 'patientPreferences',
+      component: () => import('./views/patient/Preferences'),
+      meta: {
+        permission: 'patient',
+      },
     },
+    ],
+  },
+  {
+    path: '/parent',
+    name: 'parent',
+    component: () => import('./views/parent/Parent'),
+    meta: {
+      permission: 'parent',
+    },
+  },
+  {
+    path: '/*',
+    redirect: '/login',
+  },
   ],
 });
 
