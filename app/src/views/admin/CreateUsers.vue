@@ -27,27 +27,83 @@
         </div>
       </div>
       <button class="ui button" type="submit">Submit</button>
+      <div class="ui negative message" v-if="error">
+        <div class="header">{{ error }}</div>
+      </div>
     </form>
   </div>
 </template>
 <script>
+import store from "../../config/store";
+
 export default {
-  name: 'AdminCreateUsers',
+  name: "AdminCreateUsers",
   data: function() {
     return {
       patientEmail: "",
-      patientFirstName:"",
-      patientLastName:"",
+      patientFirstName: "",
+      patientLastName: "",
       parentEmail: "",
-      parentFirstName:"",
-      parentLastName:"",
-    }
+      parentFirstName: "",
+      parentLastName: "",
+      error: "",
+    };
   },
-    methods: {
+  methods: {
     createAccounts() {
-      alert("printing accounts");
-    },
-  },
+      this.$http
+        .post(
+          "authenticate/signup",
+          {
+            email: this.patientEmail,
+            firstName: this.patientFirstName,
+            lastName: this.patientLastName,
+            type: "patient"
+          },
+          {
+            headers: {
+              Authorization: localStorage.getItem("token")
+            }
+          }
+        )
+        .then(() => {
+          this.$http
+            .post(
+              "authenticate/signup",
+              {
+                email: this.parentEmail,
+                firstName: this.parentFirstName,
+                lastName: this.parentLastName,
+                type: "parent"
+              },
+              {
+                headers: {
+                  Authorization: localStorage.getItem("token")
+                }
+              }
+            )
+            .then(() => {
+              alert("account was successfully created");
+            })
+            .catch(err => {
+              if (err && err.data && err.data.error) {
+                this.error = err.data.error;
+              } else {
+                this.error =
+                  "An unspecified error occurred when attempting to create the parent user account.";
+              }
+            });
+        })
+        .catch(err => {
+          if (err && err.data && err.data.error) {
+            this.error = err.data.error;
+          } else {
+            this.error =
+              "An unspecified error occurred when attempting to create the patient user account.";
+          }
+        });
+    }
+  }
 };
 </script>
 <style scoped>
