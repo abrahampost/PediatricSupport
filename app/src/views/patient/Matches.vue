@@ -3,8 +3,8 @@
     <h1 class="ui huge header margin">Patient Matches</h1>
     <div class="ui container">
       <div class="ui top attached tabular four item menu">
-        <a class="item" @click="filterType='all'"
-          :class="{'active': 'all' === filterType}">All</a>
+        <a class="item" @click="filterType='potential'"
+          :class="{'active': 'potential' === filterType}">Potential Matches</a>
         <a class="item" @click="filterType='matched'"
           :class="{'active': 'matched' === filterType}">Matched</a>
         <a class="item" @click="filterType='pending'"
@@ -56,7 +56,7 @@ export default {
             name: 'BuffTurtle12',
             description: 'I love to play with legos.',
           },
-          type: 'pending',
+          type: 'potential',
         },
         {
           id: 2,
@@ -111,9 +111,6 @@ export default {
   },
   computed: {
     filteredMatches() {
-      if (this.filterType === 'all') {
-        return this.matches;
-      }
       return this.matches.filter(match => match.type === this.filterType);
     },
   },
