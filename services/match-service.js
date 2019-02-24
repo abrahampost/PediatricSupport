@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs"),
     User = require("../db/sequelize").user,
     Match = require("../db/sequelize").user_match,
     PatientInfo = require("../db/sequelize").patient_info,
+    PatientAttribute = require("../db/sequelize").patient_x_attribute;
     Op = Sequelize.Op,
     BadRequestException = require("../exceptions/bad-request-exception"),
     InternalErrorException = require("../exceptions/internal-error-exception"),
@@ -89,8 +90,16 @@ exports.getMatches = async function (userId) {
  */
 exports.getPotentialMatches = async function (userId) {
     try {
+        let userInterests = await PatientInterests.findAll({
+            attributes: ['attribute_id'],
+            where: {
+                patient_id: userId,
+            },
+        });
+
+
         // find all matches with the passed user
-        let allMatches = await Match.findAll({
+        let matchedIds = await Match.findAll({
             attributes: [['user_one_id', 'userOneId'], ['user_two_id', 'userTwoId']],
             where: {
                 where: {
@@ -105,6 +114,7 @@ exports.getPotentialMatches = async function (userId) {
                 }
             }
         });
+
         // filter the results into a list of just the other user's id
         let normalizedMatchedIds = matchedIds.map((match) => {
             if (userId === match.userOneId) {
@@ -114,17 +124,23 @@ exports.getPotentialMatches = async function (userId) {
         });
 
         let results = await User.findAll({
-            attributes: ['id', 'username'],
+            attributes: ['id', 'username', [Sequelize.fn('COUNT', 'patient-x-attribute.id'), 'similarity']],
             where: {
                 id: {
                     [Op.notIn]: normalizedMatchedIds,
                 },
+                attribute_id: {
+                    [Op.in]: userInterests,
+                }
             },
             inlude: [{
-                model: PatientInfo
-            }]
+                model: PatientInfo,
+            }, {
+                model: PatientAttribute,
+            }],
+            group: ['patient-x-attribute.patient_id'],
+            order: ['similarity desc']
         })
-
         return results;
     } catch (e) {
         throw new BadRequestException("Unable to retrieve user matches.");
