@@ -38,6 +38,13 @@
               </div>
             </div>
           </div>
+          <div class="ui centered card" v-if="filteredMatches.length === 0">
+            <div class="content">
+              <div class="header">
+                No Users Found
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
