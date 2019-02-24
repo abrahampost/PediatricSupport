@@ -4,6 +4,7 @@ process.env.NODE_ENV = 'test';
 const   userService = require("../services/user-service"),
         matchService = require("../services/match-service"),
         Match = require("../db/sequelize").user_match,
+        Attribute = require('../db/sequelize').attribute,
         BadRequestException = require("../exceptions/bad-request-exception");
 
 // testing dependencies
@@ -106,6 +107,23 @@ describe("Match", () => {
                     e.message.should.be.eql("Match does not exist.", e.message);
                 }
             });
+
+            it("it should not allow updating to an invalid type", async () => {
+                try {
+                    let user = await Match.findOne();
+                    await matchService.updateMatchType(user.id, 'notvalid');
+                    assert.fail("should throw error");
+                } catch (e) {
+                    e.should.be.instanceof(BadRequestException, typeof e);
+                    e.message.should.be.eql("Unable to update match status.", e.message);
+                }
+            });
         });
+
+        describe("matching engine", () => {
+            before(async () => {
+                
+            });
+        })
     })
 })
