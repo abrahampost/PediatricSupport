@@ -1,6 +1,7 @@
 process.env.NODE_ENV = 'test';
 
 let User = require("../db/sequelize").user;
+let PatientXParent = require("../db/sequelize").patient_x_parent;
 let userService = require("../services/user-service");
 
 let chai = require("chai");
@@ -20,24 +21,24 @@ const testAdmin = {
 }
 
 describe('Users', () => {
-    beforeEach((done) => {
-        User.destroy({ where: {} })
-            .then(done())
+    beforeEach(async () => {
+        await PatientXParent.destroy({ where: {} });
+        await User.destroy({ where: {} });
     })
 
     describe("/POST signup", () => {
-        beforeEach((done) => {
-            userService.signUp(testAdmin.username, testAdmin.password, testAdmin.lastName, testAdmin.firstName, testAdmin.email, testAdmin.type).then(() => {
-                done();
-            });
+        beforeEach(async () => {
+            await userService.signUp(testAdmin.username, testAdmin.password, testAdmin.lastName, testAdmin.firstName, testAdmin.email, testAdmin.type);
         });
 
         it('it should create an account', (done) => {
-            let user = {
-                lastName: "Doe",
-                firstName: "John",
-                email: "523pediatrics@gmail.com",
-                type: "patient"
+            let requestBody = {
+                patientFirstName: "John",
+                patientLastName: "Patient",
+                patientEmail: "523pediatrics@gmail.com",
+                parentFirstName: "Todd",
+                parentLastName: "Parent",
+                parentEmail: "geschwat@masafiagrofood.com"
             }
             chai.request(server)
                 .post("/api/authenticate/login")
@@ -48,8 +49,8 @@ describe('Users', () => {
                 .end((err, res) => {
                     let token = res.body.token;
                     chai.request(server)
-                        .post("/api/authenticate/signup")
-                        .send(user)
+                        .post("/api/users")
+                        .send(requestBody)
                         .set('Authorization', token)
                         .end((err, res) => {
                             should.not.exist(err);
@@ -59,10 +60,12 @@ describe('Users', () => {
                 })
         });
         it('it should not allow creation of an account with missing required data', (done) => {
-            let user = {
-                lastName: "Doe",
-                firstName: "John",
-                email: "523pediatrics@gmail.com"
+            let requestBody = {
+                patientFirstName: "John",
+                patientLastName: "Patient",
+                parentFirstName: "Todd",
+                parentLastName: "Parent",
+                parentEmail: "geschwat@masafiagrofood.com"
             }
             chai.request(server)
                 .post("/api/authenticate/login")
@@ -73,8 +76,8 @@ describe('Users', () => {
                 .end((err, res) => {
                     let token = res.body.token;
                     chai.request(server)
-                        .post("/api/authenticate/signup")
-                        .send(user)
+                        .post("/api/users")
+                        .send(requestBody)
                         .set('Authorization', token)
                         .end((err, res) => {
                             should.not.exist(err);
@@ -84,11 +87,13 @@ describe('Users', () => {
                 });
         });
         it('it should not allow creation of an account with an invalid email', (done) => {
-            let user = {
-                lastName: "Doe",
-                firstName: "John",
-                email: "johndoegmail.com",
-                type: "patient"
+            let requestBody = {
+                patientFirstName: "John",
+                patientLastName: "Patient",
+                patientEmail: "bademail.com",
+                parentFirstName: "Todd",
+                parentLastName: "Parent",
+                parentEmail: "geschwat@masafiagrofood.com"
             }
             chai.request(server)
                 .post("/api/authenticate/login")
@@ -99,34 +104,8 @@ describe('Users', () => {
                 .end((err, res) => {
                     let token = res.body.token;
                     chai.request(server)
-                        .post("/api/authenticate/signup")
-                        .send(user)
-                        .set('Authorization', token)
-                        .end((err, res) => {
-                            should.not.exist(err);
-                            res.should.have.status(400);
-                            done();
-                        });
-                });
-        });
-        it('it should not allow creation of an account with an invalid type', (done) => {
-            let user = {
-                lastName: "Doe",
-                firstName: "John",
-                email: "523pediatrics@gmail.com",
-                type: "notpatient"
-            }
-            chai.request(server)
-                .post("/api/authenticate/login")
-                .send({
-                    username: testAdmin.username,
-                    password: testAdmin.password
-                })
-                .end((err, res) => {
-                    let token = res.body.token;
-                    chai.request(server)
-                        .post("/api/authenticate/signup")
-                        .send(user)
+                        .post("/api/users")
+                        .send(requestBody)
                         .set('Authorization', token)
                         .end((err, res) => {
                             should.not.exist(err);
