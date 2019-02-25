@@ -5,7 +5,10 @@ const   userService = require("../services/user-service"),
         matchService = require("../services/match-service"),
         Match = require("../db/sequelize").user_match,
         Attribute = require('../db/sequelize').attribute,
-        BadRequestException = require("../exceptions/bad-request-exception");
+        PatientAttribute = require("../db/sequelize").patient_x_attribute,
+        BadRequestException = require("../exceptions/bad-request-exception"),
+        User = require("../db/sequelize").user,
+        Op = require("sequelize").Op;
 
 // testing dependencies
 const   chai = require("chai"),
@@ -26,6 +29,8 @@ describe("Match", () => {
     });
     beforeEach(async () => {
         await Match.destroy({ where: {} });
+        await Attribute.destroy({where: {} });
+        await PatientAttribute.destroy({where: {}});
     })
 
     describe("MatchService", () => {
@@ -115,14 +120,82 @@ describe("Match", () => {
                     assert.fail("should throw error");
                 } catch (e) {
                     e.should.be.instanceof(BadRequestException, typeof e);
-                    e.message.should.be.eql("Unable to update match status.", e.message);
                 }
             });
         });
 
         describe("matching engine", () => {
-            before(async () => {
-                
+            it("it should find correct matches", async () => {
+                // #region initialize attributes
+                let legos = await Attribute.create({
+                    name: 'legos',
+                    type: 'interest',
+                });
+                let movies = await Attribute.create({
+                    name: 'movies',
+                    type: 'interest',
+                });
+                let videogames = await Attribute.create({
+                    name: 'videogames',
+                    type: 'interest',
+                });
+                let basketball = await Attribute.create({
+                    name: 'basketball',
+                    type: 'interest',
+                });
+                let users = await User.findAll({
+                    attributes: ['id'],
+                    where:{}
+                });
+                await PatientAttribute.create({
+                    patient_id: users[0].id,
+                    attribute_id: legos.id
+                });
+                await PatientAttribute.create({
+                    patient_id: users[0].id,
+                    attribute_id: movies.id
+                });
+                await PatientAttribute.create({
+                    patient_id: users[0].id,
+                    attribute_id: videogames.id
+                });
+                await PatientAttribute.create({
+                    patient_id: users[0].id,
+                    attribute_id: basketball.id
+                });
+                await PatientAttribute.create({
+                    patient_id: users[1].id,
+                    attribute_id: legos.id
+                });
+                await PatientAttribute.create({
+                    patient_id: users[1].id,
+                    attribute_id: movies.id
+                });
+                await PatientAttribute.create({
+                    patient_id: users[1].id,
+                    attribute_id: videogames.id
+                });
+                await PatientAttribute.create({
+                    patient_id: users[2].id,
+                    attribute_id: legos.id
+                });
+                await PatientAttribute.create({
+                    patient_id: users[2].id,
+                    attribute_id: movies.id
+                });
+                await PatientAttribute.create({
+                    patient_id: users[3].id,
+                    attribute_id: legos.id
+                });
+                // #endregion
+                let matchedUsers = await matchService.getPotentialMatches(users[0].id);
+                matchedUsers.should.have.length(3, matchedUsers.length);
+                matchedUsers[0].id.should.be.eql(Users[1].id, matchedUsers[0].id);
+                matchedUsers[0].similarity.should.be.eql(Users[1].similarity, matchedUsers[0].similarity);
+                matchedUsers[1].id.should.be.eql(Users[2].id, matchedUsers[1].id);
+                matchedUsers[1].similarity.should.be.eql(Users[2].similarity, matchedUsers[1].similarity);
+                matchedUsers[2].id.should.be.eql(Users[3].id, matchedUsers[2].id);
+                matchedUsers[2].similarity.should.be.eql(Users[3].similarity, matchedUsers[2].similarity);
             });
         })
     })

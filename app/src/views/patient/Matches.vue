@@ -55,7 +55,7 @@ export default {
   name: 'PatientMatches',
   data() {
     return {
-      filterType: 'all',
+      filterType: 'potential',
       matches: [
         {
           id: 1,

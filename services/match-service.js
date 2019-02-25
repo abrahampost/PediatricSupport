@@ -1,14 +1,10 @@
-const bcrypt = require("bcryptjs"),
-    Sequelize = require("sequelize");
-    jwt = require("jsonwebtoken"),
-    User = require("../db/sequelize").user,
-    Match = require("../db/sequelize").user_match,
-    PatientInfo = require("../db/sequelize").patient_info,
-    PatientAttribute = require("../db/sequelize").patient_x_attribute;
-    Op = Sequelize.Op,
-    BadRequestException = require("../exceptions/bad-request-exception"),
-    InternalErrorException = require("../exceptions/internal-error-exception"),
-    UnauthorizedRequestException = require("../exceptions/unauthorized-request-exception");
+const   Sequelize = require("sequelize"),
+        sequelize = require("../db/sequelize"),
+        User = require("../db/sequelize").user,
+        Match = require("../db/sequelize").user_match,
+        PatientAttribute = require("../db/sequelize").patient_x_attribute,
+        Op = Sequelize.Op,
+        BadRequestException = require("../exceptions/bad-request-exception");
 
 /**
  * Takes in two userIds. First one is person making the request, second is person receiving the request.
@@ -32,6 +28,8 @@ exports.createMatch = async function (userOneId, userTwoId) {
                 errorMessage += `\n${error.path}: ${error.message}`;
             });
             throw new BadRequestException(errorMessage);
+        } else if (e instanceof BadRequestException) {
+            throw e;
         }
         throw new BadRequestException("A problem occured when saving the match.");
     }
@@ -76,11 +74,20 @@ exports.getMatches = async function (userId) {
                 user: matchedUser,
                 type: type
             }
-        })
+        });
         return filteredResults;
 
     } catch (e) {
-        throw new InternalErrorException("Unable to retrieve user matches.");
+        if (e instanceof Sequelize.ValidationError) {
+            let errorMessage = "The following values are invalid:";
+            e.errors.forEach((error) => {
+                errorMessage += `\n${error.path}: ${error.message}`;
+            });
+            throw new BadRequestException(errorMessage);
+        } else if (e instanceof BadRequestException) {
+            throw e;
+        }
+        throw new BadRequestException("Unable to retrieve user matches.");
     }
 }
 
@@ -90,7 +97,7 @@ exports.getMatches = async function (userId) {
  */
 exports.getPotentialMatches = async function (userId) {
     try {
-        let userInterests = await PatientInterests.findAll({
+        let userInterests = await PatientAttribute.findAll({
             attributes: ['attribute_id'],
             where: {
                 patient_id: userId,
@@ -102,16 +109,14 @@ exports.getPotentialMatches = async function (userId) {
         let matchedIds = await Match.findAll({
             attributes: [['user_one_id', 'userOneId'], ['user_two_id', 'userTwoId']],
             where: {
-                where: {
-                    [Op.or]: [
-                        {
-                            user_one_id: userId,
-                        },
-                        {
-                            user_two_id: userId,
-                        }
-                    ],
-                }
+                [Op.or]: [
+                    {
+                        user_one_id: userId,
+                    },
+                    {
+                        user_two_id: userId,
+                    }
+                ],
             }
         });
 
@@ -124,25 +129,35 @@ exports.getPotentialMatches = async function (userId) {
         });
 
         let results = await User.findAll({
-            attributes: ['id', 'username', [Sequelize.fn('COUNT', 'patient-x-attribute.id'), 'similarity']],
+            attributes: ['id', 'username'],
             where: {
                 id: {
                     [Op.notIn]: normalizedMatchedIds,
                 },
-                attribute_id: {
-                    [Op.in]: userInterests,
-                }
             },
             inlude: [{
-                model: PatientInfo,
-            }, {
                 model: PatientAttribute,
+                where: {
+                    attribute_id: {
+                        [Op.in]: userInterests,
+                    },
+                },
             }],
-            group: ['patient-x-attribute.patient_id'],
-            order: ['similarity desc']
+            group: [PatientAttribute, 'attribute_id'],
+            //order: [[sequelize.col('attributes.similarity'), 'DESC']],
         })
         return results;
     } catch (e) {
+        if (e instanceof Sequelize.ValidationError) {
+            let errorMessage = "The following values are invalid:";
+            e.errors.forEach((error) => {
+                errorMessage += `\n${error.path}: ${error.message}`;
+            });
+            throw new BadRequestException(errorMessage);
+        } else if (e instanceof BadRequestException) {
+            throw e;
+        }
+        console.error(e);
         throw new BadRequestException("Unable to retrieve user matches.");
     }
 }
@@ -164,7 +179,13 @@ exports.updateMatchType = async function(matchId, updatedType) {
         };
         return 201;
     } catch(e) {
-        if (e instanceof BadRequestException) {
+        if (e instanceof Sequelize.ValidationError) {
+            let errorMessage = "The following values are invalid:";
+            e.errors.forEach((error) => {
+                errorMessage += `\n${error.path}: ${error.message}`;
+            });
+            throw new BadRequestException(errorMessage);
+        } else if (e instanceof BadRequestException) {
             throw e;
         }
         throw new BadRequestException("Unable to update match status.");
