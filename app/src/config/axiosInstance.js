@@ -7,7 +7,7 @@ const instance = axios.create({
   headers: {
     Authorization: {
       toString() {
-        return `Bearer ${localStorage.getItem('token')}`;
+        return `${localStorage.getItem('token')}`;
       },
     },
   },
