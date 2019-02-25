@@ -39,14 +39,21 @@ exports.checkLogin = async function (username, password) {
     }
 }
 
+exports.linkPatientParent = async function (patient, parent) {
+    try{
+        patient.addPatientXParent(parent);
+    } catch(e) {
+        console.error(`A problem occurred when saving to PatientXParent: ${e.stack}`);
+        throw new InternalErrorException("A problem occurred when saving the user");
+    }
+}
+
 /**
  * Sign up
  * Pass a username, unhashed_password, last_name, first_name, and it will save
  * the user to the database. It will return the status code of the 
  */
 exports.signUp = async function (username, unhashed_password, last_name, first_name, email, type) {
-    ValidatePassword(unhashed_password);
-
     try {
         let salt = await bcrypt.genSalt(10);
         let password = await bcrypt.hash(unhashed_password, salt);
@@ -58,8 +65,8 @@ exports.signUp = async function (username, unhashed_password, last_name, first_n
             last_name,
             first_name
         });
-        await user.save();
-        return 201;
+        let created_user = await user.save();
+        return created_user;
     } catch (e) {
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";

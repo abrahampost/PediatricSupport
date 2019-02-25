@@ -27,6 +27,9 @@
         </div>
       </div>
       <button class="ui button" type="submit">Submit</button>
+      <div class="ui positive message" v-if="successfullyCreated">
+        <div class="header">The accounts were successfully created!</div>
+      </div>
       <div class="ui negative message" v-if="error">
         <div class="header">{{ error }}</div>
       </div>
@@ -47,52 +50,25 @@ export default {
       parentFirstName: "",
       parentLastName: "",
       error: "",
+      successfullyCreated: false
     };
   },
   methods: {
     createAccounts() {
+      this.successfullyCreated= false;
+
       this.$http
-        .post(
-          "authenticate/signup",
-          {
-            email: this.patientEmail,
-            firstName: this.patientFirstName,
-            lastName: this.patientLastName,
-            type: "patient"
-          },
-          {
-            headers: {
-              Authorization: localStorage.getItem("token")
-            }
-          }
-        )
+        .post("users/", {
+          patientEmail: this.patientEmail,
+          patientFirstName: this.patientFirstName,
+          patientLastName: this.patientLastName,
+          parentEmail: this.parentEmail,
+          parentFirstName: this.parentFirstName,
+          parentLastName: this.parentLastName
+        })
         .then(() => {
-          this.$http
-            .post(
-              "authenticate/signup",
-              {
-                email: this.parentEmail,
-                firstName: this.parentFirstName,
-                lastName: this.parentLastName,
-                type: "parent"
-              },
-              {
-                headers: {
-                  Authorization: localStorage.getItem("token")
-                }
-              }
-            )
-            .then(() => {
-              alert("account was successfully created");
-            })
-            .catch(err => {
-              if (err && err.data && err.data.error) {
-                this.error = err.data.error;
-              } else {
-                this.error =
-                  "An unspecified error occurred when attempting to create the parent user account.";
-              }
-            });
+          this.successfullyCreated = true;
+          this.clearFields();
         })
         .catch(err => {
           if (err && err.data && err.data.error) {
@@ -102,6 +78,14 @@ export default {
               "An unspecified error occurred when attempting to create the patient user account.";
           }
         });
+    },
+    clearFields() {
+      this.patientEmail = "";
+      this.patientFirstName = "";
+      this.patientLastName = "";
+      this.parentEmail = "";
+      this.parentFirstName = "";
+      this.parentLastName = "";
     }
   }
 };
