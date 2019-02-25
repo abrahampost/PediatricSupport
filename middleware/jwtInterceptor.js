@@ -8,7 +8,6 @@ module.exports = (req, res, next) => {
         next();
         return;
     }
-
     let token = req.headers.authorization;
     jwt.verify(token, process.env.SIGN_KEY, function(err, decoded) {
         if(err || decoded.iss != "pediatricsupport") {
