@@ -10,7 +10,8 @@ module.exports = (req, res, next) => {
     }
 
     let token = req.headers.authorization;
-    token = token.substring(7);
+    token = token.substring();
+    console.log(token);
     jwt.verify(token, process.env.SIGN_KEY, function(err, decoded) {
         if(err || decoded.iss != "pediatricsupport") {
             throw new UnauthorizedRequestException("Did not provide valid token")
