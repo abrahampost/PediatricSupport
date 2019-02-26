@@ -1,21 +1,21 @@
 process.env.NODE_ENV = 'test';
 
 // project dependencies
-const   userService = require("../services/user-service"),
-        matchService = require("../services/match-service"),
-        Match = require("../db/sequelize").user_match,
-        Attribute = require('../db/sequelize').attribute,
-        PatientAttributes = require("../db/sequelize").patient_x_attribute,
-        BadRequestException = require("../exceptions/bad-request-exception"),
-        User = require("../db/sequelize").user,
-        Op = require("sequelize").Op;
+const userService = require("../services/user-service"),
+    matchService = require("../services/match-service"),
+    Match = require("../db/sequelize").user_match,
+    Attribute = require('../db/sequelize').attribute,
+    PatientAttributes = require("../db/sequelize").patient_x_attribute,
+    BadRequestException = require("../exceptions/bad-request-exception"),
+    User = require("../db/sequelize").user,
+    Op = require("sequelize").Op;
 
 // testing dependencies
-const   chai = require("chai"),
-        assert = chai.assert
-        chaiHttp = require("chai-http")
-        server = require('../app'),
-        should = chai.should();
+const chai = require("chai"),
+    assert = chai.assert
+chaiHttp = require("chai-http")
+server = require('../app'),
+    should = chai.should();
 
 chai.use(chaiHttp);
 
@@ -29,8 +29,8 @@ describe("Match", () => {
     });
     beforeEach(async () => {
         await Match.destroy({ where: {} });
-        await Attribute.destroy({where: {} });
-        await PatientAttributes.destroy({where: {}});
+        await Attribute.destroy({ where: {} });
+        await PatientAttributes.destroy({ where: {} });
     })
 
     describe("MatchService", () => {
@@ -59,7 +59,7 @@ describe("Match", () => {
                 try {
                     await matchService.createMatch(maxId + 1, maxId + 2);
                     assert.fail("Should throw error");
-                } catch(e) {
+                } catch (e) {
                     e.should.be.instanceof(BadRequestException);
                 }
             });
@@ -124,6 +124,37 @@ describe("Match", () => {
             });
         });
 
+        describe("delete", () => {
+            it("it should delete match correctly", async () => {
+                let users = await User.findAll({
+                    attributes: ['id'],
+                    where: {},
+                    order: [['id', 'ASC']],
+                    limit: 2
+                });
+                await matchService.createMatch(users[0].id, users[1].id);
+                let matches = await Match.findAll({
+                    where: {}
+                });
+                matches.should.have.length(1, "incorrect length");
+                let status = await matchService.deleteMatch(matches[0].id);
+                status.should.be.eql(200);
+                let noMatches = await Match.findAll({
+                    where: {}
+                });
+                noMatches.should.have.length(0, "not deleted");
+            });
+            it("should return proper error when deleting non-existent match", async () => {
+                try {
+                    let status = await matchService.deleteMatch(1);
+                } catch (e) {
+                    e.should.be.instanceof(BadRequestException);
+                    e.message.should.be.eql("Match does not exist.", "error message incorrect");
+                }
+            })
+        })
+
+        //TODO: Add more matching engine tests
         describe("matching engine", () => {
             it("it should find correct matches", async () => {
                 // #region initialize attributes
@@ -145,7 +176,7 @@ describe("Match", () => {
                 });
                 let users = await User.findAll({
                     attributes: ['id'],
-                    where:{},
+                    where: {},
                     order: [['id', 'ASC']],
                 });
                 await PatientAttributes.create({
@@ -203,5 +234,6 @@ describe("Match", () => {
                 matchedUsers[2].id.should.be.eql(users[3].id, matchedUsers[2].id);
             });
         })
+
     })
 })

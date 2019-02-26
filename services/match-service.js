@@ -168,7 +168,7 @@ exports.getPotentialMatches = async function (userId) {
             return res.dataValues;
         });
         return results;
-        // //https://github.com/sequelize/sequelize/issues/222
+        // https://github.com/sequelize/sequelize/issues/222
     } catch (e) {
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";
@@ -200,6 +200,34 @@ exports.updateMatchType = async function(matchId, updatedType) {
             throw new BadRequestException("Match does not exist.");
         };
         return 201;
+    } catch(e) {
+        if (e instanceof Sequelize.ValidationError) {
+            let errorMessage = "The following values are invalid:";
+            e.errors.forEach((error) => {
+                errorMessage += `\n${error.path}: ${error.message}`;
+            });
+            throw new BadRequestException(errorMessage);
+        } else if (e instanceof BadRequestException) {
+            throw e;
+        }
+        throw new BadRequestException("Unable to update match status.");
+    }
+}
+
+/**
+ * Takes in matchId, returns 200 if success, 400 if not.
+ */
+exports.deleteMatch = async function(matchId) {
+    try {
+        let numRows = await Match.destroy({
+            where: {
+                id: matchId
+            }
+        });
+        if (numRows == 0) {
+            throw new BadRequestException("Match does not exist.");
+        }
+        return 200;
     } catch(e) {
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";
