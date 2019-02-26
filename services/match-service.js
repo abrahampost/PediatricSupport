@@ -4,6 +4,7 @@ const   Sequelize = require("sequelize"),
         Match = require("../db/sequelize").user_match,
         Attribute = require("../db/sequelize").attribute,
         PatientAttribute = require("../db/sequelize").patient_x_attribute,
+        PatientInfo = require("../db/sequelize").patient_info,
         Op = Sequelize.Op,
         BadRequestException = require("../exceptions/bad-request-exception");
 
@@ -38,53 +39,38 @@ exports.createMatch = async function (userOneId, userTwoId) {
 
 exports.getMatches = async function (userId) {
     try {
-        let results = await Match.findAll({
-            attributes: ['id', ['user_one_id', 'userOne'], ['user_two_id', 'userTwo'], 'type', 'createdAt'],
+
+        let results = await User.findOne({
+            attributes: ['id', 'createdAt'],
             where: {
-                [Op.or]: [
-                    {
-                        user_one_id: userId,
-                    },
-                    {
-                        user_two_id: userId,
-                    }
-                ],
-                type: {
-                    [Op.not]: 'blocked',
-                },
+                id: userId
             },
-            order: [['createdAt', 'ASC']],
             include: [{
                 model: User,
+                as: 'UserMatch',
                 attributes: ['id', 'username'],
-                include: [{
-                    model: Attribute,
-                }]
+                where: {
+                    type: {
+                        [Op.not]: 'blocked',
+                    },
+                },
+                through: {
+                    attributes: ['type'],
+                },
+                order: [['createdAt', 'ASC']],
             }],
         });
-
-        let filteredResults = results.map((result) => {
-            // set the default match as user two
-            let matchedUser = result.userTwo;
-            let type = result.type;
-            if (result.userTwo.id === userId) {
-                //if the match is actually userOne, update and check if pending
-                matchedUser = result.userTwo.dataValues;
-                if (result.type === 'pending') {
-                    // if a match is pending and it is the user sending the request,
-                    // change pending to sent
-                    type = 'sent';
-                }
-            }
+        let filteredResults = results.UserMatch.map((result) => {
             return {
                 id: result.id,
-                user: matchedUser,
-                type: type
+                user: result.username,
+                type: result.user_match.type
             }
         });
         return filteredResults;
 
     } catch (e) {
+        console.error(e);
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";
             e.errors.forEach((error) => {
@@ -159,10 +145,15 @@ exports.getPotentialMatches = async function (userId) {
             where: {
                 id: {
                     [Op.in]: similarIds
-                }
+                },
+                type: 'patient',
             },
             include: [{
-                model: Attribute
+                model: Attribute,
+                attributes: ['name'],
+                where: {
+                    type: 'interest',
+                },
             }]
         });
 

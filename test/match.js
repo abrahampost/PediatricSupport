@@ -154,6 +154,23 @@ describe("Match", () => {
             })
         })
 
+        describe("get matches", () => {
+            it("it should get matched users", async () => {
+                let users = await User.findAll({
+                    where: {},
+                    attributes: ['id'],
+                    order: [['id', 'DESC']]
+                })
+                await matchService.createMatch(users[0].id, users[1].id);
+                await matchService.createMatch(users[0].id, users[2].id);
+                let results = await matchService.getMatches(users[0].id);
+                results.should.be.length(2);
+                // more recent matches should be returned first
+                results[0].id.should.be.eql(users[2].id);
+                results[1].id.should.be.eql(users[1].id);
+            })
+        })
+
         //TODO: Add more matching engine tests
         describe("matching engine", () => {
             it("it should find correct matches", async () => {
