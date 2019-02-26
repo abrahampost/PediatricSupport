@@ -48,7 +48,7 @@
               </div>
             </div>
           </div>
-          <div class="ui centered card" v-if="filteredMatches.length === 0">
+          <div class="ui centered card" v-if="filteredMatches.length === 0 && error == ''">
             <div class="content">
               <div class="header">
                 No Users Found
@@ -90,7 +90,6 @@ export default {
       this.$http.get("/matches")
         .then((res) => {
           let data = res.data;
-          console.log(data);
           this.matches = data.matches;
           this.potentialMatches = data.potentialMatches;
           this.loading = false;
@@ -117,8 +116,9 @@ export default {
       console.log(`DELETE MATCH: ${id}`);
     },
     getAttributeList(attributes) {
+      console.log(attributes);
       return attributes.map((a) => {
-        return a.name[0].toUpperCase() + a.name.substring(1);
+        return a[0].toUpperCase() + a.substring(1);
       }).join(", ");
     }
   },

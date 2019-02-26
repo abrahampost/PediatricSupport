@@ -58,14 +58,26 @@ exports.getMatches = async function (userId) {
                     attributes: ['type'],
                 },
                 order: [['createdAt', 'ASC']],
+                include: [{
+                    model: Attribute,
+                    attributes: ['name'],
+                    where: {
+                        type: 'interest',
+                    },
+                }]
             }],
         });
         let filteredResults = results.UserMatch.map((result) => {
-            return {
+            console.log(result.dataValues.attributes);
+            let normalizedResult = {
                 id: result.id,
-                user: result.username,
-                type: result.user_match.type
+                username: result.username,
+                type: result.user_match.type,
             }
+            if(result.dataValues.attributes) {
+                normalizedResult['attributes'] = result.dataValues.attributes.map(attribute => attribute.name);
+            }
+            return normalizedResult;
         });
         return filteredResults;
 
