@@ -67,39 +67,35 @@ exports.getMatches = async function (userId) {
                 }]
             }],
         });
-        let receivedResults = await User.findOne({
-            attributes: ['id', 'createdAt'],
+        let receivedResults = await User.findAll({
+            attributes: ['id', 'username', 'createdAt'],
             include: [{
                 model: User,
                 as: 'UserMatch',
-                attributes: ['id', 'username'],
                 where: {
-                    type: {
-                        [Op.not]: 'blocked',
-                    },
                     id: userId
                 },
                 through: {
                     attributes: ['type'],
+                    order: [['createdAt', 'ASC']],
                 },
-                order: [['createdAt', 'ASC']],
-                include: [{
-                    model: Attribute,
-                    attributes: ['name'],
-                    where: {
-                        type: 'interest',
-                    },
-                    required: false,
-                }]
+            },{
+                model: Attribute,
+                attributes: ['name'],
+                where: {
+                    type: 'interest',
+                },
+                required: false,
             }],
         });
-        let results = Object.assign({}, sentResults, receivedResults);
-        if (!results) {
-            return [];
+
+        if (receivedResults.length == 0) {
+            receivedResults = [];
         }
-        let filteredResults = results.UserMatch.map((result) => {
+
+        let results = sentResults.UserMatch.map((result) => {
             let type = result.user_match.type;
-            if (result.user_match.userOneId === userId && type === 'pending') {
+            if (type === 'pending') {
                 type = 'sent';
             }
             let normalizedResult = {
@@ -113,7 +109,16 @@ exports.getMatches = async function (userId) {
             return normalizedResult;
         });
 
-        return filteredResults;
+        results = results.concat(receivedResults.map((res) => {
+            return  {
+                id: res.id,
+                username: res.username,
+                type: res.UserMatch[0].user_match.type,
+                attributes: res.dataValues.attributes.map(attribute => attribute.name),
+            }
+        }))
+
+        return results;
 
     } catch (e) {
         console.error(e);
