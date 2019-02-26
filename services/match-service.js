@@ -2,6 +2,7 @@ const   Sequelize = require("sequelize"),
         sequelize = require("../db/sequelize"),
         User = require("../db/sequelize").user,
         Match = require("../db/sequelize").user_match,
+        Attribute = require("../db/sequelize").attribute,
         PatientAttribute = require("../db/sequelize").patient_x_attribute,
         Op = Sequelize.Op,
         BadRequestException = require("../exceptions/bad-request-exception");
@@ -97,13 +98,16 @@ exports.getMatches = async function (userId) {
  */
 exports.getPotentialMatches = async function (userId) {
     try {
-        let userInterests = await PatientAttribute.findAll({
+        let userInterestsId = await PatientAttribute.findAll({
             attributes: ['attribute_id'],
             where: {
                 patient_id: userId,
             },
         });
 
+        userInterestsId = userInterestsId.map(interest => {
+            return interest.attribute_id;
+        });
 
         // find all matches with the passed user
         let matchedIds = await Match.findAll({
@@ -128,25 +132,43 @@ exports.getPotentialMatches = async function (userId) {
             return match.userOneId;
         });
 
+        let similarIds = await PatientAttribute.findAll({
+            attributes: ['patient_id', [sequelize.fn('COUNT', sequelize.col('attribute_id')), 'similarity']],
+            where: {
+                patient_id: {
+                    [Op.not]: userId,
+                    [Op.notIn]: normalizedMatchedIds,
+                }
+            },
+            group: ['patient_id'],
+            order: [sequelize.fn('COUNT', sequelize.col('attribute_id'))]
+        });
+
+        similarIds = similarIds.map((sim) => {
+            return sim.dataValues.patient_id;
+        });
+
         let results = await User.findAll({
             attributes: ['id', 'username'],
             where: {
                 id: {
-                    [Op.notIn]: normalizedMatchedIds,
-                },
+                    [Op.in]: similarIds
+                }
             },
-            inlude: [{
-                model: PatientAttribute,
-                where: {
-                    attribute_id: {
-                        [Op.in]: userInterests,
-                    },
-                },
-            }],
-            group: [PatientAttribute, 'attribute_id'],
-            //order: [[sequelize.col('attributes.similarity'), 'DESC']],
+            include: [{
+                model: Attribute
+            }]
+        });
+
+        results.sort(function(a, b) {
+            return similarIds.indexOf(b.dataValues.id) - similarIds.indexOf(a.dataValues.id);
         })
+
+        results = results.map(res => {
+            return res.dataValues;
+        });
         return results;
+        // //https://github.com/sequelize/sequelize/issues/222
     } catch (e) {
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";

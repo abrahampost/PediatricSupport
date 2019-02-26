@@ -5,7 +5,7 @@ const   userService = require("../services/user-service"),
         matchService = require("../services/match-service"),
         Match = require("../db/sequelize").user_match,
         Attribute = require('../db/sequelize').attribute,
-        PatientAttribute = require("../db/sequelize").patient_x_attribute,
+        PatientAttributes = require("../db/sequelize").patient_x_attribute,
         BadRequestException = require("../exceptions/bad-request-exception"),
         User = require("../db/sequelize").user,
         Op = require("sequelize").Op;
@@ -30,7 +30,7 @@ describe("Match", () => {
     beforeEach(async () => {
         await Match.destroy({ where: {} });
         await Attribute.destroy({where: {} });
-        await PatientAttribute.destroy({where: {}});
+        await PatientAttributes.destroy({where: {}});
     })
 
     describe("MatchService", () => {
@@ -145,57 +145,62 @@ describe("Match", () => {
                 });
                 let users = await User.findAll({
                     attributes: ['id'],
-                    where:{}
+                    where:{},
+                    order: [['id', 'ASC']],
                 });
-                await PatientAttribute.create({
+                await PatientAttributes.create({
                     patient_id: users[0].id,
                     attribute_id: legos.id
                 });
-                await PatientAttribute.create({
+                await PatientAttributes.create({
                     patient_id: users[0].id,
                     attribute_id: movies.id
                 });
-                await PatientAttribute.create({
+                await PatientAttributes.create({
                     patient_id: users[0].id,
                     attribute_id: videogames.id
                 });
-                await PatientAttribute.create({
+                await PatientAttributes.create({
                     patient_id: users[0].id,
                     attribute_id: basketball.id
                 });
-                await PatientAttribute.create({
+                await PatientAttributes.create({
                     patient_id: users[1].id,
                     attribute_id: legos.id
                 });
-                await PatientAttribute.create({
+                await PatientAttributes.create({
                     patient_id: users[1].id,
                     attribute_id: movies.id
                 });
-                await PatientAttribute.create({
+                await PatientAttributes.create({
                     patient_id: users[1].id,
                     attribute_id: videogames.id
                 });
-                await PatientAttribute.create({
+                await PatientAttributes.create({
                     patient_id: users[2].id,
                     attribute_id: legos.id
                 });
-                await PatientAttribute.create({
+                await PatientAttributes.create({
                     patient_id: users[2].id,
                     attribute_id: movies.id
                 });
-                await PatientAttribute.create({
+                await PatientAttributes.create({
                     patient_id: users[3].id,
                     attribute_id: legos.id
                 });
+                // let patientAttributes = await User.findAll({
+                //     where: {},
+                //     include: [Attribute]
+                // })
+                // patientAttributes = patientAttributes.map((d) => {
+                //     return d.dataValues;
+                // })
                 // #endregion
                 let matchedUsers = await matchService.getPotentialMatches(users[0].id);
                 matchedUsers.should.have.length(3, matchedUsers.length);
-                matchedUsers[0].id.should.be.eql(Users[1].id, matchedUsers[0].id);
-                matchedUsers[0].similarity.should.be.eql(Users[1].similarity, matchedUsers[0].similarity);
-                matchedUsers[1].id.should.be.eql(Users[2].id, matchedUsers[1].id);
-                matchedUsers[1].similarity.should.be.eql(Users[2].similarity, matchedUsers[1].similarity);
-                matchedUsers[2].id.should.be.eql(Users[3].id, matchedUsers[2].id);
-                matchedUsers[2].similarity.should.be.eql(Users[3].similarity, matchedUsers[2].similarity);
+                matchedUsers[0].id.should.be.eql(users[1].id, matchedUsers[0].id);
+                matchedUsers[1].id.should.be.eql(users[2].id, matchedUsers[1].id);
+                matchedUsers[2].id.should.be.eql(users[3].id, matchedUsers[2].id);
             });
         })
     })
