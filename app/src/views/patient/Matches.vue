@@ -13,14 +13,17 @@
           :class="{'active': 'sent' === filterType}">Sent</a>
       </div>
       <div class="ui bottom attached segment">
+        <div class="ui active dimmer" v-if="loading">
+          <div class="ui loader"></div>
+        </div>
         <div class="ui cards">
           <div class="ui centered card" v-for="match in filteredMatches" :key="match.id">
             <div class="image">
               <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png">
             </div>
             <div class="content">
-              <div class="header">{{ match.user.name }}</div>
-              <div class="description">{{ match.user.description }}</div>
+              <div class="header">{{ match.username }}</div>
+              <div class="description">{{ getAttributeList(match.attributes) }}</div>
             </div>
             <div class="extra content">
               <div v-if="match.type === 'matched'">
@@ -35,6 +38,13 @@
                   <div class="ui basic green button" @click="acceptMatch(match.id)">Accept</div>
                   <div class="ui basic red button" @click="denyMatch(match.id)">Deny</div>
                 </div>
+              </div>
+            </div>
+          </div>
+          <div class="ui centered card" v-if="error">
+            <div class="content">
+              <div class="ui negative messasge">
+                <div class="header">{{ error }}</div>
               </div>
             </div>
           </div>
@@ -53,75 +63,47 @@
 <script>
 export default {
   name: 'PatientMatches',
+  created() {
+    this.fetchData();
+  },
   data() {
     return {
       filterType: 'potential',
-      matches: [
-        {
-          id: 1,
-          user: {
-            name: 'BuffTurtle12',
-            description: 'I love to play with legos.',
-          },
-          type: 'potential',
-        },
-        {
-          id: 2,
-          user: {
-            name: 'BigApple76',
-            description: 'I love to watch movies.',
-          },
-          type: 'pending',
-        },
-        {
-          id: 3,
-          user: {
-            name: 'SmartDog64',
-            description: 'Legos are my favorite things.',
-          },
-          type: 'matched',
-        },
-        {
-          id: 4,
-          user: {
-            name: 'HappyClam14',
-            description: 'Halo is my favorite game.',
-          },
-          type: 'matched',
-        },
-        {
-          id: 5,
-          user: {
-            name: 'LittleWhale25',
-            description: 'If you like fortnite pls friend me!!!.',
-          },
-          type: 'sent',
-        },
-        {
-          id: 6,
-          user: {
-            name: 'SmallPuppy3',
-            description: 'I like basketball.',
-          },
-          type: 'matched',
-        },
-        {
-          id: 7,
-          user: {
-            name: 'SwiftHare27',
-            description: 'MJ >> Lebron.',
-          },
-          type: 'pending',
-        },
-      ],
+      matches: [],
+      potentialMatches: [],
+      error: '',
+      loading: false,
     };
   },
   computed: {
     filteredMatches() {
+      if (this.filterType == 'potential') {
+        return this.potentialMatches;
+      }
       return this.matches.filter(match => match.type === this.filterType);
     },
   },
   methods: {
+    fetchData() {
+      this.loading = true;
+      this.error = '';
+      this.$http.get("/matches")
+        .then((res) => {
+          let data = res.data;
+          console.log(data);
+          this.matches = data.matches;
+          this.potentialMatches = data.potentialMatches;
+          this.loading = false;
+        })
+        .catch((err) => {
+          if (err && err.data && err.data.error) {
+            this.error = err.data.error;
+          } else {
+            this.error = "Unable to load matches.";
+          }
+          this.loading = false;
+        })
+    },
     acceptMatch(id) {
       // TODO: Make this hit backend
       console.log(`ACCEPT FRIEND: ${id}`);
@@ -134,6 +116,11 @@ export default {
       // TODO: Make this hit the backend
       console.log(`DELETE MATCH: ${id}`);
     },
+    getAttributeList(attributes) {
+      return attributes.map((a) => {
+        return a.name[0].toUpperCase() + a.name.substring(1);
+      }).join(", ");
+    }
   },
 };
 </script>
