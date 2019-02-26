@@ -39,7 +39,6 @@ exports.createMatch = async function (userOneId, userTwoId) {
 
 exports.getMatches = async function (userId) {
     try {
-
         let results = await User.findOne({
             attributes: ['id', 'createdAt'],
             where: {
@@ -64,11 +63,14 @@ exports.getMatches = async function (userId) {
                     where: {
                         type: 'interest',
                     },
+                    required: false,
                 }]
             }],
         });
+        if (!results) {
+            return [];
+        }
         let filteredResults = results.UserMatch.map((result) => {
-            console.log(result.dataValues.attributes);
             let normalizedResult = {
                 id: result.id,
                 username: result.username,
@@ -79,6 +81,7 @@ exports.getMatches = async function (userId) {
             }
             return normalizedResult;
         });
+
         return filteredResults;
 
     } catch (e) {

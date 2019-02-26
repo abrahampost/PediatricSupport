@@ -1,6 +1,7 @@
 const   userService = require("../services/user-service"),
         matchService = require("../services/match-service"),
-        User = require("./sequelize").user
+        User = require("./sequelize").user,
+        Match = require("./sequelize").user_match,
         Attribute = require("./sequelize").attribute,
         PatientAttributes = require("./sequelize").patient_x_attribute;
 
@@ -107,6 +108,7 @@ async function seedMatches() {
         order: [['id', 'ASC']],
     });
     await matchService.createMatch(users[0].id, users[1].id);
+    await matchService.createMatch(users[0].id, users[3].id);
     await matchService.createMatch(users[2].id, users[0].id);
 }
 
