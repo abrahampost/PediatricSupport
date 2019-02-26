@@ -39,7 +39,7 @@ exports.createMatch = async function (userOneId, userTwoId) {
 
 exports.getMatches = async function (userId) {
     try {
-        let results = await User.findOne({
+        let sentResults = await User.findOne({
             attributes: ['id', 'createdAt'],
             where: {
                 id: userId
@@ -67,14 +67,45 @@ exports.getMatches = async function (userId) {
                 }]
             }],
         });
+        let receivedResults = await User.findOne({
+            attributes: ['id', 'createdAt'],
+            include: [{
+                model: User,
+                as: 'UserMatch',
+                attributes: ['id', 'username'],
+                where: {
+                    type: {
+                        [Op.not]: 'blocked',
+                    },
+                    id: userId
+                },
+                through: {
+                    attributes: ['type'],
+                },
+                order: [['createdAt', 'ASC']],
+                include: [{
+                    model: Attribute,
+                    attributes: ['name'],
+                    where: {
+                        type: 'interest',
+                    },
+                    required: false,
+                }]
+            }],
+        });
+        let results = Object.assign({}, sentResults, receivedResults);
         if (!results) {
             return [];
         }
         let filteredResults = results.UserMatch.map((result) => {
+            let type = result.user_match.type;
+            if (result.user_match.userOneId === userId && type === 'pending') {
+                type = 'sent';
+            }
             let normalizedResult = {
                 id: result.id,
                 username: result.username,
-                type: result.user_match.type,
+                type: type,
             }
             if(result.dataValues.attributes) {
                 normalizedResult['attributes'] = result.dataValues.attributes.map(attribute => attribute.name);
@@ -133,10 +164,7 @@ exports.getPotentialMatches = async function (userId) {
 
         // filter the results into a list of just the other user's id
         let normalizedMatchedIds = matchedIds.map((match) => {
-            if (userId === match.userOneId) {
-                return match.userTwoId;
-            }
-            return match.userOneId;
+            return match.dataValues.userTwoId;
         });
 
         let similarIds = await PatientAttribute.findAll({
@@ -151,15 +179,16 @@ exports.getPotentialMatches = async function (userId) {
             order: [sequelize.fn('COUNT', sequelize.col('attribute_id'))]
         });
 
-        similarIds = similarIds.map((sim) => {
+        let normalizedSimilarIds = similarIds.map((sim) => {
             return sim.dataValues.patient_id;
         });
 
+        
         let results = await User.findAll({
             attributes: ['id', 'username'],
             where: {
                 id: {
-                    [Op.in]: similarIds
+                    [Op.in]: normalizedSimilarIds
                 },
                 type: 'patient',
             },
@@ -176,8 +205,14 @@ exports.getPotentialMatches = async function (userId) {
             return similarIds.indexOf(b.dataValues.id) - similarIds.indexOf(a.dataValues.id);
         })
 
-        results = results.map(res => {
-            return res.dataValues;
+        results = results.map((res) => {
+            return {
+                id: res.dataValues.id,
+                username: res.dataValues.username,
+                attributes: res.dataValues.attributes.map((a) => {
+                    return a.name
+                }),
+            }
         });
         return results;
         // https://github.com/sequelize/sequelize/issues/222

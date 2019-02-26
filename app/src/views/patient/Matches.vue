@@ -116,7 +116,6 @@ export default {
       console.log(`DELETE MATCH: ${id}`);
     },
     getAttributeList(attributes) {
-      console.log(attributes);
       return attributes.map((a) => {
         return a[0].toUpperCase() + a.substring(1);
       }).join(", ");

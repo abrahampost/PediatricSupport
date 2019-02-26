@@ -103,13 +103,21 @@ async function seedInterests() {
 
 async function seedMatches() {
     let users = await User.findAll({
-        attributes: ['id'],
+        attributes: ['id', 'username'],
         where: {},
         order: [['id', 'ASC']],
     });
-    await matchService.createMatch(users[0].id, users[1].id);
+    //Sent
     await matchService.createMatch(users[0].id, users[3].id);
+    //Received
     await matchService.createMatch(users[2].id, users[0].id);
+    //matched
+    await matchService.createMatch(users[0].id, users[1].id);
+    let match = await Match.findOne({where: {
+        user_one_id: users[0].id,
+        user_two_id: users[1].id
+    }});
+    await matchService.updateMatchType(match.id, 'matched');
 }
 
 seedDB()
