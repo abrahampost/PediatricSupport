@@ -54,7 +54,13 @@ exports.getMatches = async function (userId) {
                 },
             },
             order: [['createdAt', 'ASC']],
-            include: [User],
+            include: [{
+                model: User,
+                attributes: ['id', 'username'],
+                include: [{
+                    model: Attribute,
+                }]
+            }],
         });
 
         let filteredResults = results.map((result) => {
@@ -63,7 +69,7 @@ exports.getMatches = async function (userId) {
             let type = result.type;
             if (result.userTwo.id === userId) {
                 //if the match is actually userOne, update and check if pending
-                matchedUser = result.userTwo;
+                matchedUser = result.userTwo.dataValues;
                 if (result.type === 'pending') {
                     // if a match is pending and it is the user sending the request,
                     // change pending to sent
@@ -184,6 +190,9 @@ exports.getPotentialMatches = async function (userId) {
     }
 }
 
+/**
+ * Takes in matchId and updatedType. Returns 200 if success, 400 if fails.
+ */
 exports.updateMatchType = async function(matchId, updatedType) {
     try {
         let updates = {
@@ -199,7 +208,7 @@ exports.updateMatchType = async function(matchId, updatedType) {
             // checks if no rows were affected by the update
             throw new BadRequestException("Match does not exist.");
         };
-        return 201;
+        return 200;
     } catch(e) {
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";

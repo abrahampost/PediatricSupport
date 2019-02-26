@@ -83,7 +83,7 @@ describe("Match", () => {
                     },
                 });
                 let response = await matchService.updateMatchType(match.id, 'matched');
-                response.should.be.eql(201);
+                response.should.be.eql(200);
                 let foundMatch = await Match.findOne({
                     where: {
                         id: match.id,
@@ -94,7 +94,7 @@ describe("Match", () => {
             it("it should update a match to 'blocked'", async () => {
                 let match = await Match.findOne();
                 let response = await matchService.updateMatchType(match.id, 'blocked');
-                response.should.be.eql(201);
+                response.should.be.eql(200);
                 let foundMatch = await Match.findOne({
                     where: {
                         id: match.id,
