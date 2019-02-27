@@ -37,8 +37,6 @@
   </div>
 </template>
 <script>
-import store from "../../config/store";
-
 export default {
   name: "AdminCreateUsers",
   data: function() {
