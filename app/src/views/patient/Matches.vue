@@ -24,7 +24,8 @@
             <div class="content">
               <div class="header">{{ match.username }}</div>
               <div class="meta" v-if="filterType === 'potential'">
-                <progress min="0" max="100" v-bind:value="Math.round(match.similarity * 100)"></progress>
+                <progress min="0" max="100" v-bind:value="Math.round(match.similarity * 100)">
+                </progress>
               </div>
               <div class="description">{{ getAttributeList(match.attributes) }}</div>
             </div>
@@ -40,7 +41,7 @@
                 @click="deleteMatch(match)">Delete Request</div>
               <div v-if="filterType === 'pending'">
                 <p>Respond to Request</p>
-                <div class="ui two buttons" v-if="match.type == 'pending'">
+                <div class="ui two buttons" v-if="match.type === 'pending'">
                   <div class="ui basic green button" @click="acceptMatch(match)">Accept</div>
                   <div class="ui basic red button" @click="deleteMatch(match)">Deny</div>
                 </div>
@@ -54,7 +55,7 @@
               </div>
             </div>
           </div>
-          <div class="ui centered card" v-if="filteredMatches.length === 0 && error == ''">
+          <div class="ui centered card" v-if="filteredMatches.length === 0 && error === ''">
             <div class="content">
               <div class="header">
                 No Users Found
@@ -83,7 +84,7 @@ export default {
   },
   computed: {
     filteredMatches() {
-      if (this.filterType == 'potential') {
+      if (this.filterType === 'potential') {
         return this.potentialMatches;
       }
       return this.matches.filter(match => match.type === this.filterType);
@@ -93,9 +94,9 @@ export default {
     fetchData() {
       this.loading = true;
       this.error = '';
-      this.$http.get("/matches")
+      this.$http.get('/matches')
         .then((res) => {
-          let data = res.data;
+          const [data] = res;
           this.matches = data.matches;
           this.potentialMatches = data.potentialMatches;
           this.loading = false;
@@ -104,69 +105,67 @@ export default {
           if (err && err.data && err.data.error) {
             this.error = err.data.error;
           } else {
-            this.error = "Unable to load matches.";
+            this.error = 'Unable to load matches.';
           }
           this.loading = false;
-        })
+        });
     },
     acceptMatch(match) {
-      let id = match.id;
+      const [id] = match;
       this.loading = true;
       this.$http.put(`matches/${id}`, {
         matchType: 'matched',
       })
-      .then(() => {
-        this.loading = false;
-      })
-      .then(this.fetchData)
-      .catch((err) => {
-        if (err.data && err.data.message) {
-          this.error = err.data.message;
-        } else {
-          this.error = "Unable to accept match."
-        }
-      });
+        .then(() => {
+          this.loading = false;
+        })
+        .then(this.fetchData)
+        .catch((err) => {
+          if (err.data && err.data.message) {
+            this.error = err.data.message;
+          } else {
+            this.error = 'Unable to accept match.';
+          }
+        });
     },
     deleteMatch(match) {
-      let id = match.id;
+      const [id] = match;
       this.loading = true;
       this.$http.delete(`matches/${id}`, {
       })
-      .then(() => {
-        this.loading = false;
-      })
-      .then(this.fetchData)
-      .catch((err) => {
-        if (err.data && err.data.message) {
-          this.error = err.data.message;
-        } else {
-          this.error = "Unable to delete match."
-        }
-      });
+        .then(() => {
+          this.loading = false;
+        })
+        .then(this.fetchData)
+        .catch((err) => {
+          if (err.data && err.data.message) {
+            this.error = err.data.message;
+          } else {
+            this.error = 'Unable to delete match.';
+          }
+        });
     },
     sendRequest(match) {
-      let id = match.id;
+      const [id] = match;
       this.loading = true;
-      this.$http.post(`matches/`, {
+      this.$http.post('matches/', {
         receivingId: id,
       })
-      .then(() => {
-        this.loading = false;
-      })
-      .then(this.fetchData)
-      .catch((err) => {
-        if (err.data && err.data.message) {
-          this.error = err.data.message;
-        } else {
-          this.error = "Unable to send match."
-        }
-      });
+        .then(() => {
+          this.loading = false;
+        })
+        .then(this.fetchData)
+        .catch((err) => {
+          if (err.data && err.data.message) {
+            this.error = err.data.message;
+          } else {
+            this.error = 'Unable to send match.';
+          }
+        });
     },
     getAttributeList(attributes) {
-      return attributes.map((a) => {
-        return a[0].toUpperCase() + a.substring(1);
-      }).join(", ");
-    }
+      return attributes.map(a => a[0].toUpperCase() + a.substring(1)).join(', ');
+    },
   },
 };
 </script>
