@@ -1,7 +1,7 @@
 <template>
-  <div class="admin">
+  <div>
     <Header></Header>
-    <router-view></router-view>
+    <router-view class="content"></router-view>
   </div>
 </template>
 <script>
@@ -15,4 +15,9 @@ export default {
 };
 </script>
 <style scoped>
+.content {
+  margin-top: 1%;
+  margin-left: 3%;
+  margin-right: 3%;
+}
 </style>

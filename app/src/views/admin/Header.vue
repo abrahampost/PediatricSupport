@@ -6,6 +6,7 @@
       <router-link class="item" :to="{name:'adminManageUsers'}">Manage Accounts</router-link>
       <router-link class="item" :to="{name:'adminManageReports'}">Manage Reports</router-link>
       <router-link class="item" :to="{name:'adminManageAttributes'}">Manage Attributes</router-link>
+      <router-link class="item" :to="{name:'login'}">Logout</router-link>
     </div>
   </div>
 </template>
@@ -22,11 +23,11 @@ export default {
 
 .menu .item {
   font-weight: bold;
-  font-size: 1.4em;
+  font-size: 1.2m;
 }
 
 .menu .header.item {
-  font-size: 2em;
+  font-size: 1.4em;
 }
 
 </style>

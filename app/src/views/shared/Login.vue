@@ -67,7 +67,7 @@ export default {
           if (err && err.data && err.data.error) {
             this.error = err.data.error;
           } else {
-            this.error = 'An unspecified error occured during the login attempt.';
+            this.error = 'An unspecified error occurred during the login attempt.';
           }
         });
     },
