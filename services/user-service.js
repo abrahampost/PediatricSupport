@@ -1,10 +1,12 @@
 const bcrypt = require("bcryptjs"),
     jwt = require("jsonwebtoken"),
     User = require("../db/sequelize").user,
+    PatientXAttribute = require("../db/sequelize").patient_x_attribute,
     BadRequestException = require("../exceptions/bad-request-exception"),
     InternalErrorException = require("../exceptions/internal-error-exception"),
     UnauthorizedRequestException = require("../exceptions/unauthorized-request-exception"),
-    Sequelize = require("sequelize");
+    Sequelize = require("sequelize"),
+    Op = Sequelize.Op;
 
 /**
  * Check Login
@@ -67,6 +69,54 @@ exports.signUp = async function (username, unhashed_password, last_name, first_n
         });
         let created_user = await user.save();
         return created_user;
+    } catch (e) {
+        if (e instanceof Sequelize.ValidationError) {
+            let errorMessage = "The following values are invalid:";
+            e.errors.forEach((error) => {
+                errorMessage += `\n${error.path}: ${error.message}`;
+            });
+            throw new BadRequestException(errorMessage);
+        }
+        console.error(`A problem occurred when saving a user: ${e.stack}`);
+        throw new InternalErrorException("A problem occurred when saving the user");
+    }
+}
+
+exports.createInterests = async function (userid, interests) {
+    try {
+        let userInterests = [];
+        for (i = 0; i < interests.length; i++) {
+            userInterests.push({
+                patient_id: userid,
+                attribute_id: interests[i]
+            })
+        }
+        await PatientXAttribute.bulkCreate(userInterests)
+        return 200;
+    } catch (e) {
+        if (e instanceof Sequelize.ValidationError) {
+            let errorMessage = "The following values are invalid:";
+            e.errors.forEach((error) => {
+                errorMessage += `\n${error.path}: ${error.message}`;
+            });
+            throw new BadRequestException(errorMessage);
+        }
+        console.error(`A problem occurred when saving a user: ${e.stack}`);
+        throw new InternalErrorException("A problem occurred when saving the user");
+    }
+}
+
+exports.deleteInterests = async function (userid, interests) {
+    try {
+        await PatientXAttribute.destroy({
+            where: {
+                patient_id: userid,
+                attribute_id: {
+                    [Op.in]: interests
+                }
+            }
+        })
+        return 200;
     } catch (e) {
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";
