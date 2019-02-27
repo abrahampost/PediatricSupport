@@ -54,7 +54,7 @@ exports.getMatches = async function (userId) {
                     },
                 },
                 through: {
-                    attributes: ['type'],
+                    attributes: ['id', 'type'],
                 },
                 order: [['createdAt', 'ASC']],
                 include: [{
@@ -67,6 +67,27 @@ exports.getMatches = async function (userId) {
                 }]
             }],
         });
+
+        if (sentResults) {
+            sentResults = sentResults.UserMatch.map((result) => {
+                let type = result.user_match.type;
+                if (type === 'pending') {
+                    type = 'sent';
+                }
+                let normalizedResult = {
+                    id: result.user_match.id,
+                    username: result.username,
+                    type: type,
+                }
+                if(result.dataValues.attributes) {
+                    normalizedResult['attributes'] = result.dataValues.attributes.map(attribute => attribute.name);
+                }
+                return normalizedResult;
+            });
+        } else {
+            sentResults = [];
+        }
+
         let receivedResults = await User.findAll({
             attributes: ['id', 'username', 'createdAt'],
             include: [{
@@ -76,7 +97,7 @@ exports.getMatches = async function (userId) {
                     id: userId
                 },
                 through: {
-                    attributes: ['type'],
+                    attributes: ['id', 'type'],
                     order: [['createdAt', 'ASC']],
                 },
             },{
@@ -89,37 +110,22 @@ exports.getMatches = async function (userId) {
             }],
         });
 
-        if (receivedResults.length == 0) {
+        if (receivedResults.length != 0) {
+            receivedResults = receivedResults.map((res) => {
+                return  {
+                    id: res.UserMatch[0].user_match.id,
+                    username: res.username,
+                    type: res.UserMatch[0].user_match.type,
+                    attributes: res.dataValues.attributes.map(attribute => attribute.name),
+                }
+            });
+        } else {
             receivedResults = [];
         }
 
-        let results = sentResults.UserMatch.map((result) => {
-            let type = result.user_match.type;
-            if (type === 'pending') {
-                type = 'sent';
-            }
-            let normalizedResult = {
-                id: result.id,
-                username: result.username,
-                type: type,
-            }
-            if(result.dataValues.attributes) {
-                normalizedResult['attributes'] = result.dataValues.attributes.map(attribute => attribute.name);
-            }
-            return normalizedResult;
-        });
-
-        results = results.concat(receivedResults.map((res) => {
-            return  {
-                id: res.id,
-                username: res.username,
-                type: res.UserMatch[0].user_match.type,
-                attributes: res.dataValues.attributes.map(attribute => attribute.name),
-            }
-        }))
+        let results = sentResults.concat(receivedResults);
 
         return results;
-
     } catch (e) {
         console.error(e);
         if (e instanceof Sequelize.ValidationError) {
@@ -169,7 +175,8 @@ exports.getPotentialMatches = async function (userId) {
 
         // filter the results into a list of just the other user's id
         let normalizedMatchedIds = matchedIds.map((match) => {
-            return match.dataValues.userTwoId;
+            if (match.dataValues.userOneId == userId) return match.dataValues.userTwoId;
+            return match.dataValues.userOneId;
         });
 
         let similarIds = await PatientAttribute.findAll({

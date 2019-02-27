@@ -26,17 +26,20 @@
               <div class="description">{{ getAttributeList(match.attributes) }}</div>
             </div>
             <div class="extra content">
-              <div v-if="match.type === 'matched'">
+              <div v-if="filterType === 'potential'"
+                class="ui basic green button"
+                @click="sendRequest(match)">Send Request</div>
+              <div v-if="filterType === 'matched'">
                 <p>Matched</p>
               </div>
-              <div v-if="match.type === 'sent'"
+              <div v-if="filterType === 'sent'"
                 class="ui basic red button"
-                @click="deleteMatch(match.id)">Delete Request</div>
-              <div v-if="match.type === 'pending'">
+                @click="deleteMatch(match)">Delete Request</div>
+              <div v-if="filterType === 'pending'">
                 <p>Respond to Request</p>
                 <div class="ui two buttons" v-if="match.type == 'pending'">
-                  <div class="ui basic green button" @click="acceptMatch(match.id)">Accept</div>
-                  <div class="ui basic red button" @click="denyMatch(match.id)">Deny</div>
+                  <div class="ui basic green button" @click="acceptMatch(match)">Accept</div>
+                  <div class="ui basic red button" @click="deleteMatch(match)">Deny</div>
                 </div>
               </div>
             </div>
@@ -103,17 +106,58 @@ export default {
           this.loading = false;
         })
     },
-    acceptMatch(id) {
-      // TODO: Make this hit backend
-      console.log(`ACCEPT FRIEND: ${id}`);
+    acceptMatch(match) {
+      let id = match.id;
+      this.loading = true;
+      this.$http.put(`matches/${id}`, {
+        matchType: 'matched',
+      })
+      .then(() => {
+        this.loading = false;
+      })
+      .then(this.fetchData)
+      .catch((err) => {
+        if (err.data && err.data.message) {
+          this.error = err.data.message;
+        } else {
+          this.error = "Unable to accept match."
+        }
+      });
     },
-    denyMatch(id) {
-      // TODO: Make this hit backend
-      console.log(`DENY FRIEND: ${id}`);
+    deleteMatch(match) {
+      let id = match.id;
+      this.loading = true;
+      this.$http.delete(`matches/${id}`, {
+      })
+      .then(() => {
+        this.loading = false;
+      })
+      .then(this.fetchData)
+      .catch((err) => {
+        if (err.data && err.data.message) {
+          this.error = err.data.message;
+        } else {
+          this.error = "Unable to delete match."
+        }
+      });
     },
-    deleteMatch(id) {
-      // TODO: Make this hit the backend
-      console.log(`DELETE MATCH: ${id}`);
+    sendRequest(match) {
+      let id = match.id;
+      this.loading = true;
+      this.$http.post(`matches/`, {
+        receivingId: id,
+      })
+      .then(() => {
+        this.loading = false;
+      })
+      .then(this.fetchData)
+      .catch((err) => {
+        if (err.data && err.data.message) {
+          this.error = err.data.message;
+        } else {
+          this.error = "Unable to send match."
+        }
+      });
     },
     getAttributeList(attributes) {
       return attributes.map((a) => {
