@@ -96,7 +96,7 @@ export default {
       this.error = '';
       this.$http.get('/matches')
         .then((res) => {
-          const [data] = res;
+          const data = res.data;
           this.matches = data.matches;
           this.potentialMatches = data.potentialMatches;
           this.loading = false;
@@ -111,7 +111,7 @@ export default {
         });
     },
     acceptMatch(match) {
-      const [id] = match;
+      const { id } = match;
       this.loading = true;
       this.$http.put(`matches/${id}`, {
         matchType: 'matched',
@@ -129,7 +129,7 @@ export default {
         });
     },
     deleteMatch(match) {
-      const [id] = match;
+      const { id } = match;
       this.loading = true;
       this.$http.delete(`matches/${id}`, {
       })
@@ -146,7 +146,7 @@ export default {
         });
     },
     sendRequest(match) {
-      const [id] = match;
+      const { id } = match;
       this.loading = true;
       this.$http.post('matches/', {
         receivingId: id,
