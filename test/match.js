@@ -163,7 +163,6 @@ describe("Match", () => {
                 })
                 await matchService.createMatch(users[0].id, users[1].id);
                 await matchService.createMatch(users[0].id, users[2].id);
-                await matchService.createMatch(users[0].id, users[2].id);
                 let results = await matchService.getMatches(users[0].id);
                 results.should.have.length(2);
                 // more recent matches should be returned first
