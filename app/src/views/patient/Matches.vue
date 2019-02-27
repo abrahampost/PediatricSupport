@@ -23,6 +23,9 @@
             </div>
             <div class="content">
               <div class="header">{{ match.username }}</div>
+              <div class="meta" v-if="filterType === 'potential'">
+                <progress min="0" max="100" v-bind:value="Math.round(match.similarity * 100)"></progress>
+              </div>
               <div class="description">{{ getAttributeList(match.attributes) }}</div>
             </div>
             <div class="extra content">

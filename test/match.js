@@ -158,16 +158,17 @@ describe("Match", () => {
             it("it should get matched users", async () => {
                 let users = await User.findAll({
                     where: {},
-                    attributes: ['id'],
+                    attributes: ['id', 'username'],
                     order: [['id', 'DESC']]
                 })
                 await matchService.createMatch(users[0].id, users[1].id);
                 await matchService.createMatch(users[0].id, users[2].id);
+                await matchService.createMatch(users[0].id, users[2].id);
                 let results = await matchService.getMatches(users[0].id);
-                results.should.be.length(2);
+                results.should.have.length(2);
                 // more recent matches should be returned first
-                results[0].id.should.be.eql(users[2].id);
-                results[1].id.should.be.eql(users[1].id);
+                results[0].username.should.be.eql(users[2].username);
+                results[1].username.should.be.eql(users[1].username);
             })
         })
 

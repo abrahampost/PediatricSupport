@@ -147,85 +147,30 @@ exports.getMatches = async function (userId) {
  */
 exports.getPotentialMatches = async function (userId) {
     try {
-        let userInterestsId = await PatientAttribute.findAll({
-            attributes: ['attribute_id'],
-            where: {
-                patient_id: userId,
-            },
-        });
-
-        userInterestsId = userInterestsId.map(interest => {
-            return interest.attribute_id;
-        });
-
-        // find all matches with the passed user
-        let matchedIds = await Match.findAll({
-            attributes: [['user_one_id', 'userOneId'], ['user_two_id', 'userTwoId']],
-            where: {
-                [Op.or]: [
-                    {
-                        user_one_id: userId,
-                    },
-                    {
-                        user_two_id: userId,
-                    }
-                ],
-            }
-        });
-
-        // filter the results into a list of just the other user's id
-        let normalizedMatchedIds = matchedIds.map((match) => {
-            if (match.dataValues.userOneId == userId) return match.dataValues.userTwoId;
-            return match.dataValues.userOneId;
-        });
-
-        let similarIds = await PatientAttribute.findAll({
-            attributes: ['patient_id', [sequelize.fn('COUNT', sequelize.col('attribute_id')), 'similarity']],
-            where: {
-                patient_id: {
-                    [Op.not]: userId,
-                    [Op.notIn]: normalizedMatchedIds,
-                }
-            },
-            group: ['patient_id'],
-            order: [sequelize.fn('COUNT', sequelize.col('attribute_id'))]
-        });
-
-        let normalizedSimilarIds = similarIds.map((sim) => {
-            return sim.dataValues.patient_id;
-        });
-
-        
-        let results = await User.findAll({
-            attributes: ['id', 'username'],
-            where: {
-                id: {
-                    [Op.in]: normalizedSimilarIds
-                },
-                type: 'patient',
-            },
-            include: [{
-                model: Attribute,
-                attributes: ['name'],
-                where: {
-                    type: 'interest',
-                },
-            }]
-        });
-
-        results.sort(function(a, b) {
-            return similarIds.indexOf(b.dataValues.id) - similarIds.indexOf(a.dataValues.id);
-        })
-
-        results = results.map((res) => {
-            return {
-                id: res.dataValues.id,
-                username: res.dataValues.username,
-                attributes: res.dataValues.attributes.map((a) => {
-                    return a.name
-                }),
-            }
-        });
+        let results = await sequelize.query(`
+        SELECT
+            u.id,
+            u.username,
+            array_agg ( a.NAME ) AS attributes,
+            COUNT( p_a.patient_id ) * 1.0 / (SELECT COUNT(id) from patient_x_attributes where patient_id = :user_id group by patient_id) AS similarity 
+        FROM
+            users AS u,
+            patient_x_attributes AS p_a,
+            attributes AS a 
+        WHERE
+            u.id not in 
+                (SELECT user_one_id as id from user_matches where user_two_id = :user_id
+                    UNION
+                 SELECT user_two_id as id from user_matches where user_one_id = :user_id)
+            AND u.id = p_a.patient_id
+            AND p_a.attribute_id = a.id 
+            AND p_a.patient_id != :user_id 
+            AND p_a.attribute_id IN ( SELECT id FROM patient_x_attributes WHERE patient_id = :user_id ) 
+        GROUP BY
+            u.id 
+        ORDER BY
+            similarity DESC;`, 
+            { replacements: { user_id: userId }, type: sequelize.QueryTypes.SELECT});
         return results;
         // https://github.com/sequelize/sequelize/issues/222
     } catch (e) {
