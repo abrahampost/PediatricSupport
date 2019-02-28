@@ -1,4 +1,5 @@
 #!/usr/bin/sh
 cd app
-npm install
+NODE_ENV=dev npm install
 npm run build
+npm uninstall
