@@ -3,12 +3,18 @@ let express     = require("express"),
     bodyParser  = require("body-parser"),
     morgan      = require("morgan"),
     config      = require("./config/server"),
-    dotenv      = require("dotenv");
+    dotenv      = require("dotenv"),
+    cors        = require("cors"),
+    ExceptionHandler    = require("./exceptions/exception-handler"),
+    jwtInterceptor      = require("./middleware/jwtInterceptor");
 
 /*
  * Import environment variables for local testing
  */
-dotenv.config()
+if (process.env.NODE_ENV !== 'production') {
+    dotenv.config()
+    app.use(cors());
+}
 
 /*
  * Set up server parsing and logging
@@ -19,9 +25,19 @@ if (process.env.NODE_ENV != "test" && process.env.NODE_ENV != "testlocal") {
     app.use(morgan(config.logging));
 }
 
+app.use(express.static('./app/dist'));
+
+app.use(jwtInterceptor);
+
 /*
  *Register routes on api 
  */
 app.use("/api", require("./controllers/index"));
+
+app.use(ExceptionHandler);
+
+app.get("*", function(req, res) {
+    res.redirect("/");
+});
 
 module.exports = app;

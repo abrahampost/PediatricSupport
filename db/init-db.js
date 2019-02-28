@@ -1,9 +1,8 @@
-const User = require("../models/user").Model;
+const sequelize         = require("./sequelize");
 
 async function createTables() {
     try {
-       await User.sync();
-        console.log("Successfully created user table");
+        await sequelize.sync();
         process.exit(0);
     } catch (e) {
         console.error(e);

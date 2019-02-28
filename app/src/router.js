@@ -1,25 +1,114 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Home from './views/Home.vue';
+import Login from './views/shared/Login.vue';
+import store from './config/store';
 
 Vue.use(Router);
 
-export default new Router({
+const router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: Home,
+  routes: [{
+    path: '/login',
+    name: 'login',
+    component: Login,
+  },
+  {
+    path: '/admin',
+    component: () => import('./views/admin/Admin'),
+    meta: {
+      permission: 'admin',
+    },
+    children: [{
+      path: '',
+      name: 'admin',
+      component: () => import('./views/admin/CreateUsers'),
+      meta: {
+        permission: 'admin',
+      },
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue'),
+      path: 'attributes',
+      name: 'adminManageAttributes',
+      component: () => import('./views/admin/ManageAttributes'),
+      meta: {
+        permission: 'admin',
+      },
     },
+    {
+      path: 'reports',
+      name: 'adminManageReports',
+      component: () => import('./views/admin/ManageReports'),
+      meta: {
+        permission: 'admin',
+      },
+    },
+    {
+      path: 'users',
+      name: 'adminManageUsers',
+      component: () => import('./views/admin/ManageUsers'),
+      meta: {
+        permission: 'admin',
+      },
+    },
+    ],
+  },
+  {
+    path: '/patient',
+    component: () => import('./views/patient/Patient'),
+    meta: {
+      permission: 'patient',
+    },
+    children: [{
+      path: '',
+      name: 'patient',
+      component: () => import('./views/patient/Matches'),
+      meta: {
+        permission: 'patient',
+      },
+    },
+    {
+      path: 'matches',
+      name: 'patientMatches',
+      component: () => import('./views/patient/Messages'),
+      meta: {
+        permission: 'patient',
+      },
+    },
+    {
+      path: 'preferences',
+      name: 'patientPreferences',
+      component: () => import('./views/patient/Preferences'),
+      meta: {
+        permission: 'patient',
+      },
+    },
+    ],
+  },
+  {
+    path: '/parent',
+    name: 'parent',
+    component: () => import('./views/parent/Parent'),
+    meta: {
+      permission: 'parent',
+    },
+  },
+  {
+    path: '/*',
+    redirect: '/login',
+  },
   ],
 });
+
+router.beforeEach((to, from, next) => {
+  if (!to.meta.permission) {
+    next();
+  }
+  if (store.user !== undefined && store.user.type === to.meta.permission) {
+    next();
+  } else {
+    next('/login');
+  }
+});
+
+export default router;
