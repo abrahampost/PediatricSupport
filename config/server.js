@@ -16,8 +16,8 @@ let dev = {
     port: process.env.PORT || 8080,
 }
 
-let prod = {
-    mode: 'prod',
+let production = {
+    mode: 'production',
     logging: 'common',
     port: process.env.PORT || 80
 }
@@ -26,7 +26,7 @@ let configs = {
     test,
     testlocal,
     dev,
-    prod
+    production
 }
 
 module.exports = configs[process.env.NODE_ENV];
