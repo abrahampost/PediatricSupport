@@ -7,6 +7,7 @@ let userService = require("../services/user-service");
 let chai = require("chai");
 let chaiHttp = require("chai-http");
 let server = require('../app');
+let assert = chai.assert;
 
 chai.use(chaiHttp);
 
@@ -103,6 +104,126 @@ describe('Attributes', () => {
                 .send(requestBody)
                 .set('Authorization', token);
             res.should.have.status(400);
+        });
+    });
+
+    describe("/GET attributes", () => {
+        beforeEach(async () => {
+            await userService.signUp(testAdmin.username, testAdmin.password, testAdmin.lastName, testAdmin.firstName, testAdmin.email, testAdmin.type);
+        });
+
+        it('it should retrieve all attributes', async () => {
+            let res = await chai.request(server)
+                .post("/api/authenticate/login")
+                .send({
+                    username: testAdmin.username,
+                    password: testAdmin.password
+                });
+            let token = res.body.token;
+
+            let requestBody = {
+                name: "legos",
+                type: "interest"
+            }
+            res = await chai.request(server)
+                .post("/api/attributes")
+                .send(requestBody)
+                .set('Authorization', token);
+            res.should.have.status(201);
+
+            requestBody = {
+                name: "cancer",
+                type: "diagnosis"
+            }
+            res = await chai.request(server)
+                .post("/api/attributes")
+                .send(requestBody)
+                .set('Authorization', token);
+            res.should.have.status(201);
+
+            res = await chai.request(server)
+                .get("/api/attributes")
+                .set("Authorization", token);
+            
+            let body = res.body;
+            assert.exists(body);
+            assert.equal(2,body.length);
+        });
+
+        it('it should retrieve all interests', async () => {
+            let res = await chai.request(server)
+                .post("/api/authenticate/login")
+                .send({
+                    username: testAdmin.username,
+                    password: testAdmin.password
+                });
+            let token = res.body.token;
+
+            let requestBody = {
+                name: "legos",
+                type: "interest"
+            }
+            res = await chai.request(server)
+                .post("/api/attributes")
+                .send(requestBody)
+                .set('Authorization', token);
+            res.should.have.status(201);
+
+            requestBody = {
+                name: "cancer",
+                type: "diagnosis"
+            }
+            res = await chai.request(server)
+                .post("/api/attributes")
+                .send(requestBody)
+                .set('Authorization', token);
+            res.should.have.status(201);
+
+            res = await chai.request(server)
+                .get("/api/attributes?type=interest")
+                .set("Authorization", token);
+            
+            let body = res.body;
+            assert.exists(body);
+            assert.equal(1,body.length);
+        });
+
+        it('it should retrieve all diagnoses', async () => {
+            let res = await chai.request(server)
+                .post("/api/authenticate/login")
+                .send({
+                    username: testAdmin.username,
+                    password: testAdmin.password
+                });
+            let token = res.body.token;
+
+            let requestBody = {
+                name: "legos",
+                type: "interest"
+            }
+            res = await chai.request(server)
+                .post("/api/attributes")
+                .send(requestBody)
+                .set('Authorization', token);
+            res.should.have.status(201);
+
+            requestBody = {
+                name: "cancer",
+                type: "diagnosis"
+            }
+            res = await chai.request(server)
+                .post("/api/attributes")
+                .send(requestBody)
+                .set('Authorization', token);
+            res.should.have.status(201);
+
+            res = await chai.request(server)
+                .get("/api/attributes?type=diagnosis")
+                .set("Authorization", token);
+            
+            let body = res.body;
+            assert.exists(body);
+            assert.equal(1,body.length);
         });
     });
 });

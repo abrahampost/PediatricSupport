@@ -15,4 +15,15 @@ router.post('/', async function(req, res, next) {
     }
 });
 
+router.get('/', async function(req, res, next) {
+    try {
+        let type = req.query.type;
+
+        let attributes = await attributeService.getAttributes(type);
+        res.json(attributes);
+    } catch(e) {
+        next(e);
+    }
+});
+
 module.exports = router;
