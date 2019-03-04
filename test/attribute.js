@@ -3,6 +3,7 @@ process.env.NODE_ENV = 'test';
 let Attribute = require("../db/sequelize").attribute;
 let User = require("../db/sequelize").user;
 let userService = require("../services/user-service");
+let attributeService = require("../services/attribute-service");
 
 let chai = require("chai");
 let chaiHttp = require("chai-http");
@@ -110,6 +111,8 @@ describe('Attributes', () => {
     describe("/GET attributes", () => {
         beforeEach(async () => {
             await userService.signUp(testAdmin.username, testAdmin.password, testAdmin.lastName, testAdmin.firstName, testAdmin.email, testAdmin.type);
+            await attributeService.createAttribute("legos","interest");
+            await attributeService.createAttribute("cancer","diagnosis");
         });
 
         it('it should retrieve all attributes', async () => {
@@ -120,26 +123,6 @@ describe('Attributes', () => {
                     password: testAdmin.password
                 });
             let token = res.body.token;
-
-            let requestBody = {
-                name: "legos",
-                type: "interest"
-            }
-            res = await chai.request(server)
-                .post("/api/attributes")
-                .send(requestBody)
-                .set('Authorization', token);
-            res.should.have.status(201);
-
-            requestBody = {
-                name: "cancer",
-                type: "diagnosis"
-            }
-            res = await chai.request(server)
-                .post("/api/attributes")
-                .send(requestBody)
-                .set('Authorization', token);
-            res.should.have.status(201);
 
             res = await chai.request(server)
                 .get("/api/attributes")
@@ -159,26 +142,6 @@ describe('Attributes', () => {
                 });
             let token = res.body.token;
 
-            let requestBody = {
-                name: "legos",
-                type: "interest"
-            }
-            res = await chai.request(server)
-                .post("/api/attributes")
-                .send(requestBody)
-                .set('Authorization', token);
-            res.should.have.status(201);
-
-            requestBody = {
-                name: "cancer",
-                type: "diagnosis"
-            }
-            res = await chai.request(server)
-                .post("/api/attributes")
-                .send(requestBody)
-                .set('Authorization', token);
-            res.should.have.status(201);
-
             res = await chai.request(server)
                 .get("/api/attributes?type=interest")
                 .set("Authorization", token);
@@ -196,26 +159,6 @@ describe('Attributes', () => {
                     password: testAdmin.password
                 });
             let token = res.body.token;
-
-            let requestBody = {
-                name: "legos",
-                type: "interest"
-            }
-            res = await chai.request(server)
-                .post("/api/attributes")
-                .send(requestBody)
-                .set('Authorization', token);
-            res.should.have.status(201);
-
-            requestBody = {
-                name: "cancer",
-                type: "diagnosis"
-            }
-            res = await chai.request(server)
-                .post("/api/attributes")
-                .send(requestBody)
-                .set('Authorization', token);
-            res.should.have.status(201);
 
             res = await chai.request(server)
                 .get("/api/attributes?type=diagnosis")
