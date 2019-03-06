@@ -12,9 +12,9 @@ const userService = require("../services/user-service"),
 
 // testing dependencies
 const chai = require("chai"),
-    assert = chai.assert
-chaiHttp = require("chai-http")
-server = require('../app'),
+    assert = chai.assert,
+    chaiHttp = require("chai-http"),
+    server = require('../app'),
     should = chai.should();
 
 chai.use(chaiHttp);
@@ -167,6 +167,11 @@ describe("Match", () => {
                 results[0].username.should.be.eql(users[2].username);
                 results[1].username.should.be.eql(users[1].username);
             })
+            it("it should return no matches if none exists", async () => {
+                let user = await User.findOne();
+                let results = await matchService.getMatches(user.id);
+                results.should.have.length(0);
+            });
         })
 
         //TODO: Add more matching engine tests
@@ -234,19 +239,77 @@ describe("Match", () => {
                     patient_id: users[3].id,
                     attribute_id: legos.id
                 });
-                // let patientAttributes = await User.findAll({
-                //     where: {},
-                //     include: [Attribute]
-                // })
-                // patientAttributes = patientAttributes.map((d) => {
-                //     return d.dataValues;
-                // })
                 // #endregion
                 let matchedUsers = await matchService.getPotentialMatches(users[0].id);
                 matchedUsers.should.have.length(3, matchedUsers.length);
                 matchedUsers[0].id.should.be.eql(users[1].id, matchedUsers[0].id);
                 matchedUsers[1].id.should.be.eql(users[2].id, matchedUsers[1].id);
                 matchedUsers[2].id.should.be.eql(users[3].id, matchedUsers[2].id);
+            });
+            it("it should find matches with some non-similar interests", async () => {
+                // #region initialize matches
+                let legos = await Attribute.create({
+                    name: 'legos',
+                    type: 'interest',
+                });
+                let movies = await Attribute.create({
+                    name: 'movies',
+                    type: 'interest',
+                });
+                let videogames = await Attribute.create({
+                    name: 'videogames',
+                    type: 'interest',
+                });
+                let basketball = await Attribute.create({
+                    name: 'basketball',
+                    type: 'interest',
+                });
+                let users = await User.findAll({
+                    attributes: ['id'],
+                    where: {},
+                    order: [['id', 'ASC']],
+                });
+                //Patient 0 no longer likes legos. :(
+                await PatientAttributes.create({
+                    patient_id: users[0].id,
+                    attribute_id: movies.id
+                });
+                await PatientAttributes.create({
+                    patient_id: users[0].id,
+                    attribute_id: videogames.id
+                });
+                await PatientAttributes.create({
+                    patient_id: users[0].id,
+                    attribute_id: basketball.id
+                });
+                await PatientAttributes.create({
+                    patient_id: users[1].id,
+                    attribute_id: legos.id
+                });
+                await PatientAttributes.create({
+                    patient_id: users[1].id,
+                    attribute_id: movies.id
+                });
+                await PatientAttributes.create({
+                    patient_id: users[1].id,
+                    attribute_id: videogames.id
+                });
+                await PatientAttributes.create({
+                    patient_id: users[2].id,
+                    attribute_id: legos.id
+                });
+                await PatientAttributes.create({
+                    patient_id: users[2].id,
+                    attribute_id: movies.id
+                });
+                await PatientAttributes.create({
+                    patient_id: users[3].id,
+                    attribute_id: legos.id
+                });
+                // #endregion
+                let matchedUsers = await matchService.getPotentialMatches(users[0].id);
+                matchedUsers.should.have.length(3, matchedUsers.length);
+                matchedUsers[0].id.should.be.eql(users[1].id);
             });
         })
 

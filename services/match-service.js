@@ -146,28 +146,31 @@ exports.getMatches = async function (userId) {
 exports.getPotentialMatches = async function (userId) {
     try {
         let results = await sequelize.query(`
-        SELECT
-            u.id,
-            u.username,
-            array_agg ( a.NAME ) AS attributes,
-            COUNT( p_a.patient_id ) * 1.0 / (SELECT COUNT(id) from patient_x_attributes where patient_id = :user_id group by patient_id) AS similarity 
-        FROM
-            users AS u,
-            patient_x_attributes AS p_a,
-            attributes AS a 
-        WHERE
-            u.id not in 
-                (SELECT user_one_id as id from user_matches where user_two_id = :user_id
-                    UNION
-                 SELECT user_two_id as id from user_matches where user_one_id = :user_id)
-            AND u.id = p_a.patient_id
-            AND p_a.attribute_id = a.id 
+        SELECT u.id, 
+            u.username, 
+            Array_agg(a.NAME) AS attributes, 
+            (SELECT Count(*) 
+                FROM   patient_x_attributes AS p_a 
+                WHERE  p_a.patient_id = u.id 
+                    AND p_a.attribute_id IN(SELECT attribute_id 
+                                            FROM   patient_x_attributes 
+                                            WHERE  patient_id = :user_id)) AS 
+            similarity 
+        FROM   users AS u 
+            LEFT JOIN patient_x_attributes p_a 
+                    ON u.id = p_a.patient_id 
+            LEFT JOIN attributes a 
+                    ON p_a.attribute_id = a.id 
+        WHERE  u.id NOT IN(SELECT user_one_id AS id 
+                        FROM   user_matches 
+                        WHERE  user_two_id = :user_id 
+                        UNION 
+                        SELECT user_two_id AS id 
+                        FROM   user_matches 
+                        WHERE  user_one_id = :user_id) 
             AND p_a.patient_id != :user_id 
-            AND p_a.attribute_id IN ( SELECT id FROM patient_x_attributes WHERE patient_id = :user_id ) 
-        GROUP BY
-            u.id 
-        ORDER BY
-            similarity DESC;`, 
+        GROUP  BY u.id
+        order by similarity desc;`, 
             { replacements: { user_id: userId }, type: sequelize.QueryTypes.SELECT});
         return results;
         // https://github.com/sequelize/sequelize/issues/222
