@@ -24,7 +24,7 @@
             <div class="content">
               <div class="header">{{ match.username }}</div>
               <div class="meta" v-if="filterType === 'potential'">
-                <progress min="0" max="100" v-bind:value="Math.round(match.similarity * 100)">
+                <progress min="0" max="100" v-bind:value="similarPercent(match.similarity)">
                 </progress>
               </div>
               <div class="description">{{ getAttributeList(match.attributes) }}</div>
@@ -76,6 +76,7 @@ export default {
   data() {
     return {
       filterType: 'potential',
+      highestSimilarity: 0,
       matches: [],
       potentialMatches: [],
       error: '',
@@ -96,9 +97,10 @@ export default {
       this.error = '';
       this.$http.get('/matches')
         .then((res) => {
-          const data = res.data;
+          const { data } = res;
           this.matches = data.matches;
           this.potentialMatches = data.potentialMatches;
+          this.highestSimilarity = this.potentialMatches[0].similarity;
           this.loading = false;
         })
         .catch((err) => {
@@ -165,6 +167,9 @@ export default {
     },
     getAttributeList(attributes) {
       return attributes.map(a => a[0].toUpperCase() + a.substring(1)).join(', ');
+    },
+    similarPercent(similarity) {
+      return Math.round((similarity / this.highestSimilarity) * 100);
     },
   },
 };
