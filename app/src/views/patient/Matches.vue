@@ -8,7 +8,9 @@
         <a class="item" @click="filterType='matched'"
           :class="{'active': 'matched' === filterType}">Matched</a>
         <a class="item" @click="filterType='pending'"
-          :class="{'active': 'pending' === filterType}">Pending</a>
+          :class="{'active': 'pending' === filterType}">Pending
+          <span v-if="pendingNumber > 0" class="pending">{{ pendingNumber }}</span>
+          </a>
         <a class="item" @click="filterType='sent'"
           :class="{'active': 'sent' === filterType}">Sent</a>
       </div>
@@ -90,6 +92,17 @@ export default {
       }
       return this.matches.filter(match => match.type === this.filterType);
     },
+    pendingNumber() {
+      if (!this.matches || this.matches.length === 0) {
+        return 0;
+      }
+      return this.matches.reduce((acc, val) => {
+        if (val.type === 'pending') {
+          return acc + 1;
+        }
+        return acc;
+      }, 0);
+    },
   },
   methods: {
     fetchData() {
@@ -100,8 +113,11 @@ export default {
           const { data } = res;
           this.matches = data.matches;
           this.potentialMatches = data.potentialMatches;
-          this.highestSimilarity = this.potentialMatches[0].similarity;
+          if (this.potentialMatches.length > 0) {
+            this.highestSimilarity = this.potentialMatches[0].similarity;
+          }
           this.loading = false;
+          this.error = '';
         })
         .catch((err) => {
           if (err && err.data && err.data.error) {
@@ -177,5 +193,14 @@ export default {
 <style scoped>
 .ui.huge.header.margin {
   margin: 1em;
+}
+
+.pending {
+  margin-left: 4px;
+  background-color: red;
+  border-radius: 3px;
+  color: white;
+  padding: .3em;
+  font-weight: 400;
 }
 </style>
