@@ -3,10 +3,9 @@ const   Sequelize = require("sequelize"),
         User = require("../db/sequelize").user,
         Match = require("../db/sequelize").user_match,
         Attribute = require("../db/sequelize").attribute,
-        PatientAttribute = require("../db/sequelize").patient_x_attribute,
-        PatientInfo = require("../db/sequelize").patient_info,
         Op = Sequelize.Op,
-        BadRequestException = require("../exceptions/bad-request-exception");
+        BadRequestException = require("../exceptions/bad-request-exception"),
+        InternalErrorException = require("../exceptions/internal-error-exception");
 
 /**
  * Takes in two userIds. First one is person making the request, second is person receiving the request.
@@ -21,7 +20,6 @@ exports.createMatch = async function (userOneId, userTwoId) {
         };
         let match = await Match.build(newMatch);
         await match.save();
-        return 201;
     } catch (e) {
         // TODO: Turn this into a utility function in a utility class
         if (e instanceof Sequelize.ValidationError) {
@@ -30,10 +28,12 @@ exports.createMatch = async function (userOneId, userTwoId) {
                 errorMessage += `\n${error.path}: ${error.message}`;
             });
             throw new BadRequestException(errorMessage);
-        } else if (e instanceof BadRequestException) {
-            throw e;
         }
-        throw new BadRequestException("A problem occured when saving the match.");
+        else if(e instanceof Sequelize.ForeignKeyConstraintError) {
+            throw new BadRequestException("The match could not be saved since one or more users do not exist.");
+        }
+
+        throw new InternalErrorException("A problem occured when saving the match.");
     }
 }
 
@@ -127,17 +127,15 @@ exports.getMatches = async function (userId) {
 
         return results;
     } catch (e) {
-        console.error(e);
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";
             e.errors.forEach((error) => {
                 errorMessage += `\n${error.path}: ${error.message}`;
             });
             throw new BadRequestException(errorMessage);
-        } else if (e instanceof BadRequestException) {
-            throw e;
         }
-        throw new BadRequestException("Unable to retrieve user matches.");
+
+        throw new InternalErrorException("Unable to retrieve user matches.");
     }
 }
 
@@ -180,11 +178,9 @@ exports.getPotentialMatches = async function (userId) {
                 errorMessage += `\n${error.path}: ${error.message}`;
             });
             throw new BadRequestException(errorMessage);
-        } else if (e instanceof BadRequestException) {
-            throw e;
-        }
-        console.error(e);
-        throw new BadRequestException("Unable to retrieve user matches.");
+        } 
+
+        throw new InternalErrorException("Unable to retrieve user matches.");
     }
 }
 
@@ -205,8 +201,7 @@ exports.updateMatchType = async function(matchId, updatedType) {
         if (response[0] == 0) {
             // checks if no rows were affected by the update
             throw new BadRequestException("Match does not exist.");
-        };
-        return 200;
+        }
     } catch(e) {
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";
@@ -217,7 +212,8 @@ exports.updateMatchType = async function(matchId, updatedType) {
         } else if (e instanceof BadRequestException) {
             throw e;
         }
-        throw new BadRequestException("Unable to update match status.");
+        
+        throw new InternalErrorException("Unable to update match status.");
     }
 }
 
@@ -234,7 +230,6 @@ exports.deleteMatch = async function(matchId) {
         if (numRows == 0) {
             throw new BadRequestException("Match does not exist.");
         }
-        return 200;
     } catch(e) {
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";
@@ -245,6 +240,6 @@ exports.deleteMatch = async function(matchId) {
         } else if (e instanceof BadRequestException) {
             throw e;
         }
-        throw new BadRequestException("Unable to update match status.");
+        throw new InternalErrorException("Unable to update match status.");
     }
 }

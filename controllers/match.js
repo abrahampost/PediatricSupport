@@ -17,8 +17,8 @@ router.post("/", async function(req, res, next) {
     try {
         let sendingId = req.decoded.id;
         let receivingId = req.body.receivingId;
-        let resultStatus = await matchService.createMatch(sendingId, receivingId);
-        res.sendStatus(resultStatus);
+        await matchService.createMatch(sendingId, receivingId);
+        res.sendStatus(201);
     } catch(e) {
         next(e);
     }
@@ -28,8 +28,8 @@ router.put("/:id", async function(req, res, next) {
     try {
         let matchId = req.params.id;
         let matchType = req.body.matchType;
-        let resultStatus = await matchService.updateMatchType(matchId, matchType);
-        res.sendStatus(resultStatus);
+        await matchService.updateMatchType(matchId, matchType);
+        res.sendStatus(200);
     } catch(e) {
         next(e);
     }
@@ -38,8 +38,8 @@ router.put("/:id", async function(req, res, next) {
 router.delete("/:id", async function(req, res, next) {
     try {
         let matchId = req.params.id;
-        let resultStatus = await matchService.deleteMatch(matchId);
-        res.sendStatus(resultStatus);
+        await matchService.deleteMatch(matchId);
+        res.sendStatus(200);
     } catch(e) {
         next(e);
     }

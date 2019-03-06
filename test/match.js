@@ -40,9 +40,8 @@ describe("Match", () => {
                     attributes: ['id'],
                     limit: 2,
                 });
-                let response = await matchService.createMatch(users[0].id, users[1].id);
-                // make sure the response is properly formed
-                response.should.be.eql(201, "response not 201");
+                await matchService.createMatch(users[0].id, users[1].id);
+
                 // check the matches table to see if it correctly updated
                 let match = await Match.findOne({
                     where: {
@@ -82,8 +81,8 @@ describe("Match", () => {
                         },
                     },
                 });
-                let response = await matchService.updateMatchType(match.id, 'matched');
-                response.should.be.eql(200);
+                await matchService.updateMatchType(match.id, 'matched');
+
                 let foundMatch = await Match.findOne({
                     where: {
                         id: match.id,
@@ -93,8 +92,8 @@ describe("Match", () => {
             });
             it("it should update a match to 'blocked'", async () => {
                 let match = await Match.findOne();
-                let response = await matchService.updateMatchType(match.id, 'blocked');
-                response.should.be.eql(200);
+                await matchService.updateMatchType(match.id, 'blocked');
+
                 let foundMatch = await Match.findOne({
                     where: {
                         id: match.id,
@@ -137,8 +136,7 @@ describe("Match", () => {
                     where: {}
                 });
                 matches.should.have.length(1, "incorrect length");
-                let status = await matchService.deleteMatch(matches[0].id);
-                status.should.be.eql(200);
+                await matchService.deleteMatch(matches[0].id);
                 let noMatches = await Match.findAll({
                     where: {}
                 });
