@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs"),
     jwt = require("jsonwebtoken"),
     User = require("../db/sequelize").user,
     PatientXAttribute = require("../db/sequelize").patient_x_attribute,
+    PatientInfo = requre("../db/sequelize").PatientInfo,
     BadRequestException = require("../exceptions/bad-request-exception"),
     InternalErrorException = require("../exceptions/internal-error-exception"),
     UnauthorizedRequestException = require("../exceptions/unauthorized-request-exception"),
@@ -116,6 +117,27 @@ exports.deleteInterests = async function (userid, interests) {
                 }
             }
         })
+        return 200;
+    } catch (e) {
+        if (e instanceof Sequelize.ValidationError) {
+            let errorMessage = "The following values are invalid:";
+            e.errors.forEach((error) => {
+                errorMessage += `\n${error.path}: ${error.message}`;
+            });
+            throw new BadRequestException(errorMessage);
+        }
+        console.error(`A problem occurred when saving a user: ${e.stack}`);
+        throw new InternalErrorException("A problem occurred when saving the user");
+    }
+}
+
+exports.createBio = async function (userid, bio) {
+    try {
+        let userBiography = {
+            id: userid,
+            biography: bio
+        }
+        await // insert into databse
         return 200;
     } catch (e) {
         if (e instanceof Sequelize.ValidationError) {
