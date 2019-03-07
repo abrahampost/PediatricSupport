@@ -68,8 +68,16 @@ const router = new Router({
       },
     },
     {
-      path: 'matches',
-      name: 'patientMatches',
+      path: 'messages',
+      name: 'patientMessages',
+      component: () => import('./views/patient/Messages'),
+      meta: {
+        permission: 'patient',
+      },
+    },
+    {
+      path: 'messages/:id',
+      name: 'patientMessagesWithUser',
       component: () => import('./views/patient/Messages'),
       meta: {
         permission: 'patient',
