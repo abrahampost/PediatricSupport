@@ -16,18 +16,4 @@ export default {
 };
 </script>
 <style scoped>
-
-.menu {
-  min-height: 8em;
-}
-
-.menu .item {
-  font-weight: bold;
-  font-size: 1.2m;
-}
-
-.menu .header.item {
-  font-size: 1.4em;
-}
-
 </style>

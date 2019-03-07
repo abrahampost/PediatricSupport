@@ -25,6 +25,6 @@
         },
         "EMAIL_PASSWORD": {
             "required": true  
-        },
+        }
     }
 }
