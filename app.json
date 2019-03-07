@@ -19,6 +19,12 @@
         "SIGN_KEY": {
             "description": "Sign key used to sign JWTs",
             "generator": "secret"
+        },
+        "EMAIL_USER": {
+            "required": true   
+        },
+        "EMAIL_PASSWORD": {
+            "required": true  
         }
     }
 }
