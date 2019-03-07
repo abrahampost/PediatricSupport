@@ -17,7 +17,6 @@ async function deliver(mail){
     let info = await transporter.sendMail(mail);
     console.log("Message sent: %s", info.messageId);
   } catch (e) {
-    console.error(e);
     throw new InternalErrorException("Unable to send email.");
   }
 }
