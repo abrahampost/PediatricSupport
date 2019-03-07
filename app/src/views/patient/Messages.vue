@@ -194,7 +194,7 @@ export default {
   computed: {
     selectedConversation() {
       if (this.$route.params.id) {
-        return this.conversations.find(c => c.id === this.selectedConversationId);
+        return this.conversations.find(c => c.id === this.$route.params.id);
       }
       return {
         username: '',

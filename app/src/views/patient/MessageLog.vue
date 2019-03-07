@@ -5,7 +5,7 @@
       <div id="log"
         class="ui middle aligned grid"
         v-if="username.length > 0"
-        v-sticky-scroll>
+        v-chat-scroll="{always: false, smooth: true}">
         <div class="row" v-for="message in messages" :key="message.id">
           <div class="two wide column">
             <div v-if="message.type === 'received'">
@@ -14,8 +14,7 @@
             </div>
           </div>
           <div class="twelve wide column">
-            <div 
-              :class="{'float-left': message.type === 'received',
+            <div :class="{'float-left': message.type === 'received',
               'float-right': message.type === 'sent'}">
               <p class="message">{{ message.content}}</p>
               <div class="date-label">{{ formatDate(message.createdAt) }}</div>
@@ -57,7 +56,7 @@ export default {
       return date.toLocaleDateString();
     },
   },
-}
+};
 </script>
 <style scoped>
 .patient-message-log {
