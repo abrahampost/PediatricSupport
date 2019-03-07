@@ -32,4 +32,17 @@ router.post('/', async function(req, res, next) {
     }
 });
 
+router.put('/', async function(req, res, next) {
+    try {
+        let userid = req.decoded.id;
+        let interests = req.body.interests;
+        let biography = req.body.biography;
+
+        await userService.updatePatientInfo(userid, interests, biography);
+        res.sendStatus(200);
+    } catch(e) {
+        next(e);
+    }
+});
+
 module.exports = router;

@@ -81,6 +81,74 @@ exports.signUp = async function (username, unhashed_password, last_name, first_n
     }
 }
 
+exports.updatePatientInfo = async function (userid, interests, biography) {
+    let patient = await User.findOne({where: {
+        id: userid
+    }});
+
+    //delete interests:
+    try {
+        await PatientXAttribute.destroy({
+            where: {
+                patient_id: userid
+            }
+        })
+    } catch (e) {
+        if (e instanceof Sequelize.ValidationError) {
+            let errorMessage = "The following values are invalid:";
+            e.errors.forEach((error) => {
+                errorMessage += `\n${error.path}: ${error.message}`;
+            });
+            throw new BadRequestException(errorMessage);
+        }
+        console.error(`A problem occurred when deleting interests: ${e.stack}`);
+        throw new InternalErrorException("A problem occurred when deleting interests");
+    }
+    //create new interests:
+    try {
+        let userInterests = [];
+        for (i = 0; i < interests.length; i++) {
+            userInterests.push({
+                patient_id: userid,
+                attribute_id: interests[i]
+            })
+        }
+        await PatientXAttribute.bulkCreate(userInterests)
+    } catch (e) {
+        if (e instanceof Sequelize.ValidationError) {
+            let errorMessage = "The following values are invalid:";
+            e.errors.forEach((error) => {
+                errorMessage += `\n${error.path}: ${error.message}`;
+            });
+            throw new BadRequestException(errorMessage);
+        }
+        console.error(`A problem occurred when creating interests: ${e.stack}`);
+        throw new InternalErrorException("A problem occurred when creating interests");
+    }
+    //delete old patient info
+    try {
+        await PatientInfo.destroy({
+            where: {
+                user_id: userid
+            }
+        })
+    } catch (e) {
+        if (e instanceof Sequelize.ValidationError) {
+            let errorMessage = "The following values are invalid:";
+            e.errors.forEach((error) => {
+                errorMessage += `\n${error.path}: ${error.message}`;
+            });
+            throw new BadRequestException(errorMessage);
+        }
+        console.error(`A problem occurred when deleting old user info: ${e.stack}`);
+        throw new InternalErrorException("A problem occurred when deleting old user info");
+    }
+    //create new patient info
+    let patientInfo = await PatientInfo.build({biography});
+    patient.setPatientInfo(patientInfo);
+    await patient.save();
+}
+
 exports.createInterests = async function (userid, interests) {
     try {
         let userInterests = [];
@@ -99,8 +167,8 @@ exports.createInterests = async function (userid, interests) {
             });
             throw new BadRequestException(errorMessage);
         }
-        console.error(`A problem occurred when saving a user: ${e.stack}`);
-        throw new InternalErrorException("A problem occurred when saving the user");
+        console.error(`A problem occurred when creating interests: ${e.stack}`);
+        throw new InternalErrorException("A problem occurred when creating interests");
     }
 }
 
@@ -119,8 +187,8 @@ exports.deleteInterests = async function (userid) {
             });
             throw new BadRequestException(errorMessage);
         }
-        console.error(`A problem occurred when saving a user: ${e.stack}`);
-        throw new InternalErrorException("A problem occurred when saving the user");
+        console.error(`A problem occurred when deleting interests: ${e.stack}`);
+        throw new InternalErrorException("A problem occurred when deleting interests");
     }
 }
 
@@ -137,8 +205,8 @@ exports.createPatientInfo = async function (patient) {
             });
             throw new BadRequestException(errorMessage);
         }
-        console.error(`A problem occurred when saving a user: ${e.stack}`);
-        throw new InternalErrorException("A problem occurred when saving the user");
+        console.error(`A problem occurred when updating user info: ${e.stack}`);
+        throw new InternalErrorException("A problem occurred udpating user info");
     }
 }
 
