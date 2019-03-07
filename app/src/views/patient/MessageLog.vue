@@ -1,11 +1,11 @@
 <template>
   <div class="patient-message-log">
     <div class="ui segment full-height">
-      <h1 class="header">Chat with {{ username }}</h1>
+      <h3 class="ui header">Chat with {{ username }}</h3>
       <div id="log"
         class="ui middle aligned grid"
         v-if="username.length > 0"
-        ref="log">
+        v-sticky-scroll>
         <div class="row" v-for="message in messages" :key="message.id">
           <div class="two wide column">
             <div v-if="message.type === 'received'">
@@ -14,7 +14,9 @@
             </div>
           </div>
           <div class="twelve wide column">
-            <div :class="{'float-left': message.type === 'received', 'float-right': message.type === 'sent'}"> 
+            <div 
+              :class="{'float-left': message.type === 'received',
+              'float-right': message.type === 'sent'}">
               <p class="message">{{ message.content}}</p>
               <div class="date-label">{{ formatDate(message.createdAt) }}</div>
             </div>
@@ -29,7 +31,7 @@
       </div>
       <div id="no-chats"
         v-if="username.length == 0">
-        <div 
+        <div
           class="ui centered floating message">
           Click a chat to view messages.
         </div>
@@ -55,13 +57,6 @@ export default {
       return date.toLocaleDateString();
     },
   },
-  watch: {
-    '$route' (to, from) {
-      let log = this.$refs.log;
-      console.log(log);
-      log.scrollTop = log.scrollHeight;
-    }
-  }
 }
 </script>
 <style scoped>
