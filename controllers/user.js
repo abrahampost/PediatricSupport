@@ -20,9 +20,11 @@ router.post('/', async function(req, res, next) {
         let patient = await userService.signUp(patientUsername, patientPassword, patientLastName, patientFirstName, patientEmail, "patient");
         let parent = await userService.signUp(parentUsername, parentPassword, parentLastName, parentFirstName, parentEmail, "parent");
 
+        await userService.createPatientInfo(patient);
+        await userService.linkPatientParent(patient, parent);
+
         await emailService.sendSignupEmail(patientUsername, patientEmail, patientPassword);
         await emailService.sendSignupEmail(parentUsername, parentEmail, parentPassword);
-        await userService.linkPatientParent(patient, parent);
 
         res.sendStatus(201);
     } catch(e)  {

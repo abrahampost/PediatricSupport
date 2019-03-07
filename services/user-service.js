@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs"),
     jwt = require("jsonwebtoken"),
     User = require("../db/sequelize").user,
     PatientXAttribute = require("../db/sequelize").patient_x_attribute,
-    PatientInfo = requre("../db/sequelize").PatientInfo,
+    PatientInfo = require("../db/sequelize").patient_info,
     BadRequestException = require("../exceptions/bad-request-exception"),
     InternalErrorException = require("../exceptions/internal-error-exception"),
     UnauthorizedRequestException = require("../exceptions/unauthorized-request-exception"),
@@ -77,7 +77,6 @@ exports.signUp = async function (username, unhashed_password, last_name, first_n
             });
             throw new BadRequestException(errorMessage);
         }
-
         throw new InternalErrorException("A problem occurred when saving the user");
     }
 }
@@ -92,7 +91,6 @@ exports.createInterests = async function (userid, interests) {
             })
         }
         await PatientXAttribute.bulkCreate(userInterests)
-        return 200;
     } catch (e) {
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";
@@ -106,17 +104,13 @@ exports.createInterests = async function (userid, interests) {
     }
 }
 
-exports.deleteInterests = async function (userid, interests) {
+exports.deleteInterests = async function (userid) {
     try {
         await PatientXAttribute.destroy({
             where: {
-                patient_id: userid,
-                attribute_id: {
-                    [Op.in]: interests
-                }
+                patient_id: userid
             }
         })
-        return 200;
     } catch (e) {
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";
@@ -130,14 +124,11 @@ exports.deleteInterests = async function (userid, interests) {
     }
 }
 
-exports.createBio = async function (userid, bio) {
+exports.createPatientInfo = async function (patient) {
     try {
-        let userBiography = {
-            id: userid,
-            biography: bio
-        }
-        await // insert into databse
-        return 200;
+        let patientInfo = await PatientInfo.create();
+        patient.setPatientInfo(patientInfo);
+        await patient.save();
     } catch (e) {
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";
