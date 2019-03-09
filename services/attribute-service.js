@@ -18,8 +18,7 @@ exports.createAttribute = async function (name, type) {
             });
             throw new BadRequestException(errorMessage);
         }
-        console.error(`A problem occurred when saving an attribute: ${e.stack}`);
-        throw new InternalErrorException("A problem occurred when saving the attribute");
+        throw new InternalErrorException("A problem occurred when saving the attribute",e);
     }
 }
 
@@ -35,7 +34,6 @@ exports.getAttributes = async function (type) {
         });
         return attributes;
     } catch (e) {
-        console.error(`A problem occurred when retrieving attributes: ${e.stack}`);
-        throw new InternalErrorException("A problem occurred when retrieving attributes");
+        throw new InternalErrorException("A problem occurred when retrieving attributes",e);
     }
 }

@@ -4,7 +4,7 @@ const   PediatricSupportException = require("./pediatric-support-exception"),
 module.exports = function (err, req, res, next) {
     if(err instanceof PediatricSupportException) {
         if(err instanceof InternalErrorException){
-            console.error(`INTERNAL ERROR "${err.message}": ${err.stack}`);
+            console.error(`INTERNAL ERROR "${err.message}": ${err.e.stack}`);
         }
         res.status(err.status_code).send({error: err.message});
     } else {

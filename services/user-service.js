@@ -43,7 +43,7 @@ exports.linkPatientParent = async function (patient, parent) {
     try{
         patient.addPatientXParent(parent);
     } catch(e) {
-        throw new InternalErrorException("A problem occurred when saving the user");
+        throw new InternalErrorException("A problem occurred when saving the user",e);
     }
 }
 
@@ -75,7 +75,7 @@ exports.signUp = async function (username, unhashed_password, last_name, first_n
             throw new BadRequestException(errorMessage);
         }
 
-        throw new InternalErrorException("A problem occurred when saving the user");
+        throw new InternalErrorException("A problem occurred when saving the user",e);
     }
 }
 
