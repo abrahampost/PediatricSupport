@@ -32,7 +32,8 @@
       <div class="twelve wide column">
         <MessageLog
           v-bind:username="selectedConversation.username"
-          v-bind:messages="selectedConversation.messages" />
+          v-bind:messages="selectedConversation.messages" 
+          v-on:sendMessage="sendMessage($event)"/>
       </div>
     </div>
   </div>
@@ -209,6 +210,15 @@ export default {
       }
       return date.toLocaleDateString();
     },
+    sendMessage(message) {
+      let newMessage = {
+        type: 'sent',
+        content: message,
+        createdAt: new Date()
+      };
+      let conversation = this.conversations.find(c => c.id === this.$route.params.id);
+      conversation.messages.push(newMessage);
+    }
   },
 };
 </script>

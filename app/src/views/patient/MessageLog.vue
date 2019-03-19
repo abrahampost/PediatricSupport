@@ -37,23 +37,53 @@
       </div>
       <div id="send">
         <div class="ui fluid action input">
-          <input type="text" placeholder="Send Message...">
-          <button class="ui green button">Send</button>
+          <input type="text" 
+            placeholder="Send Message..."
+            v-model="message"
+            v-on:keydown.enter="sendMessage">
+          <button 
+            class="ui green button" 
+            @click="sendMessage"
+            :disabled="!$route.params.id">Send</button>
         </div>
       </div>
     </div>
   </div>
 </template>
 <script>
+import Vue from 'vue';
+
 export default {
   name: 'PatientMessageLog',
   props: ['username', 'messages'],
+  data() {
+    return {
+      message: '',
+    };
+  },
   methods: {
     formatDate(date) {
       if (date.toDateString() === new Date().toDateString()) {
         return date.toLocaleTimeString();
       }
       return date.toLocaleDateString();
+    },
+    sendMessage() {
+      if (!this.message) {
+        return;
+      }
+      this.$emit('sendMessage', this.message);
+      this.message = '';
+    }
+  },
+  watch: {
+    'username': function() {
+      Vue.nextTick(() => {
+        let log = this.$el.querySelector("#log");
+        if (log) {
+          log.scrollTop = log.scrollHeight;
+        }
+      });
     },
   },
 };
