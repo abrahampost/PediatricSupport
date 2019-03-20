@@ -30,4 +30,18 @@ router.post('/', async function(req, res, next) {
     }
 });
 
+router.put('/passwords/reset', async function(req, res, next) {
+    try {
+        let username = req.body.username;
+        let oldPassword = req.body.oldPassword;
+        let newPassword = req.body.newPassword;
+
+        await userService.resetPassword(username, oldPassword, newPassword);
+
+        res.sendStatus(204);
+    } catch(e)  {
+        next(e);
+    }
+});
+
 module.exports = router;
