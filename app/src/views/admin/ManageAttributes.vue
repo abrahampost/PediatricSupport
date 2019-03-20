@@ -12,7 +12,7 @@
         <div
           class="create-button ui vertical animated button"
           tabindex="0"
-          @click="showCreateModal()"
+          @click="showCreateModal=true"
         >
           <div class="hidden content">Create</div>
           <div class="visible content">
@@ -32,89 +32,82 @@
           </tr>
         </tbody>
       </table>
-      <div class="create-modal ui modal">
-        <div class="header">Create {{singularType}}</div>
-        <form class="create-modal-content ui form" @submit.prevent="createAccounts">
-          <input type="text" placeholder="Name" v-model="patientFirstName" required>
-          <div class="actions">
-            <div class="ui black deny button">Close</div>
-            <div class="ui positive right labeled icon button">
-              Create
-              <i class="checkmark icon"></i>
-            </div>
-          </div>
-        </form>
-      </div>
     </div>
+    <CreateAttributeModal v-if="showCreateModal" v-bind:type="type" v-on:close="showCreateModal=false" v-on:created="updateAttributes">
+      <h3 class="ui header" slot="header">Create {{singularType}}</h3>
+    </CreateAttributeModal>
   </div>
 </template>
 <script>
+import CreateAttributeModal from '@/views/admin/CreateAttributeModal.vue';
+
 export default {
-  name: "AdminManageAttributes",
+  name: 'AdminManageAttributes',
+  components: {
+    CreateAttributeModal,
+  },
   props: {
-    type: String
+    type: String,
   },
   data() {
     return {
-      error: "",
+      error: '',
       attributes: [],
-      filter: ""
+      filter: '',
+      showCreateModal: false,
     };
   },
   methods: {
     getAttributes() {
-      this.error = "";
+      this.error = '';
       this.$http
-        .get("/attributes", {
+        .get('/attributes', {
           params: {
-            type: this.type
-          }
+            type: this.type,
+          },
         })
-        .then(res => {
+        .then((res) => {
           const { data } = res;
           this.attributes = data;
         })
-        .catch(err => {
+        .catch((err) => {
           if (err && err.data && err.data.error) {
             this.error = err.data.error;
           } else {
-            this.error = "Unable to load attributes.";
+            this.error = 'Unable to load attributes.';
           }
         });
     },
-    showCreateModal() {
-      $(".create-modal").modal("show");
-    }
+    updateAttributes() {
+      this.showCreateModal = false;
+      this.getAttributes();
+    },
   },
   computed: {
     pluralType() {
-      if (this.type === "interest") {
-        return "Interests";
-      } else {
-        return "Diagnoses";
+      if (this.type === 'interest') {
+        return 'Interests';
       }
+      return 'Diagnoses';
     },
     singularType() {
-      if (this.type === "interest") {
-        return "Interest";
-      } else {
-        return "Diagnosis";
+      if (this.type === 'interest') {
+        return 'Interest';
       }
+      return 'Diagnosis';
     },
     filteredAttributes() {
-      return this.attributes.filter(attribute => {
-        return (
-          attribute.name.toLowerCase().indexOf(this.filter.toLowerCase()) > -1
-        );
-      });
-    }
+      return this.attributes.filter(attribute => (
+        attribute.name.toLowerCase().indexOf(this.filter.toLowerCase()) > -1
+      ));
+    },
   },
   watch: {
-    type: "getAttributes"
+    type: 'getAttributes',
   },
   created() {
     this.getAttributes();
-  }
+  },
 };
 </script>
 <style scoped>
