@@ -48,7 +48,6 @@
 </template>
 <script>
 import MessageLog from "./MessageLog.vue";
-import { setTimeout } from 'timers';
 
 export default {
   name: "PatientMessages",
@@ -58,6 +57,7 @@ export default {
       lastPolled: undefined,
       loading: false,
       error: undefined,
+      intervalId: undefined
     };
   },
   components: {
@@ -74,9 +74,12 @@ export default {
       };
     }
   },
+  beforeDestroy() {
+    clearInterval(this.intervalId);
+  },
   mounted() {
-    this.loadAllMessages();
-    //setTimeout(this.loadAllMessages, 10000);
+    this.loadMessages();
+    this.intervalId = setInterval(this.loadMessages, 5000);
   },
   methods: {
     formatDate(date) {
@@ -91,13 +94,11 @@ export default {
         .post(`/messages/${this.$route.params.id}`, { content: message })
         .then(res => {
           const { data } = res;
-          this.lastPolled = data.lastPolled;
           this.loading = false;
           this.error = "";
           let conversation = this.conversations.find(
             c => c.id === this.$route.params.id
           );
-          conversation.messages.push(data.message);
         })
         .catch(err => {
           if (err && err.data && err.data.error) {
@@ -108,7 +109,8 @@ export default {
           this.loading = false;
         });
     },
-    loadAllMessages() {
+    loadMessages() {
+      console.log("Retrieving messages");
       let route = "/messages";
       if (this.lastPolled) {
         route += `?time=${this.lastPolled}`;
@@ -117,7 +119,11 @@ export default {
         .get(route)
         .then(res => {
           const { data } = res;
-          this.conversations = data.conversations;
+          if (this.lastPolled) {
+            this.combineMessages(this.conversations, data.conversations);
+          } else {
+            this.conversations = data.conversations;
+          }
           this.lastPolled = data.lastPolled;
           this.loading = false;
           this.error = "";
@@ -130,7 +136,23 @@ export default {
           }
           this.loading = false;
         });
-    }
+    },
+    combineMessages(current, retrieved) {
+      for(var i = 0; i < retrieved.length; i++) {
+        let conversation = this.conversations.find(
+            c => c.id === retrieved[0].id
+        );
+        if (!conversation) {
+          conversations.push(retrieved[0])
+        } else {
+          if (retrieved[0].messages.length > 0) {
+            retrieved[0].messages.forEach((message) => {
+              conversation.messages.push(message);
+            })
+          }
+        }
+      }
+    },
   }
 };
 </script>
