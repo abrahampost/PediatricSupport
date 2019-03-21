@@ -1,29 +1,27 @@
 <template>
+  
+  <!-- Not connected to backend atm, so uses placeholder values -->
+  
   <div class="patient-preferences">
     <h1 class="ui huge header margin">Preferences</h1>
 
     <!-- 
       Interests section
-      - Toggling an interest is recognized by console, but...
-      - Don't know how to identify which values are checked/unchecked (for updating interests)
-      - Don't know how to pre-check checkboxes if it's part of the user's 
-        current interests when the page loads (optional?)
-      - Should color in checkbox segments when checkbox is checked (optional)
 
-      - Submit button doesn't do anything atm
-      - "Current interests" are static atm
+      - Patent's currently saved interests are reflected in checkboxes when page is loaded
+      - On submit, updates "current interests" message with selected interests
     -->
     <form class="ui form" @submit.prevent="updateInterests">
       <div class="ui container">
         <h2 class="ui left aligned header">What are some things you like?</h2>
         <div class="ui floated segment">
           <div class="ui floated compact segment" v-for="interest in interests" :key="interest.id">
-            <div class="ui checkbox">
-              <input type="checkbox" 
-              @click="handleId(interest.id)"
-              value="true"
-              true-value="like"
-              false-value="dislike">
+            <div v-if="interest.like" class="ui toggle checkbox">
+              <input type="checkbox" @click="handleId(interest.id)" checked="true">
+              <label>{{ interest.name }}</label>
+            </div>
+            <div v-else class="ui toggle checkbox">
+              <input type="checkbox" @click="handleId(interest.id)">
               <label>{{ interest.name }}</label>
             </div>
           </div>
@@ -33,15 +31,16 @@
     </form>
     <br>
     <h3 class="ui header">Current interests:</h3>
-    <div class="ui message">
+    <div class="ui message" id="current_interests_message">
       <p>{{ readInterests(currentInterests) }}</p>
     </div>
     <br><br><br>
 
     <!-- 
       Bio section
-      - Works in all respects minus being connected to backend
-      - "Current bio" gets updated when a bio is written + submitted
+
+      - Updates bio message on submit
+      - Should there be a char limit?
     -->
     <form class="ui form" @submit.prevent="updateBio">
       <div class="ui container">
@@ -84,17 +83,18 @@ export default {
         {id: 9, like: false, name: 'broccoli'},
         {id: 10, like: true, name: 'badminton'},
         {id: 11, like: true, name: 'having a really great time'},
-        {id: 12, like: false, name: 'chugging a full gallon of milk in one go'},
-        {id: 13, like: false, name: 'procrastinating'},
-        {id: 14, like: false, name: 'waiting until sunday night to do your homework'},
+        {id: 12, like: false, name: 'cup stacking'},
+        {id: 13, like: false, name: 'going to disney land'},
+        {id: 14, like: false, name: 'riding a bus around town'},
         {id: 15, like: true, name: 'long walks on the beach'},
         {id: 16, like: false, name: 'water without any ice'},
-        {id: 17, like: false, name: 'fsjal memes'},
-        {id: 18, like: false, name: 'h'},
+        {id: 17, like: false, name: 'volunteering at a soup kitchen'},
+        {id: 18, like: false, name: 'baking gluten free cookies'},
       ]
     }
   },
   computed: {
+    checkedInterests: $('.ui.patient-preferences').find('.ui.checkbox input'),
     currentInterests: function() {
       return this.interests.filter(function(x) {return x.like})
     }
@@ -103,18 +103,24 @@ export default {
     readInterests(interestlist) {
       return interestlist.map(interest => interest.name).join(', ')
     },
-    getInterests() {
-      
-    },
     updateInterests() {
-      console.log("Interests not actually updated; connect to backend")
+      console.log($('.ui.toggle').checkbox('is checked'))
+      var checkboxValues = $(".ui.toggle").checkbox('is checked')
+      var newInterests = []
+      for (var i = 0; i < checkboxValues.length; i++){
+        if (checkboxValues[i]){
+          console.log(i)
+          newInterests.push(this.interests[i].name)
+        }
+      }
+      document.getElementById("current_interests_message").innerHTML = newInterests.join(', ')
     },
     updateBio() {
       console.log(this.bio)
       this.currentbio = this.bio
     },
     handleId(id) {
-      console.log("Handling " + id);
+      console.log("Handling " + id)
     }
   }
 };
