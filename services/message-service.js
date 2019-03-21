@@ -7,33 +7,38 @@ const Sequelize = require("sequelize"),
 
 exports.getAllMessages = async function (userId) {
   try {
-    let results = await User.findOne({
-      attributes: ['id', 'createdAt'],
-      where: {
-        id: userId
-      },
-      include: [{
-        model: User,
-        as: 'UserMatch',
-        attributes: ['id', 'username'],
-        where: {
-          type: {
-            [Op.not]: 'blocked',
-          },
-        },
-        through: {
-          attributes: ['id', 'type'],
-          include: [{
-            model: Message,
-            attributes: ['content', 'sender', 'createdAt'],
-            order: [
-              ['createdAt', 'DESC']
-            ],
-            require: false,
-          }]
-        },
-      }]
-    });
+    let results = await sequelize.query(`
+    select
+      matches.id,
+      users.username,
+      json_agg( messages order by messages."createdAt" ) as "messages"
+    from
+      (
+        select
+          id,
+          user_two_id as user_id
+        from
+          user_matches
+        where
+          user_one_id =:userId
+      union select
+          id,
+          user_one_id as user_id
+        from
+          user_matches
+        where
+          user_two_id =:userId
+      ) as matches
+    left join users on
+      matches.user_id = users.id
+    left join messages on
+      matches.id = messages."userMatchId"
+    group by
+      matches.id,
+      users.username;
+    `, {
+      replacements: { userId: userId }, type: sequelize.QueryTypes.SELECT
+    })
     return results;
   } catch (e) {
     console.error(e);
