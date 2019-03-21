@@ -14,7 +14,6 @@ run `npm install` - it should install everything for the backend
   * `npm run dev`
 * prod - This will connect to the shared database and runs on protected port 80. For use on Heroku instance.
 @@ -16,13 +17,27 @@ run `npm install`
-  * `npm run test-local`
 * test - will run all tests in `\test` folder on postgres database specified by TEST_DATABASE_URL environment variable.
   * `npm test`
 * bootstrap - drops tables in db, initializes db, and then seeds it
