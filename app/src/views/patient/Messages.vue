@@ -55,7 +55,8 @@ export default {
       conversations: [],
       lastPolled: undefined,
       error: undefined,
-      intervalId: undefined
+      intervalId: undefined,
+      loading: false,
     };
   },
   components: {
@@ -76,7 +77,7 @@ export default {
     clearInterval(this.intervalId);
   },
   mounted() {
-    this.loadMessages();
+    this.loadMessages(true);
     this.intervalId = setInterval(this.loadMessages, 5000);
   },
   methods: {
@@ -103,6 +104,11 @@ export default {
         });
     },
     loadMessages() {
+      if (this.loading) {
+        return;
+      }
+      this.loading = true;
+      console.log('retrieving');
       let route = "/messages";
       if (this.lastPolled) {
         route += `?time=${this.lastPolled}`;
@@ -118,6 +124,7 @@ export default {
           }
           this.lastPolled = data.lastPolled;
           this.error = "";
+          this.loading = false;
         })
         .catch((err) => {
           if (err && err.data && err.data.error) {
@@ -125,6 +132,7 @@ export default {
           } else {
             this.error = "Unable to load messages.";
           }
+          this.loading = false;
         });
     },
     combineMessages(current, retrieved) {
