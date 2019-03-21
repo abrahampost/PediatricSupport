@@ -227,4 +227,57 @@ describe('Users', () => {
 
         });
     });
+
+    describe("/PUT resetPassword", () => {
+        beforeEach(async () => {
+            await userService.signUp(testAdmin.username, testAdmin.password, testAdmin.lastName, testAdmin.firstName, testAdmin.email, testAdmin.type);
+        });
+
+        it('it should reset the password of the user', async () => {
+            let newPassword = "password123";
+            let requestBody = {
+                username: testAdmin.username,
+                oldPassword: testAdmin.password,
+                newPassword: newPassword
+            }
+            let res = await chai.request(server)
+                .post("/api/authenticate/login")
+                .send({
+                    username: testAdmin.username,
+                    password: testAdmin.password
+                });
+            let token = res.body.token;
+            res = await chai.request(server)
+                .put("/api/users/passwords/reset")
+                .send(requestBody)
+                .set('Authorization', token);
+            res.should.have.status(204);
+            res = await chai.request(server)
+                .post("/api/authenticate/login")
+                .send({
+                    username: testAdmin.username,
+                    password: newPassword
+                });
+            res.should.have.status(200);
+        });
+        it('it should not allow resetting a password with an invalid password', async () => {
+            let requestBody = {
+                username: testAdmin.username,
+                oldPassword: testAdmin.password,
+                newPassword: "short"
+            }
+            let res = await chai.request(server)
+                .post("/api/authenticate/login")
+                .send({
+                    username: testAdmin.username,
+                    password: testAdmin.password
+                });
+            let token = res.body.token;
+            res = await chai.request(server)
+                .put("/api/users/passwords/reset")
+                .send(requestBody)
+                .set('Authorization', token);
+            res.should.have.status(400);
+        });
+    });
 });

@@ -30,20 +30,21 @@ const router = new Router({
       },
     },
     {
-      path: 'attributes',
-      name: 'adminManageAttributes',
-      component: () => import('./views/admin/ManageAttributes'),
-      meta: {
-        permission: 'admin',
-      },
-    },
-    {
       path: 'reports',
       name: 'adminManageReports',
       component: () => import('./views/admin/ManageReports'),
       meta: {
         permission: 'admin',
       },
+    },
+    {
+      path: 'attributes/:type',
+      name: 'adminManageAttributes',
+      component: () => import('./views/admin/ManageAttributes'),
+      meta: {
+        permission: 'admin',
+      },
+      props: true,
     },
     {
       path: 'users',

@@ -5,10 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test sh scripts/run-tests.sh",
-    "test-local": "cross-env NODE_ENV=testlocal sh scripts/run-tests.sh",
     "dev": "cross-env NODE_ENV=dev nodemon index.js",
-    "prod": "node index.js",
-    "start": "npm run prod",
+    "prod": "cross-env NODE_ENV=production node index.js",
+    "start": "node index.js",
     "init-db": "node db/init-db.js",
     "bootstrap": "cross-env NODE_ENV=dev sh scripts/bootstrap.sh",
     "heroku-postbuild": "sh scripts/build.sh"
@@ -27,8 +26,7 @@
     "nodemailer": "^5.1.1",
     "pg": "^7.7.1",
     "pg-hstore": "^2.3.2",
-    "sequelize": "^4.41.2",
-    "sqlite3": "^4.0.4"
+    "sequelize": "^4.41.2"
   },
   "devDependencies": {
     "chai": "^4.2.0",

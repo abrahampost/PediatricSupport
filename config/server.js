@@ -4,19 +4,13 @@ let test = {
     port: process.env.PORT || 8800
 }
 
-let testlocal = {
-    mode: 'test-local',
-    logging: '',
-    port: process.env.PORT || 8800
-}
-
 let dev = {
     mode: 'dev',
     logging: 'dev',
     port: process.env.PORT || 8080,
 }
 
-let prod = {
+let production = {
     mode: 'prod',
     logging: 'common',
     port: process.env.PORT || 80
@@ -24,9 +18,8 @@ let prod = {
 
 let configs = {
     test,
-    testlocal,
     dev,
-    prod
+    production
 }
 
 module.exports = configs[process.env.NODE_ENV];
