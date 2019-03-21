@@ -94,11 +94,8 @@ export default {
         .post(`/messages/${this.$route.params.id}`, { content: message })
         .then(res => {
           const { data } = res;
-          this.loading = false;
           this.error = "";
-          let conversation = this.conversations.find(
-            c => c.id === this.$route.params.id
-          );
+          this.loadMessages();
         })
         .catch(err => {
           if (err && err.data && err.data.error) {
@@ -110,7 +107,6 @@ export default {
         });
     },
     loadMessages() {
-      console.log("Retrieving messages");
       let route = "/messages";
       if (this.lastPolled) {
         route += `?time=${this.lastPolled}`;
