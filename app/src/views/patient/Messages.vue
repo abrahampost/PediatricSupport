@@ -39,7 +39,6 @@
           v-bind:username="selectedConversation.username"
           v-bind:messages="selectedConversation.messages"
           v-bind:error="error"
-          v-bind:loading="loading"
           v-on:sendMessage="sendMessage($event)"
         />
       </div>
@@ -55,7 +54,6 @@ export default {
     return {
       conversations: [],
       lastPolled: undefined,
-      loading: false,
       error: undefined,
       intervalId: undefined
     };
@@ -92,18 +90,16 @@ export default {
     sendMessage(message) {
       this.$http
         .post(`/messages/${this.$route.params.id}`, { content: message })
-        .then(res => {
-          const { data } = res;
+        .then((res) => {
           this.error = "";
           this.loadMessages();
         })
-        .catch(err => {
+        .catch((err) => {
           if (err && err.data && err.data.error) {
             this.error = err.data.error;
           } else {
             this.error = "Unable to create message.";
           }
-          this.loading = false;
         });
     },
     loadMessages() {
@@ -113,7 +109,7 @@ export default {
       }
       this.$http
         .get(route)
-        .then(res => {
+        .then((res) => {
           const { data } = res;
           if (this.lastPolled) {
             this.combineMessages(this.conversations, data.conversations);
@@ -121,16 +117,14 @@ export default {
             this.conversations = data.conversations;
           }
           this.lastPolled = data.lastPolled;
-          this.loading = false;
           this.error = "";
         })
-        .catch(err => {
+        .catch((err) => {
           if (err && err.data && err.data.error) {
             this.error = err.data.error;
           } else {
             this.error = "Unable to load messages.";
           }
-          this.loading = false;
         });
     },
     combineMessages(current, retrieved) {

@@ -1,9 +1,6 @@
 <template>
   <div class="patient-message-log">
     <div class="ui segment full-height">
-      <div class="ui active dimmer" v-if="loading">
-        <div class="ui loader"></div>
-      </div>
       <h3 class="ui header" v-if="username">Chat with {{ username }}</h3>
       <div id="log"
         class="ui middle aligned grid"
@@ -65,7 +62,7 @@ import store from '../../config/store';
 
 export default {
   name: 'PatientMessageLog',
-  props: ['username', 'messages', 'error', 'loading'],
+  props: ['username', 'messages', 'error'],
   data() {
     return {
       message: '',

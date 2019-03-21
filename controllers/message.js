@@ -58,7 +58,7 @@ router.post("/:matchId", async function(req, res, next) {
     let content = filter.clean(req.body.content);
     let createdAt = new Date();
     await messageService.createMessage(userId, matchId, content);
-    res.json({ message: { content, createdAt, sender: req.decoded.id } });
+    res.sendStatus(201);
   } catch (e) {
     next(e);
   } 
