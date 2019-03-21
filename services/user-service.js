@@ -29,6 +29,7 @@ exports.checkLogin = async function (username, password) {
         return {
             token,
             user: {
+                id: user.id,
                 username: user.username,
                 email: user.email,
                 type: user.type

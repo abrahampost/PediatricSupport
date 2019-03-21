@@ -1,35 +1,41 @@
 <template>
   <div class="patient-message-log">
     <div class="ui segment full-height">
-      <h3 class="ui header">Chat with {{ username }}</h3>
+      <h3 class="ui header" v-if="username">Chat with {{ username }}</h3>
       <div id="log"
         class="ui middle aligned grid"
-        v-if="username.length > 0"
+        v-if="username && username.length > 0"
         v-chat-scroll="{always: false, smooth: true}">
         <div class="row" v-for="message in messages" :key="message.id">
           <div class="two wide column">
-            <div v-if="message.type === 'received'">
+            <div v-if="message.sender !== userId">
               <img class="ui medium image"
                   src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png">
             </div>
           </div>
           <div class="twelve wide column">
-            <div :class="{'float-left': message.type === 'received',
-              'float-right': message.type === 'sent'}">
+            <div :class="{'float-left': message.sender !== userId,
+              'float-right': message.sender === userId}">
               <p class="message">{{ message.content}}</p>
               <div class="date-label">{{ formatDate(message.createdAt) }}</div>
             </div>
           </div>
           <div class="two wide column">
-            <div v-if="message.type === 'sent'">
+            <div v-if="message.sender === userId">
               <img class="ui medium image"
                   src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png">
             </div>
           </div>
         </div>
+        <div class="row"
+          v-if="messages.length === 0">
+          <div class="column">
+            No messages with this user. Send one now below!
+          </div>
+        </div>
       </div>
       <div id="no-chats"
-        v-if="username.length == 0">
+        v-if="!username || username.length == 0">
         <div
           class="ui centered floating message">
           Click a chat to view messages.
@@ -41,8 +47,8 @@
             placeholder="Send Message..."
             v-model="message"
             v-on:keydown.enter="sendMessage">
-          <button 
-            class="ui green button" 
+          <button
+            class="ui green button"
             @click="sendMessage"
             :disabled="!$route.params.id">Send</button>
         </div>
@@ -52,17 +58,20 @@
 </template>
 <script>
 import Vue from 'vue';
+import store from '../../config/store';
 
 export default {
   name: 'PatientMessageLog',
-  props: ['username', 'messages'],
+  props: ['username', 'messages', 'error', 'loading'],
   data() {
     return {
       message: '',
+      userId: store.user.id
     };
   },
   methods: {
     formatDate(date) {
+      date = new Date(date);
       if (date.toDateString() === new Date().toDateString()) {
         return date.toLocaleTimeString();
       }
@@ -74,10 +83,10 @@ export default {
       }
       this.$emit('sendMessage', this.message);
       this.message = '';
-    }
+    },
   },
   watch: {
-    'username': function() {
+    username: function() {
       Vue.nextTick(() => {
         let log = this.$el.querySelector("#log");
         if (log) {
@@ -136,7 +145,7 @@ export default {
 }
 
 #no-chats {
-  height: calc(70vh - 3em - 2.5em - 3em);
+  height: calc(70vh - 3em - 3em);
   vertical-align: middle;
   margin-bottom: -.5em;
 }
