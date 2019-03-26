@@ -19,6 +19,7 @@ exports.getAllMessages = async function (userId) {
           user_matches
         where
           user_one_id =:userId
+          and type = 'matched'
       union select
           id,
           user_one_id as user_id
@@ -26,6 +27,7 @@ exports.getAllMessages = async function (userId) {
           user_matches
         where
           user_two_id =:userId
+          and type = 'matched'
       ) as matches
     left join users on
       matches.user_id = users.id
