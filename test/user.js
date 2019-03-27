@@ -282,7 +282,7 @@ describe('Users', () => {
                   type: 'patient'
                 },
                 order: [ [ 'id', 'DESC' ]]
-              }).then(function(entries){
+              }).then(await function(entries){
                 testId = entries[0].id;
               });
 
@@ -307,7 +307,7 @@ describe('Users', () => {
                   patient_id: testId,
                 },
                 order: [ [ 'attribute_id', 'DESC' ]]
-              }).then(function(entries){
+              }).then(await function(entries){
                 for (i=0; i<entries.length; i++) {
                     interestsTest[i] = entries[i].attribute_id;
                 }
@@ -320,7 +320,7 @@ describe('Users', () => {
                 where: {
                     user_id: testId,
                 },
-              }).then(function(entries){
+              }).then(await function(entries){
                 testBio = entries[0].biography;
               });
               testBio.should.be.eql("This is a test bio.");
@@ -354,7 +354,7 @@ describe('Users', () => {
                   type: 'patient'
                 },
                 order: [ [ 'id', 'DESC' ]]
-              }).then(function(entries){
+              }).then(await function(entries){
                 testId = entries[0].id;
               });
 
@@ -365,7 +365,7 @@ describe('Users', () => {
                 where: {
                   patient_id: testId,
                 }
-              }).then(function(entries){
+              }).then(await function(entries){
                 for (i=0; i<entries.length; i++) {
                     interestsTest[i] = entries[i].attribute_id;
                 }
@@ -378,7 +378,7 @@ describe('Users', () => {
                 where: {
                     user_id: testId,
                 },
-              }).then(function(entries){
+              }).then(await function(entries){
                 testBio = entries[0].biography;
               });
               testBio.should.be.eql("");
@@ -412,7 +412,7 @@ describe('Users', () => {
                   type: 'patient'
                 },
                 order: [ [ 'id', 'DESC' ]]
-              }).then(function(entries){
+              }).then(await function(entries){
                 testId = entries[0].id;
               });
 
@@ -423,7 +423,7 @@ describe('Users', () => {
                   type: 'interest'
                 },
                 order: [ [ 'id', 'DESC' ]]
-              }).then(function(entries){
+              }).then(await function(entries){
                 for (i=0; i<entries.length; i++) {
                     interests[i] = entries[i].id;
                 }
@@ -436,7 +436,7 @@ describe('Users', () => {
                 where: {
                   patient_id: testId,
                 }
-              }).then(function(entries){
+              }).then(await function(entries){
                 for (i=0; i<entries.length; i++) {
                     interestsTest[i] = entries[i].attribute_id;
                 }
@@ -449,7 +449,7 @@ describe('Users', () => {
                 where: {
                     user_id: testId,
                 },
-              }).then(function(entries){
+              }).then(await function(entries){
                 testBio = entries[0].biography;
                 len = entries.length;
               });
