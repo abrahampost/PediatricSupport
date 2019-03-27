@@ -105,15 +105,16 @@ exports.updatePatientInfo = async function (userid, interests, biography) {
         throw new InternalErrorException("A problem occurred when deleting interests");
     }
     //create new interests:
+    //TODO: validate that interests exist as an attribute?
     try {
         let userInterests = [];
         for (i = 0; i < interests.length; i++) {
             userInterests.push({
                 patient_id: userid,
                 attribute_id: interests[i]
-            })
+            });
         }
-        await PatientXAttribute.bulkCreate(userInterests)
+        await PatientXAttribute.bulkCreate(userInterests);
     } catch (e) {
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";
@@ -146,7 +147,8 @@ exports.updatePatientInfo = async function (userid, interests, biography) {
     //create new patient info
     let patientInfo = await PatientInfo.build({biography});
     patient.setPatientInfo(patientInfo);
-    await patient.save();
+    let createdInfo = await patient.save();
+    return createdInfo;
 }
 
 exports.createInterests = async function (userid, interests) {
