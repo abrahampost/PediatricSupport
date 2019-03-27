@@ -32,6 +32,7 @@ exports.checkLogin = async function (username, password) {
         return {
             token,
             user: {
+                id: user.id,
                 username: user.username,
                 email: user.email,
                 type: user.type
@@ -82,73 +83,46 @@ exports.signUp = async function (username, unhashed_password, last_name, first_n
 }
 
 exports.updatePatientInfo = async function (userid, interests, biography) {
+  
+  try {
+    //delete interests:
     let patient = await User.findOne({where: {
         id: userid
     }});
-
-    //delete interests:
-    try {
-        await PatientXAttribute.destroy({
-            where: {
-                patient_id: userid
-            }
-        })
-    } catch (e) {
-        if (e instanceof Sequelize.ValidationError) {
-            let errorMessage = "The following values are invalid:";
-            e.errors.forEach((error) => {
-                errorMessage += `\n${error.path}: ${error.message}`;
-            });
-            throw new BadRequestException(errorMessage);
+    await PatientXAttribute.destroy({
+        where: {
+            patient_id: userid
         }
-        console.error(`A problem occurred when deleting interests: ${e.stack}`);
-        throw new InternalErrorException("A problem occurred when deleting interests");
+    });
+    let userInterests = [];
+    for (i = 0; i < interests.length; i++) {
+        userInterests.push({
+            patient_id: userid,
+            attribute_id: interests[i]
+        });
     }
-    //create new interests:
-    //TODO: validate that interests exist as an attribute?
-    try {
-        let userInterests = [];
-        for (i = 0; i < interests.length; i++) {
-            userInterests.push({
-                patient_id: userid,
-                attribute_id: interests[i]
-            });
+    await PatientXAttribute.bulkCreate(userInterests);
+    await  PatientInfo.destroy({
+        where: {
+            user_id: userid
         }
-        await PatientXAttribute.bulkCreate(userInterests);
-    } catch (e) {
-        if (e instanceof Sequelize.ValidationError) {
-            let errorMessage = "The following values are invalid:";
-            e.errors.forEach((error) => {
-                errorMessage += `\n${error.path}: ${error.message}`;
-            });
-            throw new BadRequestException(errorMessage);
-        }
-        console.error(`A problem occurred when creating interests: ${e.stack}`);
-        throw new InternalErrorException("A problem occurred when creating interests");
-    }
-    //delete old patient info
-    try {
-        await PatientInfo.destroy({
-            where: {
-                user_id: userid
-            }
-        })
-    } catch (e) {
-        if (e instanceof Sequelize.ValidationError) {
-            let errorMessage = "The following values are invalid:";
-            e.errors.forEach((error) => {
-                errorMessage += `\n${error.path}: ${error.message}`;
-            });
-            throw new BadRequestException(errorMessage);
-        }
-        console.error(`A problem occurred when deleting old user info: ${e.stack}`);
-        throw new InternalErrorException("A problem occurred when deleting old user info");
-    }
+      });
     //create new patient info
     let patientInfo = await PatientInfo.build({biography});
-    patient.setPatientInfo(patientInfo);
+    await patient.setPatientInfo(patientInfo);
     let createdInfo = await patient.save();
     return createdInfo;
+  } catch (e) {
+      if (e instanceof Sequelize.ValidationError) {
+          let errorMessage = "The following values are invalid:";
+          e.errors.forEach((error) => {
+              errorMessage += `\n${error.path}: ${error.message}`;
+          });
+          throw new BadRequestException(errorMessage);
+      }
+      console.error(`A problem occurred when updating user info: ${e.stack}`);
+      throw new InternalErrorException("A problem occurred when updating user info");
+  }
 }
 
 exports.createInterests = async function (userid, interests) {
