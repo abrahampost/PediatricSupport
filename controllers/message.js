@@ -8,20 +8,29 @@ router.get("/", async function(req, res, next) {
   try {
     let userId = req.decoded.id;
     let time = req.query.time;  //optional param ?time=<>
-    let lastPolled = new Date();
-    let conversations;
+    let results;
     if (time) {
-      conversations = await messageService.getAllMessagesSince(userId, time);
+      results = await messageService.getAllMessagesSince(userId, time);
     } else {
-      conversations = await messageService.getAllMessages(userId);
+      results = await messageService.getAllMessages(userId);
     }
-    conversations = conversations.map((conversation) => {
-      if (conversation.messages.length == 1 && conversation.messages[0] === null) {
-        conversation.messages = [];
-      }
-      return conversation;
-    });
-    res.json({ conversations, lastPolled});
+    let conversations;
+    if (results[0].conversations) {
+      conversations = results[0].conversations.map((conversation) => {
+        if (conversation.messages.length == 1 && conversation.messages[0] === null) {
+          conversation.messages = [];
+        }
+        return {
+          id: conversation.id,
+          username: conversation.username,
+          messages: conversation.messages
+        };
+      })
+    } else {
+      conversations = [];
+    }
+    let lastPolled = results[0].mostrecent;
+    res.json({ conversations, lastPolled });
   } catch (e) {
     next(e);
   }
@@ -32,20 +41,19 @@ router.get("/:matchId", async function(req, res, next) {
     let userId = req.decoded.id;
     let matchId = req.params.matchId;
     let time = req.query.time;  //optional param ?time=<>
-    let lastPolled = new Date();
-    let conversations;
+    let results;
     if (time) {
-      conversations = await messageService.getMessagesFromMatchSince(userId, matchId, time);
+      results = await messageService.getMessagesFromMatchSince(userId, matchId, time);
     } else {
-      conversations = await messageService.getMessagesFromMatch(userId, matchId);
+      results = await messageService.getMessagesFromMatch(userId, matchId);
     }
-    conversations = conversations.map((conversation) => {
+    let conversations = results.conversations.map((conversation) => {
       if (conversation.messages.length == 1 && conversation.messages[0] === null) {
         conversation.messages = [];
       }
       return conversation;
     })
-    res.json({ conversations, lastPolled });
+    res.json({ conversations, lastPolled: results.mostRecent });
   } catch (e) {
     next(e);
   }

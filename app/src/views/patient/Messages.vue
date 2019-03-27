@@ -108,7 +108,6 @@ export default {
         return;
       }
       this.loading = true;
-      console.log('retrieving');
       let route = "/messages";
       if (this.lastPolled) {
         route += `?time=${this.lastPolled}`;
