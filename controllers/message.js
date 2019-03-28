@@ -2,7 +2,8 @@ let express = require("express"),
     router = express.Router(),
     messageService = require("../services/message-service"),
     Filter = require("bad-words"),
-    filter = new Filter();
+    filter = new Filter(),
+    BadRequestExeption = require("../exceptions/bad-request-exception");
 
 router.get("/", async function(req, res, next) {
   try {
@@ -63,8 +64,12 @@ router.post("/:matchId", async function(req, res, next) {
   try {
     let userId = req.decoded.id;
     let matchId = req.params.matchId;
-    let content = filter.clean(req.body.content);
-    let createdAt = new Date();
+    let content = req.body.content;
+    if (content) {
+      content = filter.clean(req.body.content);
+    } else {
+      throw new BadRequestExeption("")
+    }
     await messageService.createMessage(userId, matchId, content);
     res.sendStatus(201);
   } catch (e) {
