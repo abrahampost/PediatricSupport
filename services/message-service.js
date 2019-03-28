@@ -103,7 +103,7 @@ exports.getAllMessagesSince = async function (userId, time) {
       throw new BadRequestException(errorMessage);
     }
 
-    throw new InternalErrorException("Unable to retrieve user matches.");
+    throw new InternalErrorException("Unable to retrieve user messages.");
   }
 }
 
@@ -125,6 +125,6 @@ exports.createMessage = async function (userId, matchId, content) {
       throw new BadRequestException(errorMessage);
     }
 
-    throw new InternalErrorException("Unable to retrieve user matches.");
+    throw new InternalErrorException("Unable to create message.");
   }
 }

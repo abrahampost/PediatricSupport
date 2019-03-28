@@ -37,29 +37,6 @@ router.get("/", async function(req, res, next) {
   }
 });
 
-router.get("/:matchId", async function(req, res, next) {
-  try {
-    let userId = req.decoded.id;
-    let matchId = req.params.matchId;
-    let time = req.query.time;  //optional param ?time=<>
-    let results;
-    if (time) {
-      results = await messageService.getMessagesFromMatchSince(userId, matchId, time);
-    } else {
-      results = await messageService.getMessagesFromMatch(userId, matchId);
-    }
-    let conversations = results.conversations.map((conversation) => {
-      if (conversation.messages.length == 1 && conversation.messages[0] === null) {
-        conversation.messages = [];
-      }
-      return conversation;
-    })
-    res.json({ conversations, lastPolled: results.mostRecent });
-  } catch (e) {
-    next(e);
-  }
-});
-
 router.post("/:matchId", async function(req, res, next) {
   try {
     let userId = req.decoded.id;
