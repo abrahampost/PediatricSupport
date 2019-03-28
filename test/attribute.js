@@ -130,7 +130,7 @@ describe('Attributes', () => {
             
             let body = res.body;
             assert.exists(body);
-            assert.equal(2,body.length);
+            body.should.have.length(2);
         });
 
         it('it should retrieve all interests', async () => {
@@ -148,7 +148,7 @@ describe('Attributes', () => {
             
             let body = res.body;
             assert.exists(body);
-            assert.equal(1,body.length);
+            body.should.have.length(1);
         });
 
         it('it should retrieve all diagnoses', async () => {
@@ -166,7 +166,7 @@ describe('Attributes', () => {
             
             let body = res.body;
             assert.exists(body);
-            assert.equal(1,body.length);
+            body.should.have.length(1);
         });
     });
 });

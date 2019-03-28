@@ -116,7 +116,7 @@ describe('Reports', () => {
             
             let body = res.body;
             assert.exists(body);
-            assert.equal(1,body.length);
+            body.should.have.length(1);
         });
 
         it('it should retrieve all pending reports', async () => {
@@ -134,7 +134,7 @@ describe('Reports', () => {
             
             let body = res.body;
             assert.exists(body);
-            assert.equal(1,body.length);
+            body.should.have.length(1);
         });
     });
 });
