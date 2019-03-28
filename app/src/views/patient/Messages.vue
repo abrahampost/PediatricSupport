@@ -78,7 +78,7 @@ export default {
   },
   mounted() {
     this.loadMessages(true);
-    this.intervalId = setInterval(this.loadMessages, 5000);
+    this.intervalId = setInterval(this.loadMessages, 3000);
   },
   methods: {
     formatDate(date) {
