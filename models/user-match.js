@@ -10,11 +10,13 @@ exports.init_table = function (sequelize) {
         },
         user_one_id: {
             type: Sequelize.INTEGER,
-            require: true
+            require: true,
+            allowNull: false
         },
         user_two_id: {
             type: Sequelize.INTEGER,
-            require: true
+            require: true,
+            allowNull: false
         },
         type: {
             type: Sequelize.STRING,

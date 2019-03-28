@@ -5,6 +5,7 @@ let Sequelize = require("sequelize"),
     PatientXAttribute = require("../models/patient-x-attribute"),
     UserMatch = require("../models/user-match"),
     PatientXParent = require("../models/patient-x-parent"),
+    UserReport = require("../models/user-report"),
     Message = require("../models/message");
 
 if (!process.env.DATABASE_URL) {
@@ -37,6 +38,7 @@ sequelize.user_match = UserMatch.init_table(sequelize);
 sequelize.patient_x_attribute = PatientXAttribute.init_table(sequelize);
 sequelize.patient_x_parent = PatientXParent.init_table(sequelize);
 sequelize.patient_info = PatientInfo.init_table(sequelize);
+sequelize.user_report = UserReport.init_table(sequelize);
 sequelize.message = Message.init_table(sequelize);
 
 //define relationships
@@ -44,6 +46,8 @@ sequelize.user.belongsToMany(sequelize.attribute, {through: sequelize.patient_x_
 sequelize.patient_info.belongsTo(sequelize.user, {foreignKey: 'user_id'});
 sequelize.user.belongsToMany(sequelize.user, {through: sequelize.patient_x_parent, as:'PatientXParent', foreignKey:'patient_id', otherKey:'parent_id'});
 sequelize.user.belongsToMany(sequelize.user, {through: sequelize.user_match, as: 'UserMatch', foreignKey:'user_one_id', otherKey:'user_two_id'});
+sequelize.user.belongsToMany(sequelize.user, {through: sequelize.user_report, as: 'UserReport', foreignKey:'reporter_id', otherKey:'reported_id'});
+
 sequelize.user_match.hasMany(sequelize.message);
 sequelize.message.belongsTo(sequelize.user, { foreignKey: 'sender' });
 
