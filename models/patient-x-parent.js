@@ -10,11 +10,13 @@ exports.init_table = function (sequelize) {
         },
         patient_id: {
             type: Sequelize.INTEGER,
-            require: true
+            require: true,
+            allowNull: false
         },
         parent_id: {
             type: Sequelize.INTEGER,
-            require: true
+            require: true,
+            allowNull: false
         }
     });
 }

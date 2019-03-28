@@ -3,12 +3,12 @@ const   UserReport = require("../db/sequelize").user_report,
         BadRequestException = require("../exceptions/bad-request-exception"),
         InternalErrorException = require("../exceptions/internal-error-exception");
 
-exports.createUserReport = async function (reporterId, reportedId, status) {
+exports.createUserReport = async function (reporterId, reportedId) {
     try {
         let userReport = await UserReport.build({
             reporter_id: reporterId,
             reported_id: reportedId,
-            status: status
+            status: "pending"
         });
         await userReport.save();
     } catch (e) {

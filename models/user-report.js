@@ -10,11 +10,13 @@ exports.init_table = function (sequelize) {
         },
         reporter_id: {
             type: Sequelize.INTEGER,
-            require: true
+            require: true,
+            allowNull: false
         },
         reported_id: {
             type: Sequelize.INTEGER,
-            require: true
+            require: true,
+            allowNull: false
         },
         status: {
             type: Sequelize.STRING,

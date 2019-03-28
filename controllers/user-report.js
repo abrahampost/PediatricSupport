@@ -6,9 +6,8 @@ router.post('/', async function(req, res, next) {
     try {
         let reporterId = req.decoded.id;
         let reportedId = req.body.reportedId;
-        let status = req.body.status;
 
-        await reportService.createUserReport(reporterId, reportedId, status);
+        await reportService.createUserReport(reporterId, reportedId);
 
         res.sendStatus(201);
     } catch(e)  {
