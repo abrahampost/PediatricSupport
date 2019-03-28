@@ -133,6 +133,8 @@ describe('Messaging', () => {
             .send({ })
             .set('Authorization', token)
       res.should.have.status(400);
+      res.body.should.have.property('error');
+      res.body.error.should.be.eql("Malformed message content.");
       let foundMessage = await Message.findAll({
         where: {
           userMatchId: matchId 
@@ -146,6 +148,8 @@ describe('Messaging', () => {
               .send({ content: '' })
               .set('Authorization', token)
         res.should.have.status(400);
+        res.body.should.have.property('error');
+        res.body.error.should.be.eql("Malformed message content.");
         let foundMessage = await Message.findAll({
           where: {
             userMatchId: matchId 
