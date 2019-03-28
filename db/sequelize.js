@@ -4,7 +4,8 @@ let Sequelize = require("sequelize"),
     PatientInfo = require("../models/patient-info"),
     PatientXAttribute = require("../models/patient-x-attribute"),
     UserMatch = require("../models/user-match"),
-    PatientXParent = require("../models/patient-x-parent");
+    PatientXParent = require("../models/patient-x-parent"),
+    UserReport = require("../models/user-report");
 
 if (!process.env.DATABASE_URL) {
     require("dotenv").config()
@@ -36,11 +37,13 @@ sequelize.user_match = UserMatch.init_table(sequelize);
 sequelize.patient_x_attribute = PatientXAttribute.init_table(sequelize);
 sequelize.patient_x_parent = PatientXParent.init_table(sequelize);
 sequelize.patient_info = PatientInfo.init_table(sequelize);
+sequelize.user_report = UserReport.init_table(sequelize);
 
 //define relationships
 sequelize.user.belongsToMany(sequelize.attribute, {through: sequelize.patient_x_attribute, foreignKey: 'patient_id', otherKey:'attribute_id'});
 sequelize.patient_info.belongsTo(sequelize.user, {foreignKey: 'user_id'});
 sequelize.user.belongsToMany(sequelize.user, {through: sequelize.patient_x_parent, as:'PatientXParent', foreignKey:'patient_id', otherKey:'parent_id'});
 sequelize.user.belongsToMany(sequelize.user, {through: sequelize.user_match, as: 'UserMatch', foreignKey:'user_one_id', otherKey:'user_two_id'});
+sequelize.user.belongsToMany(sequelize.user, {through: sequelize.user_report, as: 'UserReport', foreignKey:'reporter_id', otherKey:'reported_id'});
 
 module.exports = sequelize;
