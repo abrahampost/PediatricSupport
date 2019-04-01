@@ -1,6 +1,9 @@
 const Sequelize = require("sequelize"),
   sequelize = require("../db/sequelize"),
   Message = sequelize.message,
+  Filter = require("bad-words"),
+  filter = new Filter(),
+  BadRequestExeption = require("../exceptions/bad-request-exception"),
   InternalErrorException = require("../exceptions/internal-error-exception");
 
 exports.getAllMessages = async function (userId) {
@@ -108,8 +111,14 @@ exports.getAllMessagesSince = async function (userId, time) {
 }
 
 exports.createMessage = async function (userId, matchId, content) {
+  if (content) {
+    // if the message has content, filter out bad words
+    content = filter.clean(content);
+  } else {
+    //if content is empty or missing, is bad request
+    throw new BadRequestExeption("Malformed message content.")
+  }
   try {
-
     let newMessage = await Message.build({
       userMatchId: matchId,
       content: content,
@@ -125,6 +134,6 @@ exports.createMessage = async function (userId, matchId, content) {
       throw new BadRequestException(errorMessage);
     }
 
-    throw new InternalErrorException("Unable to create message.");
+    throw new InternalErrorException("Unable to create message.", e);
   }
 }

@@ -4,7 +4,7 @@
       <h3 class="ui header" v-if="username">Chat with {{ username }}</h3>
       <div id="log"
         class="ui middle aligned grid"
-        v-if="username && username.length > 0"
+        v-if="$route.params.id"
         v-chat-scroll="{always: false, smooth: true}">
         <div class="row" v-for="message in messages" :key="message.id">
           <div class="two wide column">
@@ -35,7 +35,7 @@
         </div>
       </div>
       <div id="no-chats"
-        v-if="!username || username.length == 0">
+        v-if="!$route.params.id">
         <div
           class="ui centered floating message">
           Click a chat to view messages.

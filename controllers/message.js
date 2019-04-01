@@ -1,9 +1,6 @@
 let express = require("express"),
     router = express.Router(),
-    messageService = require("../services/message-service"),
-    Filter = require("bad-words"),
-    filter = new Filter(),
-    BadRequestExeption = require("../exceptions/bad-request-exception");
+    messageService = require("../services/message-service");
 
 router.get("/", async function(req, res, next) {
   try {
@@ -45,13 +42,6 @@ router.post("/:matchId", async function(req, res, next) {
     let userId = req.decoded.id;
     let matchId = req.params.matchId;
     let content = req.body.content;
-    if (content) {
-      // if the message has content, filter out bad words
-      content = filter.clean(req.body.content);
-    } else {
-      //if content is empty or missing, is bad request
-      throw new BadRequestExeption("Malformed message content.")
-    }
     await messageService.createMessage(userId, matchId, content);
     res.sendStatus(201);
   } catch (e) {
