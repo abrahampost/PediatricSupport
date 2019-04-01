@@ -33,7 +33,7 @@ exports.createMatch = async function (userOneId, userTwoId) {
             throw new BadRequestException("The match could not be saved since one or more users do not exist.");
         }
 
-        throw new InternalErrorException("A problem occured when saving the match.");
+        throw new InternalErrorException("A problem occured when saving the match.",e);
     }
 }
 
@@ -135,7 +135,7 @@ exports.getMatches = async function (userId) {
             throw new BadRequestException(errorMessage);
         }
 
-        throw new InternalErrorException("Unable to retrieve user matches.");
+        throw new InternalErrorException("Unable to retrieve user matches.",e);
     }
 }
 
@@ -183,7 +183,7 @@ exports.getPotentialMatches = async function (userId) {
             throw new BadRequestException(errorMessage);
         } 
 
-        throw new InternalErrorException("Unable to retrieve user matches.");
+        throw new InternalErrorException("Unable to retrieve user matches.",e);
     }
 }
 
@@ -216,7 +216,7 @@ exports.updateMatchType = async function(matchId, updatedType) {
             throw e;
         }
         
-        throw new InternalErrorException("Unable to update match status.");
+        throw new InternalErrorException("Unable to update match status.",e);
     }
 }
 
@@ -243,6 +243,6 @@ exports.deleteMatch = async function(matchId) {
         } else if (e instanceof BadRequestException) {
             throw e;
         }
-        throw new InternalErrorException("Unable to update match status.");
+        throw new InternalErrorException("Unable to update match status.",e);
     }
 }

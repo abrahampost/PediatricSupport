@@ -6,8 +6,8 @@ const bcrypt = require("bcryptjs"),
     BadRequestException = require("../exceptions/bad-request-exception"),
     InternalErrorException = require("../exceptions/internal-error-exception"),
     UnauthorizedRequestException = require("../exceptions/unauthorized-request-exception"),
-    Sequelize = require("sequelize"),
-    Op = Sequelize.Op;
+    PediatricSupportException = require("../exceptions/pediatric-support-exception"),
+    Sequelize = require("sequelize");
 
 /**
  * Check Login
@@ -43,11 +43,46 @@ exports.checkLogin = async function (username, password) {
     }
 }
 
+exports.resetPassword = async function (username, oldPassword, newPassword) {
+    try {
+        let user = await User.findOne({ where: { username: username } });
+        if (!user) {
+            throw new UnauthorizedRequestException("Incorrect username and password combination.");
+        }
+        let result = await bcrypt.compare(oldPassword, user.password);
+
+        if (result) {
+            validatePassword(newPassword);
+
+            let salt = await bcrypt.genSalt(10);
+            let password = await bcrypt.hash(newPassword, salt);
+
+            await user.update({
+                password: password
+            });
+        } else {
+            throw new UnauthorizedRequestException("Incorrect username and password combination.");
+        }
+    } catch (e) {
+        if (e instanceof Sequelize.ValidationError) {
+            let errorMessage = "The following values are invalid:";
+            e.errors.forEach((error) => {
+                errorMessage += `\n${error.path}: ${error.message}`;
+            });
+            throw new BadRequestException(errorMessage);
+        } else if (e instanceof PediatricSupportException) {
+            throw e;
+        }
+
+        throw new InternalErrorException("A problem occurred when resetting the user password", e);
+    }
+}
+
 exports.linkPatientParent = async function (patient, parent) {
-    try{
+    try {
         patient.addPatientXParent(parent);
-    } catch(e) {
-        throw new InternalErrorException("A problem occurred when saving the user");
+    } catch (e) {
+        throw new InternalErrorException("A problem occurred when saving the user", e);
     }
 }
 
@@ -78,7 +113,8 @@ exports.signUp = async function (username, unhashed_password, last_name, first_n
             });
             throw new BadRequestException(errorMessage);
         }
-        throw new InternalErrorException("A problem occurred when saving the user");
+
+        throw new InternalErrorException("A problem occurred when saving the user", e);
     }
 }
 
@@ -210,7 +246,7 @@ exports.generateRandom = function () {
 
 };
 
-let ValidatePassword = (password) => {
+let validatePassword = (password) => {
     //TODO: Add more password validations
     if (!password || password.length < 7 || password.length > 40) {
         throw new BadRequestException("password length not valid");
