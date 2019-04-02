@@ -1,6 +1,8 @@
 const bcrypt = require("bcryptjs"),
     jwt = require("jsonwebtoken"),
     User = require("../db/sequelize").user,
+    PatientXAttribute = require("../db/sequelize").patient_x_attribute,
+    PatientInfo = require("../db/sequelize").patient_info,
     BadRequestException = require("../exceptions/bad-request-exception"),
     InternalErrorException = require("../exceptions/internal-error-exception"),
     UnauthorizedRequestException = require("../exceptions/unauthorized-request-exception"),
@@ -113,6 +115,60 @@ exports.signUp = async function (username, unhashed_password, last_name, first_n
         }
 
         throw new InternalErrorException("A problem occurred when saving the user", e);
+    }
+}
+
+exports.updatePatientInfo = async function (userid, interests, biography) {
+  
+  try {
+    //delete interests:
+    let patient = await User.findOne({where: {
+        id: userid
+    }});
+    await PatientXAttribute.destroy({
+        where: {
+            patient_id: userid
+        }
+    });
+    let userInterests = [];
+    for (i = 0; i < interests.length; i++) {
+        userInterests.push({
+            patient_id: userid,
+            attribute_id: interests[i]
+        });
+    }
+    await PatientXAttribute.bulkCreate(userInterests);
+
+    //create new patient info
+    let patientInfo = await PatientInfo.build({biography});
+    await patient.setPatientInfo(patientInfo);
+    await patient.save();
+  } catch (e) {
+      if (e instanceof Sequelize.ValidationError) {
+          let errorMessage = "The following values are invalid:";
+          e.errors.forEach((error) => {
+              errorMessage += `\n${error.path}: ${error.message}`;
+          });
+          throw new BadRequestException(errorMessage);
+      }
+      throw new InternalErrorException("A problem occurred when updating user info", e);
+  }
+}
+
+exports.createPatientInfo = async function (patient) {
+    try {
+        let patientInfo = await PatientInfo.create();
+        patient.setPatientInfo(patientInfo);
+        await patient.save();
+    } catch (e) {
+        if (e instanceof Sequelize.ValidationError) {
+            let errorMessage = "The following values are invalid:";
+            e.errors.forEach((error) => {
+                errorMessage += `\n${error.path}: ${error.message}`;
+            });
+            throw new BadRequestException(errorMessage);
+        }
+        throw new InternalErrorException("A problem occurred udpating user info",e);
     }
 }
 

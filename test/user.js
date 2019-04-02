@@ -3,6 +3,9 @@ process.env.NODE_ENV = 'test';
 let User = require("../db/sequelize").user;
 let PatientXParent = require("../db/sequelize").patient_x_parent;
 let userService = require("../services/user-service");
+let Attribute = require("../db/sequelize").attribute;
+let PatientXAttribute = require("../db/sequelize").patient_x_attribute;
+let PatientInfo = require("../db/sequelize").patient_info;
 
 let chai = require("chai");
 let chaiHttp = require("chai-http");
@@ -18,12 +21,24 @@ const testAdmin = {
     firstName: "Test",
     email: "notarealemail@gmail.com",
     type: "admin"
-}
+};
+
+let testUser = {
+  username: 'testuser',
+  password: 'password',
+  lastName: 'Patient',
+  firstName: 'Test',
+  email: 'notarealemail@gmail.com',
+  type: 'patient',
+};
 
 describe('Users', () => {
     beforeEach(async () => {
         await PatientXParent.destroy({ where: {} });
         await User.destroy({ where: {} });
+        await Attribute.destroy({where: {} });
+        await PatientXAttribute.destroy({where: {} });
+        await PatientInfo.destroy({where: {} });
     })
 
     describe("/POST signup", () => {
@@ -226,6 +241,152 @@ describe('Users', () => {
             res.body.error.should.be.eql('Incorrect username and password combination.');
 
         });
+    });
+    describe("/PUT updateUserInfo", () => {
+      var token;
+      var userId;
+      beforeEach(async () => {
+        const requestBody = {
+          patientFirstName: "John",
+          patientLastName: "Patient",
+          patientEmail: "523pediatrics@gmail.com",
+          parentFirstName: "Todd",
+          parentLastName: "Parent",
+          parentEmail: "geschwat@masafiagrofood.com"
+        };
+
+        await userService.signUp(testUser.username, testUser.password, testUser.lastName, testUser.firstName, testUser.email, testUser.type);
+        let userLogin = await chai.request(server)
+          .post("/api/authenticate/login")
+          .send({
+              username: testUser.username,
+              password: testUser.password
+          });
+        token = userLogin.body.token;
+        userId = userLogin.body.user.id;
+
+        //TODO add interests to attribute table
+        await Attribute.create({
+            name: 'legos',
+            type: 'interest',
+        });
+        await Attribute.create({
+            name: 'movies',
+            type: 'interest',
+        });
+        await Attribute.create({
+            name: 'videogames',
+            type: 'interest',
+        });
+        await Attribute.create({
+            name: 'basketball',
+            type: 'interest',
+        });
+      });
+
+      it("it should update user info with valid interests and bio", async () => {
+        let testBio = "This is a test bio.";
+
+        let interests = await Attribute.findAll({
+            limit: 2,
+            attributes: ['id'],
+            where: {
+              type: 'interest'
+            },
+            order: [ [ 'id', 'DESC' ]]
+          });
+        
+        interests = interests.map((interest) => interest.id);
+
+        let res = await chai.request(server)
+          .put("/api/users")
+          .send({
+            biography: testBio,
+            interests: interests
+          })
+          .set('Authorization', token);
+        res.should.have.status(200);
+
+        let foundAttributes = await PatientXAttribute.findAll({
+            attributes: ['attribute_id'],
+            where: {
+              patient_id: userId,
+            },
+            order: [ [ 'attribute_id', 'DESC' ]]
+        });
+        foundAttributes = foundAttributes.map((attribute) => attribute.attribute_id);
+        interests.should.be.eql(foundAttributes);
+      
+        let patientInfo = await PatientInfo.findOne({
+          where: {
+            user_id: userId
+          },
+        });
+        patientInfo.should.have.property('biography');
+        patientInfo.biography.should.be.eql(testBio);
+      });
+
+      it("it should update user info with blank interests and bio", async () => {
+        let res = await chai.request(server)
+          .put("/api/users")
+          .send({
+            biography: "",
+            interests: []
+          })
+          .set('Authorization', token);
+        res.should.have.status(200);
+        
+        let interestsTest = await PatientXAttribute.findAll({
+            where: {
+              patient_id: userId,
+            }
+          });
+        interestsTest.should.be.eql([], "interestsTest should be empty");
+        let testBio = await PatientInfo.findOne({
+          where: {
+            user_id: userId
+          }
+        });
+
+        testBio.should.have.property("biography");
+        testBio.biography.should.be.eql("", "biography should be blank");
+      });
+
+      it("it should update user info back to empty", async () => {
+        let interests = await Attribute.findAll({
+          limit: 2,
+          attributes: ['id'],
+          where: {
+            type: 'interest'
+          },
+          order: [ [ 'id', 'DESC' ]]
+        });
+        interests = interests.map((interest) => interest.id);
+        await userService.updatePatientInfo(userId, interests, "This is a test bio.");
+
+        let res = await chai.request(server)
+          .put("/api/users")
+          .send({
+            biography: "",
+            interests: []
+          })
+          .set('Authorization', token);
+        res.should.have.status(200);
+        let interestsTest = await PatientXAttribute.findAll({
+            where: {
+              patient_id: userId,
+            }
+          });
+        interestsTest = interestsTest.map((interest) => interest.attribute_id);
+        interestsTest.should.be.eql([]);
+        let patientInfo = await PatientInfo.findOne({
+          where: {
+              user_id: userId,
+          },
+        });
+        patientInfo.should.have.property('biography');
+        patientInfo.biography.should.be.eql("");
+      });
     });
 
     describe("/PUT resetPassword", () => {
