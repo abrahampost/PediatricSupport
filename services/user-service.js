@@ -152,8 +152,7 @@ exports.updatePatientInfo = async function (userid, interests, biography) {
           });
           throw new BadRequestException(errorMessage);
       }
-      console.error(`A problem occurred when updating user info: ${e.stack}`);
-      throw new InternalErrorException("A problem occurred when updating user info");
+      throw new InternalErrorException("A problem occurred when updating user info", e);
   }
 }
 
@@ -175,8 +174,7 @@ exports.createInterests = async function (userid, interests) {
             });
             throw new BadRequestException(errorMessage);
         }
-        console.error(`A problem occurred when creating interests: ${e.stack}`);
-        throw new InternalErrorException("A problem occurred when creating interests");
+        throw new InternalErrorException("A problem occurred when creating interests",e);
     }
 }
 
@@ -195,8 +193,7 @@ exports.deleteInterests = async function (userid) {
             });
             throw new BadRequestException(errorMessage);
         }
-        console.error(`A problem occurred when deleting interests: ${e.stack}`);
-        throw new InternalErrorException("A problem occurred when deleting interests");
+        throw new InternalErrorException("A problem occurred when deleting interests",e);
     }
 }
 
@@ -213,8 +210,7 @@ exports.createPatientInfo = async function (patient) {
             });
             throw new BadRequestException(errorMessage);
         }
-        console.error(`A problem occurred when updating user info: ${e.stack}`);
-        throw new InternalErrorException("A problem occurred udpating user info");
+        throw new InternalErrorException("A problem occurred udpating user info",e);
     }
 }
 
