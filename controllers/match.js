@@ -1,0 +1,48 @@
+let express = require("express"),
+    router = express.Router(),
+    matchService = require("../services/match-service");
+
+router.get("/", async function(req, res, next) {
+    try {
+        let userId = req.decoded.id;
+        let matches = await matchService.getMatches(userId);
+        let potentialMatches = await matchService.getPotentialMatches(userId);
+        res.json({matches, potentialMatches });
+    } catch(e) {
+        next(e);
+    }
+});
+
+router.post("/", async function(req, res, next) {
+    try {
+        let sendingId = req.decoded.id;
+        let receivingId = req.body.receivingId;
+        await matchService.createMatch(sendingId, receivingId);
+        res.sendStatus(201);
+    } catch(e) {
+        next(e);
+    }
+});
+
+router.put("/:id", async function(req, res, next) {
+    try {
+        let matchId = req.params.id;
+        let matchType = req.body.matchType;
+        await matchService.updateMatchType(matchId, matchType);
+        res.sendStatus(200);
+    } catch(e) {
+        next(e);
+    }
+});
+
+router.delete("/:id", async function(req, res, next) {
+    try {
+        let matchId = req.params.id;
+        await matchService.deleteMatch(matchId);
+        res.sendStatus(200);
+    } catch(e) {
+        next(e);
+    }
+});
+
+module.exports = router;

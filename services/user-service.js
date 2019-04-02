@@ -1,9 +1,12 @@
 const bcrypt = require("bcryptjs"),
     jwt = require("jsonwebtoken"),
     User = require("../db/sequelize").user,
+    PatientXAttribute = require("../db/sequelize").patient_x_attribute,
+    PatientInfo = require("../db/sequelize").patient_info,
     BadRequestException = require("../exceptions/bad-request-exception"),
     InternalErrorException = require("../exceptions/internal-error-exception"),
     UnauthorizedRequestException = require("../exceptions/unauthorized-request-exception"),
+    PediatricSupportException = require("../exceptions/pediatric-support-exception"),
     Sequelize = require("sequelize");
 
 /**
@@ -29,6 +32,7 @@ exports.checkLogin = async function (username, password) {
         return {
             token,
             user: {
+                id: user.id,
                 username: user.username,
                 email: user.email,
                 type: user.type
@@ -39,14 +43,55 @@ exports.checkLogin = async function (username, password) {
     }
 }
 
+exports.resetPassword = async function (username, oldPassword, newPassword) {
+    try {
+        let user = await User.findOne({ where: { username: username } });
+        if (!user) {
+            throw new UnauthorizedRequestException("Incorrect username and password combination.");
+        }
+        let result = await bcrypt.compare(oldPassword, user.password);
+
+        if (result) {
+            validatePassword(newPassword);
+
+            let salt = await bcrypt.genSalt(10);
+            let password = await bcrypt.hash(newPassword, salt);
+
+            await user.update({
+                password: password
+            });
+        } else {
+            throw new UnauthorizedRequestException("Incorrect username and password combination.");
+        }
+    } catch (e) {
+        if (e instanceof Sequelize.ValidationError) {
+            let errorMessage = "The following values are invalid:";
+            e.errors.forEach((error) => {
+                errorMessage += `\n${error.path}: ${error.message}`;
+            });
+            throw new BadRequestException(errorMessage);
+        } else if (e instanceof PediatricSupportException) {
+            throw e;
+        }
+
+        throw new InternalErrorException("A problem occurred when resetting the user password", e);
+    }
+}
+
+exports.linkPatientParent = async function (patient, parent) {
+    try {
+        patient.addPatientXParent(parent);
+    } catch (e) {
+        throw new InternalErrorException("A problem occurred when saving the user", e);
+    }
+}
+
 /**
  * Sign up
  * Pass a username, unhashed_password, last_name, first_name, and it will save
  * the user to the database. It will return the status code of the 
  */
 exports.signUp = async function (username, unhashed_password, last_name, first_name, email, type) {
-    ValidatePassword(unhashed_password);
-
     try {
         let salt = await bcrypt.genSalt(10);
         let password = await bcrypt.hash(unhashed_password, salt);
@@ -58,8 +103,8 @@ exports.signUp = async function (username, unhashed_password, last_name, first_n
             last_name,
             first_name
         });
-        await user.save();
-        return 201;
+        let created_user = await user.save();
+        return created_user;
     } catch (e) {
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";
@@ -68,8 +113,62 @@ exports.signUp = async function (username, unhashed_password, last_name, first_n
             });
             throw new BadRequestException(errorMessage);
         }
-        console.error(`A problem occurred when saving a user: ${e.stack}`);
-        throw new InternalErrorException("A problem occurred when saving the user");
+
+        throw new InternalErrorException("A problem occurred when saving the user", e);
+    }
+}
+
+exports.updatePatientInfo = async function (userid, interests, biography) {
+  
+  try {
+    //delete interests:
+    let patient = await User.findOne({where: {
+        id: userid
+    }});
+    await PatientXAttribute.destroy({
+        where: {
+            patient_id: userid
+        }
+    });
+    let userInterests = [];
+    for (i = 0; i < interests.length; i++) {
+        userInterests.push({
+            patient_id: userid,
+            attribute_id: interests[i]
+        });
+    }
+    await PatientXAttribute.bulkCreate(userInterests);
+
+    //create new patient info
+    let patientInfo = await PatientInfo.build({biography});
+    await patient.setPatientInfo(patientInfo);
+    await patient.save();
+  } catch (e) {
+      if (e instanceof Sequelize.ValidationError) {
+          let errorMessage = "The following values are invalid:";
+          e.errors.forEach((error) => {
+              errorMessage += `\n${error.path}: ${error.message}`;
+          });
+          throw new BadRequestException(errorMessage);
+      }
+      throw new InternalErrorException("A problem occurred when updating user info", e);
+  }
+}
+
+exports.createPatientInfo = async function (patient) {
+    try {
+        let patientInfo = await PatientInfo.create();
+        patient.setPatientInfo(patientInfo);
+        await patient.save();
+    } catch (e) {
+        if (e instanceof Sequelize.ValidationError) {
+            let errorMessage = "The following values are invalid:";
+            e.errors.forEach((error) => {
+                errorMessage += `\n${error.path}: ${error.message}`;
+            });
+            throw new BadRequestException(errorMessage);
+        }
+        throw new InternalErrorException("A problem occurred udpating user info",e);
     }
 }
 
@@ -97,7 +196,7 @@ exports.generateRandom = function () {
 
 };
 
-let ValidatePassword = (password) => {
+let validatePassword = (password) => {
     //TODO: Add more password validations
     if (!password || password.length < 7 || password.length > 40) {
         throw new BadRequestException("password length not valid");

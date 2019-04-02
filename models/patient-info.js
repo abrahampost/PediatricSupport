@@ -11,7 +11,6 @@ exports.init_table = function (sequelize) {
         biography: {
             type: Sequelize.STRING,
             allowNull: true,
-            require: true
         }
     });
 }

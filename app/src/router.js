@@ -1,8 +1,10 @@
 import Vue from 'vue';
+import vueChatScroll from 'vue-chat-scroll';
 import Router from 'vue-router';
 import Login from './views/shared/Login.vue';
 import store from './config/store';
 
+Vue.use(vueChatScroll);
 Vue.use(Router);
 
 const router = new Router({
@@ -28,20 +30,21 @@ const router = new Router({
       },
     },
     {
-      path: 'attributes',
-      name: 'adminManageAttributes',
-      component: () => import('./views/admin/ManageAttributes'),
-      meta: {
-        permission: 'admin',
-      },
-    },
-    {
       path: 'reports',
       name: 'adminManageReports',
       component: () => import('./views/admin/ManageReports'),
       meta: {
         permission: 'admin',
       },
+    },
+    {
+      path: 'attributes/:type',
+      name: 'adminManageAttributes',
+      component: () => import('./views/admin/ManageAttributes'),
+      meta: {
+        permission: 'admin',
+      },
+      props: true,
     },
     {
       path: 'users',
@@ -68,8 +71,16 @@ const router = new Router({
       },
     },
     {
-      path: 'matches',
-      name: 'patientMatches',
+      path: 'messages',
+      name: 'patientMessages',
+      component: () => import('./views/patient/Messages'),
+      meta: {
+        permission: 'patient',
+      },
+    },
+    {
+      path: 'messages/:id',
+      name: 'patientMessagesWithUser',
       component: () => import('./views/patient/Messages'),
       meta: {
         permission: 'patient',

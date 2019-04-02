@@ -11,7 +11,7 @@ const instance = axios.create({
       },
     },
   },
-  timeout: 1000,
+  timeout: 10000,
 });
 
 instance.interceptors.response.use(

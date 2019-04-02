@@ -3,8 +3,9 @@
     <div class="ui top borderless stackable menu">
       <div class="header item">UNC Pediatric Support Patient Page</div>
       <router-link class="right aligned item" :to="{name:'patient'}">Matches</router-link>
-      <router-link class="item" :to="{name:'patientMatches'}">Messages</router-link>
+      <router-link class="item" :to="{name:'patientMessages'}">Messages</router-link>
       <router-link class="item" :to="{name:'patientPreferences'}">Preferences</router-link>
+      <router-link class="item" :to="{name:'login'}">Logout</router-link>
     </div>
   </div>
 </template>
@@ -14,16 +15,4 @@ export default {
 };
 </script>
 <style scoped>
-.menu {
-  min-height: 8em;
-}
-
-.menu .item {
-  font-weight: bold;
-  font-size: 1.4em;
-}
-
-.menu .header.item {
-  font-size: 2em;
-}
 </style>

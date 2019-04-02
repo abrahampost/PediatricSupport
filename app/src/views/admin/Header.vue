@@ -5,7 +5,9 @@
       <router-link class="right aligned item" :to="{name:'admin'}">Create Accounts</router-link>
       <router-link class="item" :to="{name:'adminManageUsers'}">Manage Accounts</router-link>
       <router-link class="item" :to="{name:'adminManageReports'}">Manage Reports</router-link>
-      <router-link class="item" :to="{name:'adminManageAttributes'}">Manage Attributes</router-link>
+      <router-link class="item" :to="{name:'adminManageAttributes', params: {type:'interest'}}">Manage Interests</router-link>
+      <router-link class="item" :to="{name:'adminManageAttributes', params: {type:'diagnosis'}}">Manage Diagnoses</router-link>
+      <router-link class="item" :to="{name:'login'}">Logout</router-link>
     </div>
   </div>
 </template>
@@ -15,18 +17,4 @@ export default {
 };
 </script>
 <style scoped>
-
-.menu {
-  min-height: 8em;
-}
-
-.menu .item {
-  font-weight: bold;
-  font-size: 1.4em;
-}
-
-.menu .header.item {
-  font-size: 2em;
-}
-
 </style>
