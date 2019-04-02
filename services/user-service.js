@@ -138,11 +138,7 @@ exports.updatePatientInfo = async function (userid, interests, biography) {
         });
     }
     await PatientXAttribute.bulkCreate(userInterests);
-    await  PatientInfo.destroy({
-        where: {
-            user_id: userid
-        }
-      });
+
     //create new patient info
     let patientInfo = await PatientInfo.build({biography});
     await patient.setPatientInfo(patientInfo);
