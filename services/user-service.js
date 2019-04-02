@@ -142,8 +142,7 @@ exports.updatePatientInfo = async function (userid, interests, biography) {
     //create new patient info
     let patientInfo = await PatientInfo.build({biography});
     await patient.setPatientInfo(patientInfo);
-    let createdInfo = await patient.save();
-    return createdInfo;
+    await patient.save();
   } catch (e) {
       if (e instanceof Sequelize.ValidationError) {
           let errorMessage = "The following values are invalid:";
@@ -154,47 +153,6 @@ exports.updatePatientInfo = async function (userid, interests, biography) {
       }
       throw new InternalErrorException("A problem occurred when updating user info", e);
   }
-}
-
-exports.createInterests = async function (userid, interests) {
-    try {
-        let userInterests = [];
-        for (i = 0; i < interests.length; i++) {
-            userInterests.push({
-                patient_id: userid,
-                attribute_id: interests[i]
-            })
-        }
-        await PatientXAttribute.bulkCreate(userInterests)
-    } catch (e) {
-        if (e instanceof Sequelize.ValidationError) {
-            let errorMessage = "The following values are invalid:";
-            e.errors.forEach((error) => {
-                errorMessage += `\n${error.path}: ${error.message}`;
-            });
-            throw new BadRequestException(errorMessage);
-        }
-        throw new InternalErrorException("A problem occurred when creating interests",e);
-    }
-}
-
-exports.deleteInterests = async function (userid) {
-    try {
-        await PatientXAttribute.destroy({
-            where: {
-                patient_id: userid
-            }
-        })
-    } catch (e) {
-        if (e instanceof Sequelize.ValidationError) {
-            let errorMessage = "The following values are invalid:";
-            e.errors.forEach((error) => {
-                errorMessage += `\n${error.path}: ${error.message}`;
-            });
-            throw new BadRequestException(errorMessage);
-        }
-        throw new InternalErrorException("A problem occurred when deleting interests",e);
-    }
 }
 
 exports.createPatientInfo = async function (patient) {
