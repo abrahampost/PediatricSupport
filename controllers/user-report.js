@@ -1,8 +1,9 @@
 let express = require("express"),
     router = express.Router(),
-    reportService = require("../services/report-service");
+    reportService = require("../services/report-service"),
+    permissions = require("../middleware/permissions");
 
-router.post('/', async function(req, res, next) {
+router.post('/', permissions.PATIENT, async function(req, res, next) {
     try {
         let reporterId = req.decoded.id;
         let reportedId = req.body.reportedId;
@@ -15,7 +16,7 @@ router.post('/', async function(req, res, next) {
     }
 });
 
-router.get('/', async function(req, res, next) {
+router.get('/', permissions.ADMIN, async function(req, res, next) {
     try {
         let status = req.query.status;
 
