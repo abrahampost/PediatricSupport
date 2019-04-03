@@ -10,61 +10,55 @@
       - Patent's currently saved interests are reflected in checkboxes when page is loaded
       - On submit, updates "current interests" message with selected interests
     -->
-    <form class="ui form" @submit.prevent="updatePreferences">
-      <div class="ui stackable grid">
-        <div class="four wide column">
-          <div class="ui centered card">
-            <div class="image">
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
-              >
-            </div>
-            <div class="extra">Change Avatar</div>
+    <div class="ui stackable grid form">
+      <div class="four wide column">
+        <div class="ui centered card">
+          <div class="image">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
+            >
           </div>
+          <div class="extra">Change Avatar</div>
         </div>
-        <div class="twelve wide column">
-          <div class="field">
-            <h4 class="ui left aligned header">Biography</h4>
-            <textarea type="text" rows="3" placeholder="Write here..." v-model="biography"></textarea>
+      </div>
+      <div class="twelve wide column">
+        <div class="ui field">
+          <h4 class="ui left aligned header">Biography</h4>
+          <textarea type="text" rows="3" placeholder="Write here..." v-model="biography"></textarea>
+        </div>
+        <div>
+          <h4 class="ui left aligned header">Interests</h4>
+          <div class>
+            <input
+              type="text"
+              list="available-interest-list"
+              placeholder="Add Interest"
+              v-model="selectedInterest"
+              @change="updateSelectedInterest()"
+            >
+            <datalist id="available-interest-list">
+              <option v-for="interest in unselectedInterests" :key="interest.id">{{interest.name}}</option>
+            </datalist>
           </div>
-          <div>
-            <h4 class="ui left aligned header">Interests</h4>
-            <div class="">
-              <input
-                type="text"
-                list="available-interest-list"
-                placeholder="Add Interest"
-                v-model="selectedInterest"
-                @change="updateSelectedInterest()"
-              >
-              <datalist id="available-interest-list">
-                <option
-                  v-for="interest in interests"
-                  :key="interest.id"
-                  @click="selectedInterest = option"
-                >{{interest.name}}</option>
-              </datalist>
-            </div>
-            <div class="ui floated segment">
-              <div
-                class="ui floated compact segment"
-                v-for="interest in interests"
-                :key="interest.id"
-              >
-                <div v-if="interest.like" class="ui toggle checkbox">
-                  <input type="checkbox" @click="handleId(interest.id)" checked="true">
-                  <label>{{ interest.name }}</label>
-                </div>
-                <div v-else class="ui toggle checkbox">
-                  <input type="checkbox" @click="handleId(interest.id)">
-                  <label>{{ interest.name }}</label>
-                </div>
+          <div class="ui floated segment">
+            <div
+              class="ui floated compact segment"
+              v-for="interest in interests"
+              :key="interest.id"
+            >
+              <div v-if="interest.like" class="ui toggle checkbox">
+                <input type="checkbox" @click="handleId(interest.id)" checked="true">
+                <label>{{ interest.name }}</label>
+              </div>
+              <div v-else class="ui toggle checkbox">
+                <input type="checkbox" @click="handleId(interest.id)">
+                <label>{{ interest.name }}</label>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </form>
+    </div>
   </div>
 </template>
 
@@ -75,7 +69,7 @@ export default {
     return {
       selectedInterest: "",
       biography: "",
-      selectedInterests: [
+      interests: [
         { id: 1, like: true, name: "legos" },
         { id: 2, like: true, name: "movies" },
         { id: 3, like: false, name: "sports" },
@@ -94,8 +88,7 @@ export default {
         { id: 16, like: false, name: "water without any ice" },
         { id: 17, like: false, name: "volunteering at a soup kitchen" },
         { id: 18, like: false, name: "baking gluten free cookies" }
-      ],
-      unselectedInterests: []
+      ]
     };
   },
   computed: {
@@ -103,22 +96,47 @@ export default {
       return this.selectedInterest.toUpperCase();
     },
     isValidInterest: function() {
-      let filteredInterests = this.filteredInterests;
-      return filteredInterests.length === 1 && filteredInterests[0] === this.upperCaseSelectedInterest;
+      let filteredInterests = this.filteredUnselectedInterests;
+      return (
+        filteredInterests.length === 1 &&
+        filteredInterests[0].name.toUpperCase() ===
+          this.upperCaseSelectedInterest
+      );
     },
-    filteredInterests: function() {
-      if(this.selectedInterest === ''){
+    selectedInterests: function() {
+      return this.interests.filter(interest => {
+        return interest.like;
+      });
+    },
+    unselectedInterests: function() {
+      return this.interests.filter(interest => {
+        return !interest.like;
+      });
+    },
+    filteredUnselectedInterests: function() {
+      if (this.selectedInterest === null) {
         return [];
       }
-      return this.unselectedInterests.filter((interest) => {
-        return interest.toUpperCase().indexOf(this.upperCaseSelectedInterest) > -1;
+      return this.interests.filter(interest => {
+        return (
+          !interest.like &&
+          interest.name.toUpperCase().indexOf(this.upperCaseSelectedInterest) >
+            -1
+        );
       });
     }
   },
   methods: {
+    clickSelectedInterest(interest) {
+      console.log("click");
+      this.selectedInterest = interest.name;
+      this.updateSelectedInterest();
+    },
     updateSelectedInterest() {
-      if(this.isValidInterest) {
-        
+      console.log("update");
+      if (this.isValidInterest) {
+        this.filteredUnselectedInterests[0].like = true;
+        this.selectedInterest = "";
       }
     }
   }
