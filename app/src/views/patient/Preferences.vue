@@ -29,16 +29,16 @@
           </div>
           <div>
             <h4 class="ui left aligned header">Interests</h4>
-            <div class="ui field">
+            <div class="">
               <input
                 type="text"
                 list="available-interest-list"
+                placeholder="Add Interest"
                 v-model="selectedInterest"
                 @change="updateSelectedInterest()"
               >
-              <datalist class="fluid menu" id="available-interest-list">
+              <datalist id="available-interest-list">
                 <option
-                  class="fluid item"
                   v-for="interest in interests"
                   :key="interest.id"
                   @click="selectedInterest = option"
@@ -73,8 +73,9 @@ export default {
   name: "PatientPreferences",
   data() {
     return {
+      selectedInterest: "",
       biography: "",
-      interests: [
+      selectedInterests: [
         { id: 1, like: true, name: "legos" },
         { id: 2, like: true, name: "movies" },
         { id: 3, like: false, name: "sports" },
@@ -93,41 +94,32 @@ export default {
         { id: 16, like: false, name: "water without any ice" },
         { id: 17, like: false, name: "volunteering at a soup kitchen" },
         { id: 18, like: false, name: "baking gluten free cookies" }
-      ]
+      ],
+      unselectedInterests: []
     };
   },
   computed: {
-    checkedInterests: $(".ui.patient-preferences").find(".ui.checkbox input"),
-    currentInterests: function() {
-      return this.interests.filter(function(x) {
-        return x.like;
+    upperCaseSelectedInterest: function() {
+      return this.selectedInterest.toUpperCase();
+    },
+    isValidInterest: function() {
+      let filteredInterests = this.filteredInterests;
+      return filteredInterests.length === 1 && filteredInterests[0] === this.upperCaseSelectedInterest;
+    },
+    filteredInterests: function() {
+      if(this.selectedInterest === ''){
+        return [];
+      }
+      return this.unselectedInterests.filter((interest) => {
+        return interest.toUpperCase().indexOf(this.upperCaseSelectedInterest) > -1;
       });
     }
   },
   methods: {
-    readInterests(interestlist) {
-      return interestlist.map(interest => interest.name).join(", ");
-    },
-    updateInterests() {
-      console.log($(".ui.toggle").checkbox("is checked"));
-      var checkboxValues = $(".ui.toggle").checkbox("is checked");
-      var newInterests = [];
-      for (var i = 0; i < checkboxValues.length; i++) {
-        if (checkboxValues[i]) {
-          console.log(i);
-          newInterests.push(this.interests[i].name);
-        }
+    updateSelectedInterest() {
+      if(this.isValidInterest) {
+        
       }
-      document.getElementById(
-        "current_interests_message"
-      ).innerHTML = newInterests.join(", ");
-    },
-    updateBio() {
-      console.log(this.bio);
-      this.currentbio = this.bio;
-    },
-    handleId(id) {
-      console.log("Handling " + id);
     }
   }
 };
