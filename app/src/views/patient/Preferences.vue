@@ -4,7 +4,7 @@
   <div class="patient-preferences">
     <h1 class="ui huge header margin">Preferences</h1>
 
-    <!-- 
+    <!--
       Interests section
 
       - Patent's currently saved interests are reflected in checkboxes when page is loaded
@@ -25,29 +25,44 @@
         <div class="ui form">
           <div class="ui field">
             <h4 class="ui left aligned header">Biography</h4>
-            <textarea type="text" rows="3" placeholder="Write here..." v-model="biography"></textarea>
+            <textarea
+              type="text"
+              rows="3"
+              placeholder="Write here..."
+              v-model="biography"></textarea>
           </div>
         </div>
-        <div>
-          <h4 class="ui left aligned header">Interests</h4>
-          <v-select
-            label="name"
-            :options="filteredInterests"
-            placeholder="Add Interest"
-            v-model="selectedInterest"
-            @change="updateInterests"
-          ></v-select>
-          <div v-if="selectedInterests.length != 0" class="ui fluid segment">
-            <button
-              class="ui compact circular red button"
-              type="button"
-              v-for="interest in selectedInterests"
-              :key="interest.id"
-              @click="deleteInterest(interest.id)"
-            >
-              <i class="window close outline icon"></i>
-              {{ interest.name }}
-            </button>
+        <h4 class="ui left aligned header">Interests</h4>
+        <v-select
+          label="name"
+          :options="filteredInterests"
+          placeholder="Add Interest"
+          v-model="selectedInterest"
+          @change="updateInterests"
+        ></v-select>
+        <div id="interest-list" class="ui segment">
+          <div
+            class="interest-list-item"
+            v-for="interest in selectedInterests"
+            :key="interest.id">
+            <i class="red window close outline icon" @click="deleteInterest(interest.id)"></i>
+            {{ interest.name }}
+          </div>
+          <h3 class="ui header" v-if="selectedInterests.length == 0">No Interests Selected</h3>
+        </div>
+        <button class="ui green button" @click="saveInfo">
+          Save
+        </button>
+        <div class="ui negative message" v-if="error">
+          <i class="close icon" @click="error = ''"></i>
+          <div class="header">
+            {{ error }}
+          </div>
+        </div>
+        <div class="ui info message" v-if="message">
+          <i class="close icon" @click="message = ''"></i>
+          <div class="header">
+            {{ message }}
           </div>
         </div>
       </div>
@@ -57,67 +72,90 @@
 
 <script>
 export default {
-  name: "PatientPreferences",
+  name: 'PatientPreferences',
+  mounted() {
+    this.loadInfo();
+  },
   data() {
     return {
-      selectedInterest: "",
+      selectedInterest: '',
       selectedInterests: [],
-      biography: "",
-      interests: [
-        { id: 1, name: "legos" },
-        { id: 2, name: "movies" },
-        { id: 3, name: "sports" },
-        { id: 4, name: "chess" },
-        { id: 5, name: "dinosaurs" },
-        { id: 6, name: "youtube" },
-        { id: 7, name: "skating" },
-        { id: 8, name: "videogames" },
-        { id: 9, name: "broccoli" },
-        { id: 10, name: "badminton" },
-        { id: 11, name: "having a really great time" },
-        { id: 12, name: "cup stacking" },
-        { id: 13, name: "going to disney land" },
-        { id: 14, name: "riding a bus around town" },
-        { id: 15, name: "long walks on the beach" },
-        { id: 16, name: "water without any ice" },
-        { id: 17, name: "volunteering at a soup kitchen" },
-        { id: 18, name: "baking gluten free cookies" }
-      ]
+      biography: '',
+      interests: [],
+      error: '',
+      message: '',
     };
   },
   methods: {
     deleteInterest(id) {
-      this.selectedInterests = this.selectedInterests.filter(
-        item => item.id != id
-      );
+      this.selectedInterests = this.selectedInterests.filter(item => item.id !== id);
     },
     updateInterests() {
       if (this.selectedInterest) {
         this.selectedInterests.push(this.selectedInterest);
-        this.selectedInterest = "";
+        this.selectedInterest = '';
       }
-    }
+    },
+    saveInfo() {
+      const requestBody = {
+        biography: this.biography,
+        interests: this.selectedInterests.map(interest => interest.id),
+      };
+      this.$http.put('/users', requestBody)
+        .then(() => {
+          this.message = 'Successfully updated info.';
+        }).catch((err) => {
+          this.error = err.data.error;
+        });
+    },
+    loadInfo() {
+      this.$http.get('/users')
+        .then((res) => {
+          const { data } = res;
+          this.biography = data.biography;
+          this.selectedInterests = data.attributes;
+        }).catch((err) => {
+          this.error = err.data.error;
+        });
+
+      this.$http.get('/attributes')
+        .then((res) => {
+          this.interests = res.data;
+        }).catch((err) => {
+          this.error = err.data.error;
+        });
+    },
   },
   computed: {
     filteredInterests() {
-      return this.interests.filter((interest) => this.selectedInterests.indexOf(interest) == -1);
-    }
-  }
+      const selectedIds = this.selectedInterests.map(interest => interest.id);
+      return this.interests.filter(interest => selectedIds.indexOf(interest.id) === -1);
+    },
+  },
 };
 </script>
 <style scoped>
 .ui.huge.header.margin {
   margin: 1em;
 }
-.ui.segment {
-  margin: 0.5em;
+
+#interest-list {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-content: flex-start;
+  justify-content: center;
+  min-height: 10em;
 }
-.ui.button {
-  margin: 0.5em;
+
+.interest-list-item {
+  border: 1px solid rgba(60,60,60, .26);
+  border-radius: 1em;
+  padding: 1em;
+  margin: .25em .4em;
 }
-.interest {
-  font-size: 20px;
-  font-weight: bold;
-  margin: 1em;
+
+.red.window.close.outline.icon:hover {
+  font-weight: bolder;
 }
 </style>

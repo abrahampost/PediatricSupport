@@ -30,6 +30,7 @@ exports.getAttributes = async function (type) {
         }
 
         let attributes = await Attribute.findAll({
+            attributes: ['id', 'name'],
             where: whereStatement
         });
         return attributes;
