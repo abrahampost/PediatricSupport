@@ -1,13 +1,14 @@
 const bcrypt = require("bcryptjs"),
-    jwt = require("jsonwebtoken"),
-    User = require("../db/sequelize").user,
-    PatientXAttribute = require("../db/sequelize").patient_x_attribute,
-    PatientInfo = require("../db/sequelize").patient_info,
-    BadRequestException = require("../exceptions/bad-request-exception"),
-    InternalErrorException = require("../exceptions/internal-error-exception"),
-    UnauthorizedRequestException = require("../exceptions/unauthorized-request-exception"),
-    PediatricSupportException = require("../exceptions/pediatric-support-exception"),
-    Sequelize = require("sequelize");
+  jwt = require("jsonwebtoken"),
+  User = require("../db/sequelize").user,
+  PatientXAttribute = require("../db/sequelize").patient_x_attribute,
+  PatientInfo = require("../db/sequelize").patient_info,
+  Attribute = require("../db/sequelize").attribute,
+  BadRequestException = require("../exceptions/bad-request-exception"),
+  InternalErrorException = require("../exceptions/internal-error-exception"),
+  UnauthorizedRequestException = require("../exceptions/unauthorized-request-exception"),
+  PediatricSupportException = require("../exceptions/pediatric-support-exception"),
+  Sequelize = require("sequelize");
 
 /**
  * Check Login
@@ -155,6 +156,58 @@ exports.updatePatientInfo = async function (userid, interests, biography) {
   }
 }
 
+exports.getPatientInfo = async function (id) {
+  try {
+    let info = await PatientInfo.findOne({
+      attributes: ['biography'],
+      where: {
+        user_id: id
+      },
+    });
+    let user = await User.findOne({
+      attributes: [],
+      where: {
+        id: id,
+      },
+      include: [{
+        model: Attribute,
+        as: 'attributes',
+        attributes: ['id', 'name'],
+        where: {
+          type: 'interest'
+        },
+        order: [
+          ['id', 'ASC']
+        ],
+        require: false,
+      }],
+      require: false
+    });
+    let attributes = [];
+    if (user) {
+      attributes = user.attributes.map((attr) => {
+        return {
+          id: attr.id,
+          name: attr.name
+        };
+      })
+    }
+    return {
+      biography: info.biography,
+      attributes: attributes
+    };
+  } catch(e) {
+    if (e instanceof Sequelize.ValidationError) {
+      let errorMessage = "The following values are invalid:";
+      e.errors.forEach((error) => {
+        errorMessage += `\n${error.path}: ${error.message}`;
+      });
+      throw new BadRequestException(errorMessage);
+    }
+    throw new InternalErrorException("A problem occurred retrieving user info", e);
+  }
+}
+
 exports.createPatientInfo = async function (patient) {
     try {
         let patientInfo = await PatientInfo.create();
@@ -168,7 +221,7 @@ exports.createPatientInfo = async function (patient) {
             });
             throw new BadRequestException(errorMessage);
         }
-        throw new InternalErrorException("A problem occurred udpating user info",e);
+        throw new InternalErrorException("A problem occurred updating user info",e);
     }
 }
 

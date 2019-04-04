@@ -389,6 +389,87 @@ describe('Users', () => {
       });
     });
 
+    describe("/GET user", () => {
+      var token;
+      var userId;
+      beforeEach(async () => {
+        await userService.signUp(testUser.username, testUser.password, testUser.lastName, testUser.firstName, testUser.email, testUser.type);
+        let userLogin = await chai.request(server)
+          .post("/api/authenticate/login")
+          .send({
+              username: testUser.username,
+              password: testUser.password
+          });
+        token = userLogin.body.token;
+        userId = userLogin.body.user.id;
+
+        //TODO add interests to attribute table
+        await Attribute.create({
+            name: 'legos',
+            type: 'interest',
+        });
+        await Attribute.create({
+            name: 'movies',
+            type: 'interest',
+        });
+        await Attribute.create({
+            name: 'videogames',
+            type: 'interest',
+        });
+        await Attribute.create({
+            name: 'basketball',
+            type: 'interest',
+        });
+      });
+
+      it("it should retrieve the correct biography", async () => {
+        const testBio = 'this is a test bio';
+        await userService.updatePatientInfo(userId, [], testBio);
+        let res = await chai.request(server)
+          .get("/api/users")
+          .set('Authorization', token);
+        let body = res.body;
+        body.should.have.property('biography');
+        body.biography.should.be.eql(testBio);
+      });
+
+      it("it should retrieve the correct interests", async () => {
+        const testBio = 'this is a test bio';
+        let interests = await Attribute.findAll({
+          attributes: ['id'],
+          where: {
+            type: 'interest'
+          },
+          order: [['id', 'ASC']]
+        });
+        let interestsIDs = interests.map((intr) => intr.id);
+        await userService.updatePatientInfo(userId, interestsIDs, testBio);
+        let res = await chai.request(server)
+          .get("/api/users")
+          .set('Authorization', token);
+        let body = res.body;
+        body.should.have.property('attributes');
+        body.attributes.should.be.length(interestsIDs.length, "returned incorrect number of interests");
+        body.attributes[0].should.have.property('id');
+        body.attributes[0].should.have.property('name');
+        body.attributes[0].id.should.be.eql(interestsIDs[0]);
+        body.attributes[1].id.should.be.eql(interestsIDs[1]);
+        body.attributes[2].id.should.be.eql(interestsIDs[2]);
+        body.attributes[3].id.should.be.eql(interestsIDs[3]);
+      });
+      it("it should retrieve blank bio and interests" , async () => {
+        await userService.updatePatientInfo(userId, [], "");
+        let res = await chai.request(server)
+          .get("/api/users")
+          .set('Authorization', token);
+        let body = res.body;
+        body.should.have.property("attributes");
+        body.should.have.property("biography");
+        body.attributes.should.have.length(0);
+        body.biography.should.be.eql("");
+      });
+    })
+
     describe("/PUT resetPassword", () => {
         beforeEach(async () => {
             await userService.signUp(testAdmin.username, testAdmin.password, testAdmin.lastName, testAdmin.firstName, testAdmin.email, testAdmin.type);
