@@ -186,6 +186,7 @@ export default {
       return attributes.map(a => a[0].toUpperCase() + a.substring(1)).join(', ');
     },
     similarPercent(similarity) {
+      if (this.highestSimilarity === 0) return 0;
       return Math.round((similarity / this.highestSimilarity) * 100);
     },
   },
