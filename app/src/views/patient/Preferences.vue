@@ -38,6 +38,8 @@
           :options="filteredInterests"
           placeholder="Add Interest"
           v-model="selectedInterest"
+          :clearSearchOnSelect="false"
+          :clearable="false"
           @change="updateInterests"
         ></v-select>
         <div id="interest-list" class="ui segment">
@@ -128,8 +130,8 @@ export default {
   },
   computed: {
     filteredInterests() {
-      const selectedIds = this.selectedInterests.map(interest => interest.id);
-      return this.interests.filter(interest => selectedIds.indexOf(interest.id) === -1);
+      const selectedIds = new Set(this.selectedInterests.map(interest => interest.id));
+      return this.interests.filter(interest => !selectedIds.has(interest.id));
     },
   },
 };
