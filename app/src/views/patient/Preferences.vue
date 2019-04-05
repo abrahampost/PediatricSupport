@@ -38,9 +38,8 @@
           :options="filteredInterests"
           placeholder="Add Interest"
           v-model="selectedInterest"
-          :clearSearchOnSelect="false"
-          :clearable="false"
           @change="updateInterests"
+          ref='selectList'
         ></v-select>
         <div id="interest-list" class="ui segment">
           <div
