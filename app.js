@@ -3,7 +3,6 @@ let express     = require("express"),
     bodyParser  = require("body-parser"),
     morgan      = require("morgan"),
     config      = require("./config/server"),
-    dotenv      = require("dotenv"),
     ExceptionHandler    = require("./exceptions/exception-handler"),
     jwtInterceptor      = require("./middleware/jwtInterceptor");
     
@@ -11,7 +10,7 @@ let express     = require("express"),
     * Import environment variables for local testing
     */
    if (process.env.NODE_ENV !== 'production') {
-       dotenv.config()
+       require("dotenv").config()
        app.use(require("cors")());
 }
 
