@@ -30,6 +30,15 @@ const patientTwo = {
     type: "patient"
 }
 
+const admin = {
+  username: 'admin',
+  password: 'admin123',
+  lastName: 'admin',
+  firstName: 'test',
+  email: 'definitelynotreal@gmail.com',
+  type: 'admin'
+}
+
 describe('Reports', () => {
     beforeEach(async () => {
         await UserReport.destroy({ where: {} });
@@ -87,6 +96,7 @@ describe('Reports', () => {
 
     describe("/GET reports", () => {
         beforeEach(async () => {
+            await userService.signUp(admin.username, admin.password, admin.lastName, admin.firstName, admin.email, admin.type);
             await userService.signUp(patientOne.username, patientOne.password, patientOne.lastName, patientOne.firstName, patientOne.email, patientOne.type);
             await userService.signUp(patientTwo.username, patientTwo.password, patientTwo.lastName, patientTwo.firstName, patientTwo.email, patientTwo.type);
         
@@ -105,8 +115,8 @@ describe('Reports', () => {
             let res = await chai.request(server)
                 .post("/api/authenticate/login")
                 .send({
-                    username: patientOne.username,
-                    password: patientOne.password
+                    username: admin.username,
+                    password: admin.password
                 });
             let token = res.body.token;
 
@@ -123,8 +133,8 @@ describe('Reports', () => {
             let res = await chai.request(server)
                 .post("/api/authenticate/login")
                 .send({
-                    username: patientOne.username,
-                    password: patientOne.password
+                    username: admin.username,
+                    password: admin.password
                 });
             let token = res.body.token;
 

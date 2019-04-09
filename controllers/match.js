@@ -1,8 +1,9 @@
 let express = require("express"),
     router = express.Router(),
-    matchService = require("../services/match-service");
+    matchService = require("../services/match-service"),
+    permissions = require("../middleware/permissions");
 
-router.get("/", async function(req, res, next) {
+router.get("/", permissions.PATIENT, async function(req, res, next) {
     try {
         let userId = req.decoded.id;
         let matches = await matchService.getMatches(userId);
@@ -13,7 +14,7 @@ router.get("/", async function(req, res, next) {
     }
 });
 
-router.post("/", async function(req, res, next) {
+router.post("/", permissions.PATIENT, async function(req, res, next) {
     try {
         let sendingId = req.decoded.id;
         let receivingId = req.body.receivingId;
@@ -24,7 +25,7 @@ router.post("/", async function(req, res, next) {
     }
 });
 
-router.put("/:id", async function(req, res, next) {
+router.put("/:id", permissions.PATIENT, async function(req, res, next) {
     try {
         let matchId = req.params.id;
         let matchType = req.body.matchType;
@@ -35,7 +36,7 @@ router.put("/:id", async function(req, res, next) {
     }
 });
 
-router.delete("/:id", async function(req, res, next) {
+router.delete("/:id", permissions.PATIENT, async function(req, res, next) {
     try {
         let matchId = req.params.id;
         await matchService.deleteMatch(matchId);

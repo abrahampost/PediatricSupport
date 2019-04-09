@@ -81,9 +81,9 @@ exports.resetPassword = async function (username, oldPassword, newPassword) {
 
 exports.linkPatientParent = async function (patient, parent) {
     try {
-        patient.addPatientXParent(parent);
+      await patient.addPatientXParent(parent);
     } catch (e) {
-        throw new InternalErrorException("A problem occurred when saving the user", e);
+      throw new InternalErrorException("A problem occurred when saving the user", e);
     }
 }
 

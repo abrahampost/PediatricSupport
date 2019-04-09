@@ -1,8 +1,9 @@
 let express = require("express"),
     router = express.Router(),
-    attributeService = require("../services/attribute-service");
+    attributeService = require("../services/attribute-service"),
+    permissions = require("../middleware/permissions");
 
-router.post('/', async function(req, res, next) {
+router.post('/', permissions.ADMIN, async function(req, res, next) {
     try {
         let name = req.body.name;
         let type = req.body.type;

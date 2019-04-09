@@ -1,9 +1,10 @@
 let express = require("express"),
     router = express.Router(),
     userService = require("../services/user-service"),
-    emailService = require("../services/email-service");
+    emailService = require("../services/email-service"),
+    permissions = require("../middleware/permissions");
 
-router.post('/', async function(req, res, next) {
+router.post('/', permissions.ADMIN, async function(req, res, next) {
     try {
         let patientEmail = req.body.patientEmail;
         let patientLastName = req.body.patientLastName;
@@ -32,7 +33,7 @@ router.post('/', async function(req, res, next) {
     }
 });
 
-router.put('/', async function(req, res, next) {
+router.put('/', permissions.PATIENT, async function(req, res, next) {
     try {
         let userid = req.decoded.id;
         let interests = req.body.interests;
