@@ -2,4 +2,4 @@
 cd app
 npm install
 npm run build
-npm uninstall
+rm -rf node_modules/ && echo "Successfully removed npm packages"
