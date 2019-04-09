@@ -38,54 +38,53 @@
 </template>
 <script>
 export default {
-  name: "AdminCreateUsers",
-  data: function() {
+  name: 'AdminCreateUsers',
+  data() {
     return {
-      patientEmail: "",
-      patientFirstName: "",
-      patientLastName: "",
-      parentEmail: "",
-      parentFirstName: "",
-      parentLastName: "",
-      error: "",
-      successfullyCreated: false
+      patientEmail: '',
+      patientFirstName: '',
+      patientLastName: '',
+      parentEmail: '',
+      parentFirstName: '',
+      parentLastName: '',
+      error: '',
+      successfullyCreated: false,
     };
   },
   methods: {
     createAccounts() {
-      this.successfullyCreated= false;
+      this.successfullyCreated = false;
 
       this.$http
-        .post("users/", {
+        .post('users/', {
           patientEmail: this.patientEmail,
           patientFirstName: this.patientFirstName,
           patientLastName: this.patientLastName,
           parentEmail: this.parentEmail,
           parentFirstName: this.parentFirstName,
-          parentLastName: this.parentLastName
+          parentLastName: this.parentLastName,
         })
         .then(() => {
           this.successfullyCreated = true;
           this.clearFields();
         })
-        .catch(err => {
+        .catch((err) => {
           if (err && err.data && err.data.error) {
             this.error = err.data.error;
           } else {
-            this.error =
-              "An unspecified error occurred when attempting to create the patient user account.";
+            this.error = 'An unspecified error occurred when attempting to create the patient user account.';
           }
         });
     },
     clearFields() {
-      this.patientEmail = "";
-      this.patientFirstName = "";
-      this.patientLastName = "";
-      this.parentEmail = "";
-      this.parentFirstName = "";
-      this.parentLastName = "";
-    }
-  }
+      this.patientEmail = '';
+      this.patientFirstName = '';
+      this.patientLastName = '';
+      this.parentEmail = '';
+      this.parentFirstName = '';
+      this.parentLastName = '';
+    },
+  },
 };
 </script>
 <style scoped>
