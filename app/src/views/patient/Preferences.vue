@@ -1,15 +1,6 @@
 <template>
-  <!-- Not connected to backend atm, so uses placeholder values -->
-
   <div class="patient-preferences">
     <h1 class="ui huge header margin">Preferences</h1>
-
-    <!--
-      Interests section
-
-      - Patent's currently saved interests are reflected in checkboxes when page is loaded
-      - On submit, updates "current interests" message with selected interests
-    -->
     <div class="ui stackable grid">
       <div class="four wide column">
         <div class="ui centered card">

@@ -46,7 +46,7 @@ router.put('/', permissions.PATIENT, async function(req, res, next) {
     }
 });
 
-router.get('/', async function(req, res, next) {
+router.get('/', permissions.PATIENT, async function(req, res, next) {
   try {
     let userId = req.decoded.id;
     let data = await userService.getPatientInfo(userId);
