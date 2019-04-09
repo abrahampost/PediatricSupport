@@ -1,3 +1,4 @@
+
 <template>
   <div class="patient-matches">
     <h1 class="ui huge header margin">Patient Matches</h1>
@@ -185,6 +186,7 @@ export default {
       return attributes.map(a => a[0].toUpperCase() + a.substring(1)).join(', ');
     },
     similarPercent(similarity) {
+      if (this.highestSimilarity === 0) return 0;
       return Math.round((similarity / this.highestSimilarity) * 100);
     },
   },
@@ -194,7 +196,6 @@ export default {
 .ui.huge.header.margin {
   margin: 1em;
 }
-
 .pending {
   margin-left: 4px;
   background-color: red;

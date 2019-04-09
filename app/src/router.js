@@ -1,10 +1,12 @@
 import Vue from 'vue';
 import vueChatScroll from 'vue-chat-scroll';
+import VueSelect from 'vue-select';
 import Router from 'vue-router';
 import Login from './views/shared/Login.vue';
 import store from './config/store';
 
 Vue.use(vueChatScroll);
+Vue.component('v-select', VueSelect);
 Vue.use(Router);
 
 const router = new Router({

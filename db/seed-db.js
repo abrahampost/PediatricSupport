@@ -27,6 +27,19 @@ async function signupUsers() {
     await userService.signUp('patient5', 'patient123', 'Doe', 'Jane', 'example@example.com', 'patient');
     await userService.signUp('admin', 'admin123', 'Post', 'Abraham', 'abrahamp@live.unc.edu', 'admin');
     await userService.signUp('parent', 'parent123', 'Terrell', 'Cameron', 'cameter@live.unc.edu', 'parent');
+
+    let users = await User.findAll({
+        where: {
+            type: 'patient'
+        }
+    });
+    
+    await Promise.all([
+        userService.createPatientInfo(users[0]),
+        userService.createPatientInfo(users[1]),
+        userService.createPatientInfo(users[2]),
+        userService.createPatientInfo(users[3])
+    ]);
 }
 
 async function seedInterests() {
