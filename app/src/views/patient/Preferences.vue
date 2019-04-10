@@ -9,7 +9,13 @@
               src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
             >
           </div>
-          <div class="extra">Change Avatar</div>
+          <div class="extra">
+            <button
+              class="ui basic button"
+              @click="editAvatar=true">
+              Change Avatar
+            </button>
+          </div>
         </div>
       </div>
       <div class="twelve wide column">
@@ -59,12 +65,18 @@
         </div>
       </div>
     </div>
+    <EditAvatarModal v-if="editAvatar" v-on:close="editAvatar=false" />
   </div>
 </template>
 
 <script>
+import EditAvatarModal from '@/views/patient/EditAvatarModal.vue';
+
 export default {
   name: 'PatientPreferences',
+  components: {
+    EditAvatarModal,
+  },
   mounted() {
     this.loadInfo();
   },
@@ -74,6 +86,7 @@ export default {
       selectedInterests: [],
       biography: '',
       interests: [],
+      editAvatar: false,
       error: '',
       message: '',
     };
