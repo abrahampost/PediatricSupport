@@ -61,7 +61,8 @@ describe('Reports', () => {
             let userTwo = users[1];
 
             let requestBody = {
-                reportedId: userTwo.id
+                reportedId: userTwo.id,
+                description: "description"
             }
             let res = await chai.request(server)
                 .post("/api/authenticate/login")
@@ -78,7 +79,9 @@ describe('Reports', () => {
         });
 
         it('it should not allow creation of a report with missing required data', async () => {
-            let requestBody = {}
+            let requestBody = {
+                description: "description"
+            };
             let res = await chai.request(server)
                 .post("/api/authenticate/login")
                 .send({
@@ -108,7 +111,7 @@ describe('Reports', () => {
             let userOne = users[0];
             let userTwo = users[1];
 
-            await reportService.createUserReport(userOne.id,userTwo.id);
+            await reportService.createUserReport(userOne.id,userTwo.id, "description");
         });
 
         it('it should retrieve all reports', async () => {

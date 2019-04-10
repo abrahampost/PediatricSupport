@@ -7,8 +7,9 @@ router.post('/', permissions.PATIENT, async function(req, res, next) {
     try {
         let reporterId = req.decoded.id;
         let reportedId = req.body.reportedId;
+        let description = req.body.description;
 
-        await reportService.createUserReport(reporterId, reportedId);
+        await reportService.createUserReport(reporterId, reportedId, description);
 
         res.sendStatus(201);
     } catch(e)  {
