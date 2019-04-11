@@ -119,7 +119,7 @@ exports.signUp = async function (username, unhashed_password, last_name, first_n
     }
 }
 
-exports.updatePatientInfo = async function (userid, interests, biography) {
+exports.updatePatientInfo = async function (userid, interests, biography, avatar) {
   
   try {
     //delete interests:
@@ -141,7 +141,13 @@ exports.updatePatientInfo = async function (userid, interests, biography) {
     await PatientXAttribute.bulkCreate(userInterests);
 
     //create new patient info
-    let patientInfo = await PatientInfo.build({biography});
+    let patientInfo = await PatientInfo.build({
+        biography,
+        avatarHeads: avatar.heads,
+        avatarClothes: avatar.clothes,
+        avatarHats: avatar.hats,
+        avatarAccessories: avatar.accessories
+    });
     await patient.setPatientInfo(patientInfo);
     await patient.save();
   } catch (e) {
@@ -159,7 +165,7 @@ exports.updatePatientInfo = async function (userid, interests, biography) {
 exports.getPatientInfo = async function (id) {
   try {
     let info = await PatientInfo.findOne({
-      attributes: ['biography'],
+      attributes: ['biography', 'avatarAccessories', 'avatarHeads', 'avatarClothes', 'avatarHats'],
       where: {
         user_id: id
       },
@@ -193,8 +199,14 @@ exports.getPatientInfo = async function (id) {
       })
     }
     return {
-      biography: info.biography,
-      attributes: attributes
+        biography: info.biography,
+        attributes: attributes,
+        avatar: {
+            accessories: info.avatarAccessories,
+            clothes: info.avatarClothes,
+            hats: info.avatarHats,
+            heads: info.avatarHeads,
+        }
     };
   } catch(e) {
     if (e instanceof Sequelize.ValidationError) {

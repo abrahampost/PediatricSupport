@@ -10,22 +10,31 @@
             :hats="hats"
             :heads="heads"
           />
-          <div class="ui form">
-            <div class="field">
-              <label>Accessories</label>
-              <input type="range" v-model="accessories" min="1" max="4">
+          <div class="ui equal width form">
+            <div class="fields">
+              <div class="field">
+                <label>Accessories</label>
+                <input type="range" v-model="accessories" min="1" max="4">
+              </div>
+              <div class="field">
+                <label>Clothes</label>
+                <input type="range" v-model="clothes" min="1" max="4">
+              </div>
             </div>
-            <div class="field">
-              <label>Clothes</label>
-              <input type="range" v-model="clothes" min="1" max="4">
+            <div class="fields">
+              <div class="field">
+                <label>Hats</label>
+                <input type="range" v-model="hats" min="1" max="4">
+              </div>
+              <div class="field">
+                <label>Heads</label>
+                <input type="range" v-model="heads" min="1" max="4">
+              </div>
             </div>
-            <div class="field">
-              <label>Hats</label>
-              <input type="range" v-model="hats" min="1" max="4">
-            </div>
-            <div class="field">
-              <label>Heads</label>
-              <input type="range" v-model="heads" min="1" max="4">
+            <div class="fields">
+              <div class="field">
+                <button class="ui primary button" @click="saveAvatar">Save</button>
+              </div>
             </div>
           </div>
         </div>
@@ -40,20 +49,28 @@ import Avatar from '@/components/Avatar.vue';
 export default {
   name: 'EditAvatarModal',
   components: {
-    Avatar
+    Avatar,
   },
+  props: ['avatar'],
   data() {
     return {
-      accessories: "1",
-      clothes: "1",
-      heads: "1",
-      hats: "1",
+      accessories: this.avatar.accessories,
+      clothes: this.avatar.clothes,
+      heads: this.avatar.heads,
+      hats: this.avatar.hats,
     };
   },
   methods: {
     closeModal() {
-      console.log("attempting to close");
       this.$emit('close');
+    },
+    saveAvatar() {
+      this.$emit('save', {
+        accessories: this.accessories,
+        clothes: this.clothes,
+        heads: this.heads,
+        hats: this.hats,
+      });
     },
   },
 };
@@ -79,12 +96,18 @@ export default {
 .modal-container {
   width: 50%;
   margin: 0px auto;
-  padding: 2% 2%;
+  padding: 1% 1%;
   background-color: #fff;
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
   font-family: Helvetica, Arial, sans-serif;
+}
+
+@media (max-width: 57.5em) {
+  .modal-container {
+    width: 80%;
+  }
 }
 
 /*

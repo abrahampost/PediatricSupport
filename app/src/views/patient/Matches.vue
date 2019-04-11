@@ -79,7 +79,7 @@ export default {
   data() {
     return {
       filterType: 'potential',
-      highestSimilarity: 0,
+      highestSimilarity: 1,
       matches: [],
       potentialMatches: [],
       error: '',
@@ -115,7 +115,9 @@ export default {
           this.matches = data.matches;
           this.potentialMatches = data.potentialMatches;
           if (this.potentialMatches.length > 0) {
-            this.highestSimilarity = this.potentialMatches[0].similarity;
+            //prevents divide by 0 errors if no similar matches exist
+            let highestSimilarity = this.potentialMatches[0].similarity;
+            this.highestSimilarity = Math.max(1, highestSimilarity);
           }
           this.loading = false;
           this.error = '';

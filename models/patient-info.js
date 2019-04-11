@@ -11,6 +11,31 @@ exports.init_table = function (sequelize) {
         biography: {
             type: Sequelize.STRING,
             allowNull: true,
+            defaultValue: ""
+        },
+        avatarClothes: {
+            type: Sequelize.STRING,
+            require: true,
+            allowNull: false,
+            defaultValue: "1"
+        },
+        avatarHeads: {
+            type: Sequelize.STRING,
+            require: true,
+            allowNull: false,
+            defaultValue: "1"
+        },
+        avatarHats: {
+            type: Sequelize.STRING,
+            require: true,
+            allowNull: false,
+            defaultValue: "1"
+        },
+        avatarAccessories: {
+            type: Sequelize.STRING,
+            require: true,
+            allowNull: false,
+            defaultValue: "1"
         }
     });
 }

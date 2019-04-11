@@ -1,16 +1,11 @@
 <template>
   <div class="avatar">
-    <div class="ui segment">
-      <canvas ref="canvasObj" width="235" height="330"></canvas>
-      <div class="ui active inverted dimmer" v-if="loading">
-        <div class="ui text loader">Loading</div>
+    <canvas ref="canvasObj" width="235" height="330"></canvas>
+    <div class="ui message" v-if="error" >
+      <div class="header">
+        Unable to draw Avatar
       </div>
-      <div class="ui message" v-if="error" >
-        <div class="header">
-          Unable to draw Avatar
-        </div>
-        <p>{{ error }}</p>
-      </div>
+      <p>{{ error }}</p>
     </div>
   </div>
 </template>
@@ -23,7 +18,6 @@ export default {
   },
   data() {
     return {
-      loading: false,
       error: '',
     };
   },
@@ -32,48 +26,46 @@ export default {
       Promise.all([
         this.loadImage('heads'),
         this.loadImage('hats'),
-        this.loadImage('accessories'),
         this.loadImage('clothes'),
+        this.loadImage('accessories'),
       ]).then((images) => {
-        console.log("painting images!");
-        //images will be drawn in the order they are listed above
-        let canvas = this.$refs['canvasObj'];
-        let ctx = canvas.getContext('2d');
+        // images will be drawn in the order they are listed above
+        const canvas = this.$refs.canvasObj;
+        const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         images.forEach((image) => {
           ctx.drawImage(image, 0, 0);
         });
       }).catch((err) => {
-        console.log(err);
         this.error = err;
       });
     },
     loadImage(feature) {
       return new Promise((resolve, reject) => {
-        let loc = this.getPath(feature)
-        let imageObj = new Image();
+        const loc = this.getPath(feature);
+        const imageObj = new Image();
         imageObj.onload = () => resolve(imageObj);
-        imageObj.onerror = (err) => console.error(err);
+        imageObj.onerror = () => reject();
         imageObj.src = loc;
       });
     },
     getPath(feature) {
       const imageLoc = 'avatarimages';
-      let path = `${process.env.BASE_URL}${imageLoc}/${feature}/${this[feature]}.png`
+      const path = `${process.env.BASE_URL}${imageLoc}/${feature}/${this[feature]}.png`;
       return path;
-    }
+    },
   },
   watch: {
-    'accessories': 'draw',
-    'clothes': 'draw',
-    'hats': 'draw',
-    'heads': 'draw',
-  }
-}
+    accessories: 'draw',
+    clothes: 'draw',
+    hats: 'draw',
+    heads: 'draw',
+  },
+};
 </script>
 <style scoped>
 canvas {
-  width: 30%;
+  width: 40%;
   height: auto;
 }
 </style>
