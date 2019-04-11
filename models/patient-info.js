@@ -1,5 +1,7 @@
-const Sequelize = require("sequelize");
+const   Sequelize = require("sequelize"),
+        fs = require("fs");
 
+const defaultAvatar = fs.readFileSync(__dirname + '/../assets/avatar/defaultAvatar.dat', 'utf8');
 exports.init_table = function (sequelize) {
     return sequelize.define('patient_info', {
         id: {
@@ -36,6 +38,12 @@ exports.init_table = function (sequelize) {
             require: true,
             allowNull: false,
             defaultValue: "1"
+        },
+        renderedAvatar: {
+            type: Sequelize.TEXT,
+            require: true,
+            allowNull: false,
+            defaultValue: defaultAvatar,
         }
     });
 }

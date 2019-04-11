@@ -3,6 +3,7 @@ const   Sequelize = require("sequelize"),
         User = require("../db/sequelize").user,
         Match = require("../db/sequelize").user_match,
         Attribute = require("../db/sequelize").attribute,
+        PatientInfo = require("../db/sequelize").patient_info,
         Op = Sequelize.Op,
         BadRequestException = require("../exceptions/bad-request-exception"),
         InternalErrorException = require("../exceptions/internal-error-exception");
@@ -64,6 +65,10 @@ exports.getMatches = async function (userId) {
                         type: 'interest',
                     },
                     required: false,
+                }, {
+                    model: PatientInfo,
+                    as: 'PatientInfo',
+                    attributes: ['renderedAvatar']
                 }]
             }],
         });
@@ -78,6 +83,7 @@ exports.getMatches = async function (userId) {
                     id: result.user_match.id,
                     username: result.username,
                     type: type,
+                    avatar: result.PatientInfo.renderedAvatar,
                 }
                 if(result.dataValues.attributes) {
                     normalizedResult['attributes'] = result.dataValues.attributes.map(attribute => attribute.name);
@@ -107,14 +113,20 @@ exports.getMatches = async function (userId) {
                     type: 'interest',
                 },
                 required: false,
+            }, {
+                model: PatientInfo,
+                as: 'PatientInfo',
+                attributes: ['renderedAvatar']
             }],
         });
 
         if (receivedResults.length != 0) {
+            console.log(receivedResults.PatientInfo);
             receivedResults = receivedResults.map((res) => {
                 return  {
                     id: res.UserMatch[0].user_match.id,
                     username: res.username,
+                    avatar: res.PatientInfo.renderedAvatar,
                     type: res.UserMatch[0].user_match.type,
                     attributes: res.dataValues.attributes.map(attribute => attribute.name),
                 }

@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs"),
   PatientXAttribute = require("../db/sequelize").patient_x_attribute,
   PatientInfo = require("../db/sequelize").patient_info,
   Attribute = require("../db/sequelize").attribute,
+  avatarService = require("./avatar-service"),
   BadRequestException = require("../exceptions/bad-request-exception"),
   InternalErrorException = require("../exceptions/internal-error-exception"),
   UnauthorizedRequestException = require("../exceptions/unauthorized-request-exception"),
@@ -140,13 +141,16 @@ exports.updatePatientInfo = async function (userid, interests, biography, avatar
     }
     await PatientXAttribute.bulkCreate(userInterests);
 
+    let renderedAvatar = avatarService.renderImage(avatar);
+
     //create new patient info
     let patientInfo = await PatientInfo.build({
         biography,
         avatarHeads: avatar.heads,
         avatarClothes: avatar.clothes,
         avatarHats: avatar.hats,
-        avatarAccessories: avatar.accessories
+        avatarAccessories: avatar.accessories,
+        renderedAvatar: renderedImage,
     });
     await patient.setPatientInfo(patientInfo);
     await patient.save();
