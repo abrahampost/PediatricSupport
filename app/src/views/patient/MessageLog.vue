@@ -12,11 +12,13 @@
               <i class="ellipsis horizontal icon"></i>
             </div>
             <div class="dropdown-content" v-if="showMoreOptions">
-              <div @click="showReport=!showReport">Report User</div>
+              <div class="ui button" @click="showReportModal">Report User</div>
             </div>
           </div>
         </div>
       </div>
+      <CreateReportModal v-if="showReport" v-on:close="showReport=false" v-bind:otherUserId="otherUserId">
+      </CreateReportModal>
       <div
         id="log"
         class="ui middle aligned grid"
@@ -75,11 +77,15 @@
 import Vue from "vue";
 import store from "../../config/store";
 import { mixin as clickaway } from "vue-clickaway";
+import CreateReportModal from "@/views/patient/CreateReportModal.vue";
 
 export default {
   name: "PatientMessageLog",
-  props: ["username", "messages", "error"],
+  props: ["username", "messages", "error", "otherUserId"],
   mixins: [clickaway],
+  components: {
+    CreateReportModal
+  },
   data() {
     return {
       message: "",
@@ -104,6 +110,10 @@ export default {
       this.message = "";
     },
     hideMoreOptions() {
+      this.showMoreOptions = false;
+    },
+    showReportModal() {
+      this.showReport = true;
       this.showMoreOptions = false;
     }
   },
@@ -143,6 +153,7 @@ export default {
   min-width: 10em;
   text-align: right;
   white-space: nowrap;
+  margin-right: 0;
 }
 
 .dropdown-content li:hover {

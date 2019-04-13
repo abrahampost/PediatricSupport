@@ -4,6 +4,8 @@ const   UserReport = require("../db/sequelize").user_report,
         InternalErrorException = require("../exceptions/internal-error-exception");
 
 exports.createUserReport = async function (reporterId, reportedId, description) {
+    console.log(reporterId);
+    console.log(reportedId);
     try {
         let userReport = await UserReport.build({
             reporter_id: reporterId,
