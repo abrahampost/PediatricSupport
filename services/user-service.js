@@ -141,7 +141,8 @@ exports.updatePatientInfo = async function (userid, interests, biography, avatar
     }
     await PatientXAttribute.bulkCreate(userInterests);
 
-    let renderedAvatar = avatarService.renderImage(avatar);
+    let renderedImage = await avatarService.renderImage(avatar);
+    console.log(renderedImage);
 
     //create new patient info
     let patientInfo = await PatientInfo.build({
@@ -150,7 +151,7 @@ exports.updatePatientInfo = async function (userid, interests, biography, avatar
         avatarClothes: avatar.clothes,
         avatarHats: avatar.hats,
         avatarAccessories: avatar.accessories,
-        renderedAvatar: renderedImage,
+        rendered_avatar: renderedImage,
     });
     await patient.setPatientInfo(patientInfo);
     await patient.save();
@@ -227,7 +228,7 @@ exports.getPatientInfo = async function (id) {
 exports.createPatientInfo = async function (patient) {
     try {
         let patientInfo = await PatientInfo.create();
-        patient.setPatientInfo(patientInfo);
+        await patient.setPatientInfo(patientInfo);
         await patient.save();
     } catch (e) {
         if (e instanceof Sequelize.ValidationError) {

@@ -68,7 +68,7 @@ exports.getMatches = async function (userId) {
                 }, {
                     model: PatientInfo,
                     as: 'PatientInfo',
-                    attributes: ['renderedAvatar']
+                    attributes: ['rendered_avatar']
                 }]
             }],
         });
@@ -83,7 +83,7 @@ exports.getMatches = async function (userId) {
                     id: result.user_match.id,
                     username: result.username,
                     type: type,
-                    avatar: result.PatientInfo.renderedAvatar,
+                    avatar: result.PatientInfo.rendered_avatar,
                 }
                 if(result.dataValues.attributes) {
                     normalizedResult['attributes'] = result.dataValues.attributes.map(attribute => attribute.name);
@@ -116,17 +116,16 @@ exports.getMatches = async function (userId) {
             }, {
                 model: PatientInfo,
                 as: 'PatientInfo',
-                attributes: ['renderedAvatar']
+                attributes: ['rendered_avatar']
             }],
         });
 
         if (receivedResults.length != 0) {
-            console.log(receivedResults.PatientInfo);
             receivedResults = receivedResults.map((res) => {
                 return  {
                     id: res.UserMatch[0].user_match.id,
                     username: res.username,
-                    avatar: res.PatientInfo.renderedAvatar,
+                    avatar: res.PatientInfo.rendered_avatar,
                     type: res.UserMatch[0].user_match.type,
                     attributes: res.dataValues.attributes.map(attribute => attribute.name),
                 }
@@ -159,7 +158,8 @@ exports.getPotentialMatches = async function (userId) {
     try {
         let results = await sequelize.query(`
         SELECT u.id, 
-            u.username, 
+            u.username,
+            p_i.rendered_avatar as avatar,
             Array_agg(a.NAME) AS attributes, 
             (SELECT Count(*) 
                 FROM   patient_x_attributes AS p_a 
@@ -173,15 +173,17 @@ exports.getPotentialMatches = async function (userId) {
                     ON u.id = p_a.patient_id 
             LEFT JOIN attributes a 
                     ON p_a.attribute_id = a.id 
+            LEFT JOIN patient_infos p_i
+                    ON u.id = p_i.user_id
         WHERE  u.id NOT IN(SELECT user_one_id AS id 
                         FROM   user_matches 
-                        WHERE  user_two_id = :user_id 
+                        WHERE  user_two_id = :user_id and type != 'blocked'
                         UNION 
                         SELECT user_two_id AS id 
                         FROM   user_matches 
-                        WHERE  user_one_id = :user_id) 
+                        WHERE  user_one_id = :user_id and type != 'blocked') 
             AND p_a.patient_id != :user_id 
-        GROUP  BY u.id
+        GROUP  BY u.id, avatar
         order by similarity desc;`, 
             { replacements: { user_id: userId }, type: sequelize.QueryTypes.SELECT});
         return results;

@@ -39,7 +39,7 @@ exports.init_table = function (sequelize) {
             allowNull: false,
             defaultValue: "1"
         },
-        renderedAvatar: {
+        rendered_avatar: {
             type: Sequelize.TEXT,
             require: true,
             allowNull: false,

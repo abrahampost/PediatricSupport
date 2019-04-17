@@ -245,6 +245,7 @@ describe('Users', () => {
     describe("/PUT updateUserInfo", () => {
       var token;
       var userId;
+      var avatar;
       beforeEach(async () => {
         const requestBody = {
           patientFirstName: "John",
@@ -254,6 +255,13 @@ describe('Users', () => {
           parentLastName: "Parent",
           parentEmail: "geschwat@masafiagrofood.com"
         };
+
+        avatar = {
+          accessories: "1",
+          hats: "1",
+          heads: "1",
+          clothes: "1"
+        }
 
         await userService.signUp(testUser.username, testUser.password, testUser.lastName, testUser.firstName, testUser.email, testUser.type);
         let userLogin = await chai.request(server)
@@ -302,7 +310,8 @@ describe('Users', () => {
           .put("/api/users")
           .send({
             biography: testBio,
-            interests: interests
+            interests: interests,
+            avatar: avatar
           })
           .set('Authorization', token);
         res.should.have.status(200);
@@ -331,7 +340,8 @@ describe('Users', () => {
           .put("/api/users")
           .send({
             biography: "",
-            interests: []
+            interests: [],
+            avatar: avatar
           })
           .set('Authorization', token);
         res.should.have.status(200);
@@ -362,13 +372,14 @@ describe('Users', () => {
           order: [ [ 'id', 'DESC' ]]
         });
         interests = interests.map((interest) => interest.id);
-        await userService.updatePatientInfo(userId, interests, "This is a test bio.");
+        await userService.updatePatientInfo(userId, interests, "This is a test bio.", avatar);
 
         let res = await chai.request(server)
           .put("/api/users")
           .send({
             biography: "",
-            interests: []
+            interests: [],
+            avatar: avatar
           })
           .set('Authorization', token);
         res.should.have.status(200);
@@ -392,6 +403,15 @@ describe('Users', () => {
     describe("/GET user", () => {
       var token;
       var userId;
+      var avatar;
+      before(() => {
+        avatar = {
+          accessories: "1",
+          hats: "1",
+          heads: "1",
+          clothes: "1"
+        };
+      })
       beforeEach(async () => {
         await userService.signUp(testUser.username, testUser.password, testUser.lastName, testUser.firstName, testUser.email, testUser.type);
         let userLogin = await chai.request(server)
@@ -424,7 +444,7 @@ describe('Users', () => {
 
       it("it should retrieve the correct biography", async () => {
         const testBio = 'this is a test bio';
-        await userService.updatePatientInfo(userId, [], testBio);
+        await userService.updatePatientInfo(userId, [], testBio, avatar);
         let res = await chai.request(server)
           .get("/api/users")
           .set('Authorization', token);
@@ -443,7 +463,7 @@ describe('Users', () => {
           order: [['id', 'ASC']]
         });
         let interestsIDs = interests.map((intr) => intr.id);
-        await userService.updatePatientInfo(userId, interestsIDs, testBio);
+        await userService.updatePatientInfo(userId, interestsIDs, testBio, avatar);
         let res = await chai.request(server)
           .get("/api/users")
           .set('Authorization', token);
@@ -458,7 +478,7 @@ describe('Users', () => {
         body.attributes[3].id.should.be.eql(interestsIDs[3]);
       });
       it("it should retrieve blank bio and interests" , async () => {
-        await userService.updatePatientInfo(userId, [], "");
+        await userService.updatePatientInfo(userId, [], "", avatar);
         let res = await chai.request(server)
           .get("/api/users")
           .set('Authorization', token);
