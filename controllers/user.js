@@ -38,8 +38,9 @@ router.put('/', permissions.PATIENT, async function(req, res, next) {
         let userid = req.decoded.id;
         let interests = req.body.interests;
         let biography = req.body.biography;
+        let avatar = req.body.avatar;
 
-        await userService.updatePatientInfo(userid, interests, biography);
+        await userService.updatePatientInfo(userid, interests, biography, avatar);
         res.sendStatus(200);
     } catch(e) {
         next(e);
@@ -50,7 +51,6 @@ router.get('/', permissions.PATIENT, async function(req, res, next) {
   try {
     let userId = req.decoded.id;
     let data = await userService.getPatientInfo(userId);
-    
     res.json(data);
   } catch(e) {
     next(e);

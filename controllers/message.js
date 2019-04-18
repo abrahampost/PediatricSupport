@@ -1,16 +1,19 @@
 let express = require("express"),
     router = express.Router(),
-    messageService = require("../services/message-service");
+    messageService = require("../services/message-service"),
+    avatarService = require("../services/avatar-service");
 
 router.get("/", async function(req, res, next) {
   try {
     let userId = req.decoded.id;
     let time = req.query.time;  //optional param ?time=<>
-    let results;
+    let results, avatar;
     if (time) {
       results = await messageService.getAllMessagesSince(userId, time);
     } else {
       results = await messageService.getAllMessages(userId);
+      //only retrieve the requesting users avatar on the first query
+      avatar = await avatarService.getAvatar(userId);
     }
     let conversations;
     if (results[0].conversations) {
@@ -23,6 +26,7 @@ router.get("/", async function(req, res, next) {
         return {
           id: conversation.id,
           username: conversation.username,
+          avatar: conversation.avatar,
           messages: conversation.messages
         };
       })
@@ -31,7 +35,7 @@ router.get("/", async function(req, res, next) {
       conversations = [];
     }
     let lastPolled = results[0].mostrecent;
-    res.json({ conversations, lastPolled });
+    res.json({ avatar, conversations, lastPolled });
   } catch (e) {
     next(e);
   }

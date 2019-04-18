@@ -10,7 +10,7 @@
           <div class="two wide column">
             <div v-if="message.sender !== userId">
               <img class="ui medium image"
-                  src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png">
+                  :src="otherUserAvatar">
             </div>
           </div>
           <div class="twelve wide column">
@@ -23,7 +23,7 @@
           <div class="two wide column">
             <div v-if="message.sender === userId">
               <img class="ui medium image"
-                  src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png">
+                :src="userAvatar">
             </div>
           </div>
         </div>
@@ -62,7 +62,7 @@ import store from '../../config/store';
 
 export default {
   name: 'PatientMessageLog',
-  props: ['username', 'messages', 'error'],
+  props: ['username', 'messages', 'userAvatar', 'otherUserAvatar', 'error'],
   data() {
     return {
       message: '',
