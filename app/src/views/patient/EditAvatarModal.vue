@@ -3,7 +3,7 @@
     <div class="modal-mask">
       <div class="modal-wrapper">
         <div class="modal-container">
-          <h3>Avatar<i class="right floated red window close icon" @click="closeModal"></i></h3>
+          <h3>Avatar<i class="ui float-right large red window close icon" @click="closeModal"></i></h3>
           <Avatar
             :accessories="accessories"
             :clothes="clothes"
@@ -131,5 +131,9 @@ export default {
 .modal-leave-active .modal-container {
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
+}
+
+.float-right {
+  float: right;
 }
 </style>
