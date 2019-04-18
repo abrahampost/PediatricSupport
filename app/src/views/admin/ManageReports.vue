@@ -12,15 +12,15 @@
     <table class="ui celled table">
       <thead>
         <tr>
-          <th>Reporter User</th>
           <th>Reported User</th>
+          <th>Reporter User</th>
           <th>Reason</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="report in filteredReports" :key="report.id">
-          <td data-label="Reporter Username">{{report.reporter_username}}</td>
           <td data-label="Reported Username">{{report.reported_username}}</td>
+          <td data-label="Reporter Username">{{report.reporter_username}}</td>
           <td data-label="Reason">{{report.description}}</td>
         </tr>
       </tbody>
