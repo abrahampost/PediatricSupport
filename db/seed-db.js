@@ -38,7 +38,8 @@ async function signupUsers() {
         userService.createPatientInfo(users[0]),
         userService.createPatientInfo(users[1]),
         userService.createPatientInfo(users[2]),
-        userService.createPatientInfo(users[3])
+        userService.createPatientInfo(users[3]),
+        userService.createPatientInfo(users[4]),
     ]);
 }
 

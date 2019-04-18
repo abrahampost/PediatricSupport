@@ -28,10 +28,8 @@
         <div class="row" v-for="message in messages" :key="message.id">
           <div class="two wide column">
             <div v-if="message.sender !== userId">
-              <img
-                class="ui medium image"
-                src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
-              >
+              <img class="ui medium image"
+                  :src="otherUserAvatar">
             </div>
           </div>
           <div class="twelve wide column">
@@ -45,10 +43,8 @@
           </div>
           <div class="two wide column">
             <div v-if="message.sender === userId">
-              <img
-                class="ui medium image"
-                src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
-              >
+              <img class="ui medium image"
+                :src="userAvatar">
             </div>
           </div>
         </div>
@@ -81,7 +77,7 @@ import CreateReportModal from "@/views/patient/CreateReportModal.vue";
 
 export default {
   name: "PatientMessageLog",
-  props: ["username", "messages", "error", "otherUserId"],
+  props: ['username', 'messages', 'userAvatar', 'otherUserAvatar', 'error'],
   mixins: [clickaway],
   components: {
     CreateReportModal
