@@ -77,7 +77,7 @@ import CreateReportModal from "@/views/patient/CreateReportModal.vue";
 
 export default {
   name: "PatientMessageLog",
-  props: ['username', 'messages', 'userAvatar', 'otherUserAvatar', 'error'],
+  props: ['username', 'messages', 'otherUserId', 'userAvatar', 'otherUserAvatar', 'error'],
   mixins: [clickaway],
   components: {
     CreateReportModal
