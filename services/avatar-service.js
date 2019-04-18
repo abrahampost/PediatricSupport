@@ -2,7 +2,7 @@ const { createCanvas, loadImage } = require("canvas"),
       PatientInfo = require("../db/sequelize").patient_info,
       InternalErrorException = require("../exceptions/internal-error-exception");
 
-exports.renderImage = async (avatar) => {
+exports.renderImage = async function(avatar) {
   try {
     let canvas = createCanvas(250, 320);
     let ctx = canvas.getContext('2d');
@@ -37,12 +37,12 @@ exports.getAvatar = async function(userId) {
   return undefined;
 }
 
-const retrieveImage = async (feature, featureId) => {
+const retrieveImage = async function(feature, featureId) {
   const loc = getPath(feature, featureId);
   return await loadImage(loc);
 }
 
-const getPath = (feature, featureId) => {
+const getPath = function (feature, featureId) {
   const imageLoc = '../assets/avatar';
   const path = `${__dirname}/${imageLoc}/${feature}/${featureId}.png`;
   return path;
