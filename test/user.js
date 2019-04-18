@@ -247,14 +247,6 @@ describe('Users', () => {
       var userId;
       var avatar;
       beforeEach(async () => {
-        const requestBody = {
-          patientFirstName: "John",
-          patientLastName: "Patient",
-          patientEmail: "523pediatrics@gmail.com",
-          parentFirstName: "Todd",
-          parentLastName: "Parent",
-          parentEmail: "geschwat@masafiagrofood.com"
-        };
 
         avatar = {
           accessories: "1",
@@ -398,6 +390,23 @@ describe('Users', () => {
         patientInfo.should.have.property('biography');
         patientInfo.biography.should.be.eql("");
       });
+      
+      it("it should update avatar correctly", async () => {
+        let res = await chai.request(server)
+          .put("/api/users")
+          .send({
+            biography: "",
+            interests: [],
+            avatar: {
+              accessories: "2",
+              hats: "2",
+              heads: "2",
+              clothes: "2"
+            }
+          })
+          .set('Authorization', token);
+        res.should.have.status(200);
+      })
     });
 
     describe("/GET user", () => {
@@ -477,6 +486,7 @@ describe('Users', () => {
         body.attributes[2].id.should.be.eql(interestsIDs[2]);
         body.attributes[3].id.should.be.eql(interestsIDs[3]);
       });
+
       it("it should retrieve blank bio and interests" , async () => {
         await userService.updatePatientInfo(userId, [], "", avatar);
         let res = await chai.request(server)
@@ -487,6 +497,14 @@ describe('Users', () => {
         body.should.have.property("biography");
         body.attributes.should.have.length(0);
         body.biography.should.be.eql("");
+      });
+
+      it("it should retrieve avatar in request", async () => {
+        await userService.updatePatientInfo(userId, [], "", avatar);
+        let res = await chai.request(server)
+          .get("/api/users")
+          .set('Authorization', token);
+        res.body.should.have.property('avatar');
       });
     })
 

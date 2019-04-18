@@ -187,7 +187,6 @@ exports.getPotentialMatches = async function (userId) {
         order by similarity desc;`, 
             { replacements: { user_id: userId }, type: sequelize.QueryTypes.SELECT});
         return results;
-        // https://github.com/sequelize/sequelize/issues/222
     } catch (e) {
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";

@@ -60,6 +60,8 @@ describe('Messaging', () => {
       });
       userOne = users[0];
       userTwo = users[1];
+      await userService.createPatientInfo(users[0]);
+      await userService.createPatientInfo(users[1]);
       await matchService.createMatch(userOne.id, userTwo.id);
       let match = await Match.findOne({
         where: {
@@ -169,6 +171,8 @@ describe('Messaging', () => {
       });
       userOne = users[0];
       userTwo = users[1];
+      await userService.createPatientInfo(users[0]);
+      await userService.createPatientInfo(users[1]);
       await matchService.createMatch(userOne.id, userTwo.id);
       let match = await Match.findOne({
         where: {

@@ -142,7 +142,6 @@ exports.updatePatientInfo = async function (userid, interests, biography, avatar
     await PatientXAttribute.bulkCreate(userInterests);
 
     let renderedImage = await avatarService.renderImage(avatar);
-    console.log(renderedImage);
 
     //create new patient info
     let patientInfo = await PatientInfo.build({

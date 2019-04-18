@@ -1,9 +1,10 @@
 const { createCanvas, loadImage } = require("canvas"),
+      PatientInfo = require("../db/sequelize").patient_info,
       InternalErrorException = require("../exceptions/internal-error-exception");
 
 exports.renderImage = async (avatar) => {
   try {
-    let canvas = createCanvas();
+    let canvas = createCanvas(250, 320);
     let ctx = canvas.getContext('2d');
     let images = await Promise.all([
       retrieveImage('heads', avatar.heads),
@@ -19,6 +20,21 @@ exports.renderImage = async (avatar) => {
     console.error(e);
     throw new InternalErrorException("Unable to create avatar", e);
   }
+}
+
+exports.getAvatar = async function(userId) {
+  let info = await PatientInfo.findOne({
+    attributes: [['rendered_avatar', 'avatar']],
+    where: {
+      user_id: userId
+    }
+  });
+  if (info) {
+    return info.dataValues.avatar;
+  }
+  // I return undefined here because a screen could still be rendered with a missing avatar
+  // meaning, it is not a "don't return anything" error
+  return undefined;
 }
 
 const retrieveImage = async (feature, featureId) => {

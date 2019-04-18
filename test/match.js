@@ -387,6 +387,76 @@ describe("Match", () => {
         matchedUsers.should.have.length(3, matchedUsers.length);
         matchedUsers[0].id.should.be.eql(users[1].id);
       });
+      
+      it("it should find matches with correct attributes", async () => {
+        let legos = await Attribute.create({
+          name: 'legos',
+          type: 'interest',
+        });
+        let movies = await Attribute.create({
+          name: 'movies',
+          type: 'interest',
+        });
+        let videogames = await Attribute.create({
+          name: 'videogames',
+          type: 'interest',
+        });
+        let basketball = await Attribute.create({
+          name: 'basketball',
+          type: 'interest',
+        });
+        let users = await User.findAll({
+          attributes: ['id'],
+          where: {},
+          order: [
+            ['id', 'ASC']
+          ],
+        });
+        //Patient 0 no longer likes legos. :(
+        await PatientAttributes.create({
+          patient_id: users[0].id,
+          attribute_id: movies.id
+        });
+        await PatientAttributes.create({
+          patient_id: users[0].id,
+          attribute_id: videogames.id
+        });
+        await PatientAttributes.create({
+          patient_id: users[0].id,
+          attribute_id: basketball.id
+        });
+        await PatientAttributes.create({
+          patient_id: users[1].id,
+          attribute_id: legos.id
+        });
+        await PatientAttributes.create({
+          patient_id: users[1].id,
+          attribute_id: movies.id
+        });
+        await PatientAttributes.create({
+          patient_id: users[1].id,
+          attribute_id: videogames.id
+        });
+        await PatientAttributes.create({
+          patient_id: users[2].id,
+          attribute_id: legos.id
+        });
+        await PatientAttributes.create({
+          patient_id: users[2].id,
+          attribute_id: movies.id
+        });
+        await PatientAttributes.create({
+          patient_id: users[3].id,
+          attribute_id: legos.id
+        });
+        let matchedUsers = await matchService.getPotentialMatches(users[0].id);
+        matchedUsers.should.have.length(3);
+        matchedUsers[0].should.have.property('attributes');
+        matchedUsers[0].should.have.property('avatar');
+        matchedUsers[0].should.have.property('id');
+        matchedUsers[0].should.have.property('similarity');
+        matchedUsers[0].should.have.property('username');
+      })
     })
 
   })
