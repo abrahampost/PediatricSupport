@@ -27,8 +27,8 @@ exports.createUserReport = async function (reporterId, reportedId, description) 
 
 exports.getUserReports = async function (status) {
     try {
-        let whereStatement = `where ur.reported_id = u1.id and
-        ur.reporter_id = u2.id`;
+        let whereStatement = `where ur.reporter_id = u1.id and
+        ur.reported_id = u2.id`;
         if (status) {
             whereStatement.status += `and ur.status = :status`;
         }
