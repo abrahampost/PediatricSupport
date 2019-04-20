@@ -55,7 +55,17 @@ router.get('/', permissions.PATIENT, async function(req, res, next) {
   } catch(e) {
     next(e);
   }
-})
+});
+
+router.get('/:id', permissions.ADMIN, async function(req, res, next) {
+    try {
+      let userId = req.params.id;
+      let data = await userService.getPatientInfo(userId);
+      res.json(data);
+    } catch(e) {
+      next(e);
+    }
+  });
 
 router.put('/passwords/reset', async function(req, res, next) {
     try {

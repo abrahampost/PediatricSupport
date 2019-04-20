@@ -18,6 +18,15 @@ const patient = {
     type: "patient"
 }
 
+const patientTwo = {
+  username: 'patientTwo',
+  password: 'password',
+  lastName: "patient",
+  firstName: "Test",
+  email: "notarealemail2@gmail.com",
+  type: "patient"
+}
+
 const parent = {
   username: 'parent',
   password: 'password',
@@ -116,6 +125,31 @@ describe('Permissions', () => {
             .set("Authorization", token);
         
         res.should.have.status(401);
+    });
+  });
+  
+  describe("/GET patient info via admin", () => {
+    var user;
+
+    beforeEach(async () => {
+      await userService.signUp(patient.username, patient.password, patient.lastName, patient.firstName, patient.email, patient.type);
+      user = await userService.signUp(patientTwo.username, patientTwo.password, patientTwo.lastName, patientTwo.firstName, patientTwo.email, patientTwo.type);
+    });
+
+    it('it should not allow a patient to retrieve another patients info', async () => {
+      let res = await chai.request(server)
+          .post("/api/authenticate/login")
+          .send({
+            username: patient.username,
+            password: patient.password
+          });
+      let token = res.body.token;
+
+      res = await chai.request(server)
+          .get("/api/users/"+user.id)
+          .set("Authorization", token);
+      
+      res.should.have.status(401);
     });
   });
 });
