@@ -2,7 +2,9 @@ let express = require("express"),
     router = express.Router(),
     userService = require("../services/user-service"),
     emailService = require("../services/email-service"),
-    permissions = require("../middleware/permissions");
+    permissions = require("../middleware/permissions"),
+    messageService = require("../services/message-service"),
+    avatarService = require("../services/avatar-service");
 
 router.post('/', permissions.ADMIN, async function(req, res, next) {
     try {
@@ -80,5 +82,20 @@ router.put('/passwords/reset', async function(req, res, next) {
         next(e);
     }
 });
+
+router.get("/:userOneId/conversations/:userTwoId", permissions.ADMIN, async function(req, res, next) {
+    try {
+      let userOneId = req.params.userOneId;
+      let userTwoId = req.params.userTwoId;
+
+      let messages = await messageService.getConversation(userOneId, userTwoId);
+      let userOneAvatar = await avatarService.getAvatar(userOneId);
+      let userTwoAvatar = await avatarService.getAvatar(userTwoId);
+
+      res.json({ messages, userOneAvatar, userTwoAvatar });
+    } catch (e) {
+      next(e);
+    }
+  });
 
 module.exports = router;
