@@ -18,7 +18,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="report in filteredReports" :key="report.id" @click="showReport(report)">
+        <tr v-bind:class="{pending: showPending}" v-for="report in filteredReports" :key="report.id" @click="showReport(report)">
           <td data-label="Reported Username">{{report.reported_username}}</td>
           <td data-label="Reporter Username">{{report.reporter_username}}</td>
           <td data-label="Reason">{{report.description}}</td>
@@ -157,4 +157,7 @@ export default {
 };
 </script>
 <style scoped>
+.pending {
+  cursor: pointer;
+}
 </style>

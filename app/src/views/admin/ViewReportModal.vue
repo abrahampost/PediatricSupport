@@ -22,13 +22,35 @@
           </div>
           <div id="content">
             <div class="ui form" v-if="activeTab==='summary'">
-              <div class="ui field">
-                <h4 class="ui left aligned header">Reported Username</h4>
-                <input type="text" readonly v-model="report.reported_username">
+              <h4 class="ui dividing header left aligned">Reported User</h4>
+              <div class="three fields">
+                <div class="field">
+                  <h5 class="ui left aligned header">Username</h5>
+                  <input type="text" readonly v-model="report.reported_username">
+                </div>
+                <div class="field">
+                  <h5 class="ui left aligned header">First Name</h5>
+                  <input type="text" readonly v-model="report.reported_first_name">
+                </div>
+                <div class="field">
+                  <h5 class="ui left aligned header">Last Name</h5>
+                  <input type="text" readonly v-model="report.reported_last_name">
+                </div>
               </div>
-              <div class="ui field">
-                <h4 class="ui left aligned header">Reporter Username</h4>
-                <input type="text" readonly v-model="report.reporter_username">
+              <h4 class="ui dividing header left aligned">Reporter User</h4>
+              <div class="three fields">
+                <div class="field">
+                  <h5 class="ui left aligned header">Username</h5>
+                  <input type="text" readonly v-model="report.reporter_username">
+                </div>
+                <div class="field">
+                  <h5 class="ui left aligned header">First Name</h5>
+                  <input type="text" readonly v-model="report.reporter_first_name">
+                </div>
+                <div class="field">
+                  <h5 class="ui left aligned header">Last Name</h5>
+                  <input type="text" readonly v-model="report.reporter_last_name">
+                </div>
               </div>
               <div class="ui field">
                 <h4 class="ui left aligned header">Reason</h4>
