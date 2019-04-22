@@ -27,7 +27,8 @@ router.get("/", async function(req, res, next) {
           id: conversation.id,
           username: conversation.username,
           avatar: conversation.avatar,
-          messages: conversation.messages
+          messages: conversation.messages,
+          otherUserId: conversation.other_user_id
         };
       })
     } else {

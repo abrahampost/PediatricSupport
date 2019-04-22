@@ -56,6 +56,7 @@ exports.getAllMessages = async function (userId) {
     select
       matches.id,
       users.username,
+      users.id as other_user_id,
       patient_infos.rendered_avatar as "avatar",
       json_agg( messages order by messages."createdAt" ) as "messages"
     from
@@ -86,6 +87,7 @@ exports.getAllMessages = async function (userId) {
     group by
       matches.id,
       patient_infos.rendered_avatar,
+      users.id,
       users.username) conversations;
     `, {
         replacements: { userId: userId }, type: sequelize.QueryTypes.SELECT
