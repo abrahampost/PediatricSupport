@@ -13,7 +13,6 @@
                 class="item"
                 v-for="conversation in conversations"
                 :key="conversation.id"
-                @click="selectedConversationId = conversation.id"
               >
                 <img
                   class="ui avatar image"
@@ -41,6 +40,7 @@
           v-bind:userAvatar="userAvatar"
           v-bind:messages="selectedConversation.messages"
           v-bind:error="error"
+          v-bind:otherUserId="selectedConversation.otherUserId"
           v-on:sendMessage="sendMessage($event)"
         />
       </div>

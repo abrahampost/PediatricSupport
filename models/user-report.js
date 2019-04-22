@@ -25,6 +25,10 @@ exports.init_table = function (sequelize) {
             validate: {
                 isIn: [['pending', 'resolved']]
             }
+        },
+        description: {
+            type: Sequelize.STRING(1024),
+            allowNull: true,
         }
     });
 }
