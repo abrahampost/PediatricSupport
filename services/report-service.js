@@ -42,3 +42,11 @@ exports.getUserReports = async function (status) {
         throw new InternalErrorException("A problem occurred when retrieving user reports", e);
     }
 }
+
+exports.getUserReport = async function(reportId) {
+    
+}
+
+exports.updateUserReport = async function (reportId, status) {
+
+}

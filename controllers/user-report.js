@@ -28,4 +28,16 @@ router.get('/', permissions.ADMIN, async function(req, res, next) {
     }
 });
 
+router.put('/:id', permissions.ADMIN, async function(req, res, next) {
+    try {
+        let reportId = req.params.id;
+        let status = req.body.status;
+
+        await reportService.updateUserReport(userid, interests, biography, avatar);
+        res.sendStatus(200);
+    } catch(e) {
+        next(e);
+    }
+});
+
 module.exports = router;
