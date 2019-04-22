@@ -13,11 +13,10 @@
                 class="item"
                 v-for="conversation in conversations"
                 :key="conversation.id"
-                @click="selectedConversationId = conversation.id"
               >
                 <img
                   class="ui avatar image"
-                  src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
+                  :src="conversation.avatar"
                 >
                 <router-link
                   class="content"
@@ -37,8 +36,11 @@
       <div class="twelve wide column">
         <MessageLog
           v-bind:username="selectedConversation.username"
+          v-bind:otherUserAvatar="selectedConversation.avatar"
+          v-bind:userAvatar="userAvatar"
           v-bind:messages="selectedConversation.messages"
           v-bind:error="error"
+          v-bind:otherUserId="selectedConversation.otherUserId"
           v-on:sendMessage="sendMessage($event)"
         />
       </div>
@@ -52,6 +54,7 @@ export default {
   name: "PatientMessages",
   data() {
     return {
+      userAvatar: undefined,
       conversations: [],
       lastPolled: undefined,
       error: undefined,
@@ -120,6 +123,9 @@ export default {
             this.combineMessages(this.conversations, data.conversations);
           } else {
             this.conversations = data.conversations;
+          }
+          if (data.avatar) {
+            this.userAvatar = data.avatar;
           }
           this.lastPolled = data.lastPolled;
           this.error = "";

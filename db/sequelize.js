@@ -46,7 +46,7 @@ sequelize.user.belongsToMany(sequelize.attribute, {through: sequelize.patient_x_
 sequelize.user.hasOne(sequelize.patient_info, {as:'PatientInfo', foreignKey: 'user_id'});
 sequelize.user.belongsToMany(sequelize.user, {through: sequelize.patient_x_parent, as:'PatientXParent', foreignKey:'patient_id', otherKey:'parent_id'});
 sequelize.user.belongsToMany(sequelize.user, {through: sequelize.user_match, as: 'UserMatch', foreignKey:'user_one_id', otherKey:'user_two_id'});
-sequelize.user.belongsToMany(sequelize.user, {through: sequelize.user_report, as: 'UserReport', foreignKey:'reporter_id', otherKey:'reported_id'});
+sequelize.user.belongsToMany(sequelize.user, {through: {model: sequelize.user_report, unique: false}, as: 'UserReport', foreignKey:'reporter_id', otherKey:'reported_id'});
 
 sequelize.user_match.hasMany(sequelize.message);
 sequelize.message.belongsTo(sequelize.user, { foreignKey: 'sender' });

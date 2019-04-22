@@ -2,7 +2,9 @@ let express = require("express"),
     router = express.Router(),
     userService = require("../services/user-service"),
     emailService = require("../services/email-service"),
-    permissions = require("../middleware/permissions");
+    permissions = require("../middleware/permissions"),
+    messageService = require("../services/message-service"),
+    avatarService = require("../services/avatar-service");
 
 router.post('/', permissions.ADMIN, async function(req, res, next) {
     try {
@@ -38,8 +40,9 @@ router.put('/', permissions.PATIENT, async function(req, res, next) {
         let userid = req.decoded.id;
         let interests = req.body.interests;
         let biography = req.body.biography;
+        let avatar = req.body.avatar;
 
-        await userService.updatePatientInfo(userid, interests, biography);
+        await userService.updatePatientInfo(userid, interests, biography, avatar);
         res.sendStatus(200);
     } catch(e) {
         next(e);
@@ -50,12 +53,21 @@ router.get('/', permissions.PATIENT, async function(req, res, next) {
   try {
     let userId = req.decoded.id;
     let data = await userService.getPatientInfo(userId);
-    
     res.json(data);
   } catch(e) {
     next(e);
   }
-})
+});
+
+router.get('/:id', permissions.ADMIN, async function(req, res, next) {
+    try {
+      let userId = req.params.id;
+      let data = await userService.getPatientInfo(userId);
+      res.json(data);
+    } catch(e) {
+      next(e);
+    }
+  });
 
 router.put('/passwords/reset', async function(req, res, next) {
     try {
@@ -70,5 +82,20 @@ router.put('/passwords/reset', async function(req, res, next) {
         next(e);
     }
 });
+
+router.get("/:userOneId/conversations/:userTwoId", permissions.ADMIN, async function(req, res, next) {
+    try {
+      let userOneId = req.params.userOneId;
+      let userTwoId = req.params.userTwoId;
+
+      let messages = await messageService.getConversation(userOneId, userTwoId);
+      let userOneAvatar = await avatarService.getAvatar(userOneId);
+      let userTwoAvatar = await avatarService.getAvatar(userTwoId);
+
+      res.json({ messages, userOneAvatar, userTwoAvatar });
+    } catch (e) {
+      next(e);
+    }
+  });
 
 module.exports = router;

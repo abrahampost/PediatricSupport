@@ -22,7 +22,7 @@
         <div class="ui cards">
           <div class="ui centered card" v-for="match in filteredMatches" :key="match.id">
             <div class="image">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png">
+              <img :src="match.avatar">
             </div>
             <div class="content">
               <div class="header">{{ match.username }}</div>
@@ -79,7 +79,7 @@ export default {
   data() {
     return {
       filterType: 'potential',
-      highestSimilarity: 0,
+      highestSimilarity: 1,
       matches: [],
       potentialMatches: [],
       error: '',
@@ -115,7 +115,9 @@ export default {
           this.matches = data.matches;
           this.potentialMatches = data.potentialMatches;
           if (this.potentialMatches.length > 0) {
-            this.highestSimilarity = this.potentialMatches[0].similarity;
+            //prevents divide by 0 errors if no similar matches exist
+            let highestSimilarity = this.potentialMatches[0].similarity;
+            this.highestSimilarity = Math.max(1, highestSimilarity);
           }
           this.loading = false;
           this.error = '';

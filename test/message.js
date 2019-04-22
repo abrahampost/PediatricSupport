@@ -41,6 +41,15 @@ const patientThree = {
   type: "patient"
 }
 
+const admin = {
+  username: 'testadmin',
+  password: 'password',
+  lastName: "Admin",
+  firstName: "Test",
+  email: "notarealemail1@gmail.com",
+  type: "admin"
+};
+
 describe('Messaging', () => {
   beforeEach(async () => {
     await Match.destroy({where: {}});
@@ -60,6 +69,8 @@ describe('Messaging', () => {
       });
       userOne = users[0];
       userTwo = users[1];
+      await userService.createPatientInfo(users[0]);
+      await userService.createPatientInfo(users[1]);
       await matchService.createMatch(userOne.id, userTwo.id);
       let match = await Match.findOne({
         where: {
@@ -169,6 +180,8 @@ describe('Messaging', () => {
       });
       userOne = users[0];
       userTwo = users[1];
+      await userService.createPatientInfo(users[0]);
+      await userService.createPatientInfo(users[1]);
       await matchService.createMatch(userOne.id, userTwo.id);
       let match = await Match.findOne({
         where: {
@@ -394,6 +407,93 @@ describe('Messaging', () => {
       body.should.have.property('lastPolled');
       body.should.have.property('conversations');
       body.conversations.should.have.length(0);
-    })
+    });
+  });
+
+  describe("/GET conversation", async () => {
+    var userOne, userTwo, matchId, token;
+
+    beforeEach(async () => {
+      await userService.signUp(patientOne.username, patientOne.password, patientOne.lastName, patientOne.firstName, patientOne.email, patientOne.type);
+      await userService.signUp(patientTwo.username, patientTwo.password, patientTwo.lastName, patientTwo.firstName, patientTwo.email, patientTwo.type);
+      await userService.signUp(admin.username, admin.password, admin.lastName, admin.firstName, admin.email, admin.type);
+
+      let users = await User.findAll({
+        where: {},
+        attributes: ['id', 'username'],
+        order: [['id', 'DESC']]
+      });
+      userOne = users[0];
+      userTwo = users[1];
+      await userService.createPatientInfo(users[0]);
+      await userService.createPatientInfo(users[1]);
+      await matchService.createMatch(userOne.id, userTwo.id);
+      let match = await Match.findOne({
+        where: {
+          user_one_id: userOne.id,
+          user_two_id: userTwo.id
+        }
+      });
+      matchId = match.id;
+
+      await matchService.updateMatchType(matchId, 'matched');
+      let res = await chai.request(server)
+        .post("/api/authenticate/login")
+        .send({
+          username: admin.username,
+          password: admin.password
+        });
+      token = res.body.token;
+    });
+
+    it("it should retrieve the entire conversation", async () => {
+      let messages = ["Test message 1", "Test message 2", "Test message 3"];
+      await messageService.createMessage(userOne.id, matchId, messages[0]);
+      await messageService.createMessage(userOne.id, matchId, messages[1]);
+      await messageService.createMessage(userOne.id, matchId, messages[2]);
+      let res = await chai.request(server)
+        .get("/api/users/"+userOne.id+"/conversations/"+userTwo.id)
+        .set('Authorization', token);
+      let body = res.body;
+      body.should.have.property('userOneAvatar');
+      body.should.have.property('userTwoAvatar');
+      body.should.have.property('messages');
+      body.messages.should.have.length(3);
+      body.messages[0].should.have.property('content');
+      body.messages[0].content.should.be.eql(messages[0]);
+      body.messages[1].content.should.be.eql(messages[1]);
+      body.messages[2].content.should.be.eql(messages[2]);
+    });
+
+    it("it should retrieve messages from blocked users", async () => {
+      let userThree = await userService.signUp(patientThree.username, patientThree.password, patientThree.lastName, patientThree.firstName, patientThree.email, patientThree.type);
+
+      await matchService.createMatch(userOne.id, userThree.id);
+      let newMatch = await Match.findOne({
+        attributes: ['id'],
+        where: {
+          user_one_id: userOne.id,
+          user_two_id: userThree.id
+        }
+      });
+      await matchService.updateMatchType(newMatch.id, 'blocked');
+
+      let messages = ["Test message 1", "Test message 2", "Test message 3"];
+      await messageService.createMessage(userOne.id, matchId, messages[0]);
+      await messageService.createMessage(userOne.id, matchId, messages[1]);
+      await messageService.createMessage(userOne.id, matchId, messages[2]);
+      let res = await chai.request(server)
+        .get("/api/users/"+userOne.id+"/conversations/"+userTwo.id)
+        .set('Authorization', token);
+      let body = res.body;
+      body.should.have.property('userOneAvatar');
+      body.should.have.property('userTwoAvatar');
+      body.should.have.property('messages');
+      body.messages.should.have.length(3);
+      body.messages[0].should.have.property('content');
+      body.messages[0].content.should.be.eql(messages[0]);
+      body.messages[1].content.should.be.eql(messages[1]);
+      body.messages[2].content.should.be.eql(messages[2]);
+    });
   });
 })

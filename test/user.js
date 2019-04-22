@@ -19,7 +19,7 @@ const testAdmin = {
     password: 'password',
     lastName: "Admin",
     firstName: "Test",
-    email: "notarealemail@gmail.com",
+    email: "notarealemail1@gmail.com",
     type: "admin"
 };
 
@@ -245,15 +245,15 @@ describe('Users', () => {
     describe("/PUT updateUserInfo", () => {
       var token;
       var userId;
+      var avatar;
       beforeEach(async () => {
-        const requestBody = {
-          patientFirstName: "John",
-          patientLastName: "Patient",
-          patientEmail: "523pediatrics@gmail.com",
-          parentFirstName: "Todd",
-          parentLastName: "Parent",
-          parentEmail: "geschwat@masafiagrofood.com"
-        };
+
+        avatar = {
+          accessories: "1",
+          hats: "1",
+          heads: "1",
+          clothes: "1"
+        }
 
         await userService.signUp(testUser.username, testUser.password, testUser.lastName, testUser.firstName, testUser.email, testUser.type);
         let userLogin = await chai.request(server)
@@ -302,7 +302,8 @@ describe('Users', () => {
           .put("/api/users")
           .send({
             biography: testBio,
-            interests: interests
+            interests: interests,
+            avatar: avatar
           })
           .set('Authorization', token);
         res.should.have.status(200);
@@ -331,7 +332,8 @@ describe('Users', () => {
           .put("/api/users")
           .send({
             biography: "",
-            interests: []
+            interests: [],
+            avatar: avatar
           })
           .set('Authorization', token);
         res.should.have.status(200);
@@ -362,13 +364,14 @@ describe('Users', () => {
           order: [ [ 'id', 'DESC' ]]
         });
         interests = interests.map((interest) => interest.id);
-        await userService.updatePatientInfo(userId, interests, "This is a test bio.");
+        await userService.updatePatientInfo(userId, interests, "This is a test bio.", avatar);
 
         let res = await chai.request(server)
           .put("/api/users")
           .send({
             biography: "",
-            interests: []
+            interests: [],
+            avatar: avatar
           })
           .set('Authorization', token);
         res.should.have.status(200);
@@ -387,11 +390,37 @@ describe('Users', () => {
         patientInfo.should.have.property('biography');
         patientInfo.biography.should.be.eql("");
       });
+      
+      it("it should update avatar correctly", async () => {
+        let res = await chai.request(server)
+          .put("/api/users")
+          .send({
+            biography: "",
+            interests: [],
+            avatar: {
+              accessories: "2",
+              hats: "2",
+              heads: "2",
+              clothes: "2"
+            }
+          })
+          .set('Authorization', token);
+        res.should.have.status(200);
+      })
     });
 
     describe("/GET user", () => {
       var token;
       var userId;
+      var avatar;
+      before(() => {
+        avatar = {
+          accessories: "1",
+          hats: "1",
+          heads: "1",
+          clothes: "1"
+        };
+      })
       beforeEach(async () => {
         await userService.signUp(testUser.username, testUser.password, testUser.lastName, testUser.firstName, testUser.email, testUser.type);
         let userLogin = await chai.request(server)
@@ -424,7 +453,7 @@ describe('Users', () => {
 
       it("it should retrieve the correct biography", async () => {
         const testBio = 'this is a test bio';
-        await userService.updatePatientInfo(userId, [], testBio);
+        await userService.updatePatientInfo(userId, [], testBio, avatar);
         let res = await chai.request(server)
           .get("/api/users")
           .set('Authorization', token);
@@ -443,7 +472,7 @@ describe('Users', () => {
           order: [['id', 'ASC']]
         });
         let interestsIDs = interests.map((intr) => intr.id);
-        await userService.updatePatientInfo(userId, interestsIDs, testBio);
+        await userService.updatePatientInfo(userId, interestsIDs, testBio, avatar);
         let res = await chai.request(server)
           .get("/api/users")
           .set('Authorization', token);
@@ -457,8 +486,9 @@ describe('Users', () => {
         body.attributes[2].id.should.be.eql(interestsIDs[2]);
         body.attributes[3].id.should.be.eql(interestsIDs[3]);
       });
+
       it("it should retrieve blank bio and interests" , async () => {
-        await userService.updatePatientInfo(userId, [], "");
+        await userService.updatePatientInfo(userId, [], "", avatar);
         let res = await chai.request(server)
           .get("/api/users")
           .set('Authorization', token);
@@ -468,7 +498,96 @@ describe('Users', () => {
         body.attributes.should.have.length(0);
         body.biography.should.be.eql("");
       });
-    })
+
+      it("it should retrieve avatar in request", async () => {
+        await userService.updatePatientInfo(userId, [], "", avatar);
+        let res = await chai.request(server)
+          .get("/api/users")
+          .set('Authorization', token);
+        res.body.should.have.property('avatar');
+      });
+    });
+
+    describe("/GET user via admin", () => {
+      var token;
+      var userId;
+      var avatar;
+      before(() => {
+        avatar = {
+          accessories: "1",
+          hats: "1",
+          heads: "1",
+          clothes: "1"
+        };
+      })
+      beforeEach(async () => {
+        let user = await userService.signUp(testUser.username, testUser.password, testUser.lastName, testUser.firstName, testUser.email, testUser.type);
+        await userService.signUp(testAdmin.username, testAdmin.password, testAdmin.lastName, testAdmin.firstName, testAdmin.email, testAdmin.type);
+
+        let adminLogin = await chai.request(server)
+          .post("/api/authenticate/login")
+          .send({
+              username: testAdmin.username,
+              password: testAdmin.password
+          });
+
+        token = adminLogin.body.token;
+        userId = user.id;
+
+        //TODO add interests to attribute table
+        await Attribute.create({
+            name: 'legos',
+            type: 'interest',
+        });
+        await Attribute.create({
+            name: 'movies',
+            type: 'interest',
+        });
+        await Attribute.create({
+            name: 'videogames',
+            type: 'interest',
+        });
+        await Attribute.create({
+            name: 'basketball',
+            type: 'interest',
+        });
+      });
+
+      it("it should retrieve the correct users interests", async () => {
+        const testBio = 'this is a test bio';
+        let interests = await Attribute.findAll({
+          attributes: ['id'],
+          where: {
+            type: 'interest'
+          },
+          order: [['id', 'ASC']]
+        });
+        let interestsIDs = interests.map((intr) => intr.id);
+        await userService.updatePatientInfo(userId, interestsIDs, testBio, avatar);
+        let res = await chai.request(server)
+          .get("/api/users/"+userId)
+          .set('Authorization', token);
+        let body = res.body;
+        body.should.have.property('biography');
+        body.biography.should.be.eql(testBio);
+        body.should.have.property('attributes');
+        body.attributes.should.be.length(interestsIDs.length, "returned incorrect number of interests");
+        body.attributes[0].should.have.property('id');
+        body.attributes[0].should.have.property('name');
+        body.attributes[0].id.should.be.eql(interestsIDs[0]);
+        body.attributes[1].id.should.be.eql(interestsIDs[1]);
+        body.attributes[2].id.should.be.eql(interestsIDs[2]);
+        body.attributes[3].id.should.be.eql(interestsIDs[3]);
+      });
+
+      it("it should retrieve avatar in request", async () => {
+        await userService.updatePatientInfo(userId, [], "", avatar);
+        let res = await chai.request(server)
+          .get("/api/users/"+userId)
+          .set('Authorization', token);
+        res.body.should.have.property('avatar');
+      });
+    });
 
     describe("/PUT resetPassword", () => {
         beforeEach(async () => {

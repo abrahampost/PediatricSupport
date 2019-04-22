@@ -4,12 +4,23 @@
     <div class="ui stackable grid">
       <div class="four wide column">
         <div class="ui centered card">
-          <div class="image">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
-            >
+          <div class="ui active inverted dimmer" v-if="loading">
+            <div class="ui text loader">Loading</div>
           </div>
-          <div class="extra">Change Avatar</div>
+          <Avatar
+            class="image"
+            :accessories="avatar.accessories"
+            :clothes="avatar.clothes"
+            :hats="avatar.hats"
+            :heads="avatar.heads"
+          />
+          <div class="extra">
+            <button
+              class="ui basic button"
+              @click="editAvatar=true">
+              Change Avatar
+            </button>
+          </div>
         </div>
       </div>
       <div class="twelve wide column">
@@ -59,12 +70,24 @@
         </div>
       </div>
     </div>
+    <EditAvatarModal
+      :avatar="avatar"
+      v-if="editAvatar"
+      v-on:close="editAvatar=false"
+      v-on:save="saveAvatar" />
   </div>
 </template>
 
 <script>
+import EditAvatarModal from '@/views/patient/EditAvatarModal.vue';
+import Avatar from '@/components/Avatar.vue';
+
 export default {
   name: 'PatientPreferences',
+  components: {
+    EditAvatarModal,
+    Avatar
+  },
   mounted() {
     this.loadInfo();
   },
@@ -74,8 +97,16 @@ export default {
       selectedInterests: [],
       biography: '',
       interests: [],
+      avatar: {
+        accessories: '1',
+        clothes: '1',
+        hats: '1',
+        heads: '1',
+      },
+      editAvatar: false,
       error: '',
       message: '',
+      loading: false,
     };
   },
   methods: {
@@ -90,8 +121,9 @@ export default {
     },
     saveInfo() {
       const requestBody = {
-        biography: this.biography,
+        biography: this.biography || '',
         interests: this.selectedInterests.map(interest => interest.id),
+        avatar: this.avatar,
       };
       this.$http.put('/users', requestBody)
         .then(() => {
@@ -101,13 +133,17 @@ export default {
         });
     },
     loadInfo() {
+      this.loading = true;
       this.$http.get('/users')
         .then((res) => {
           const { data } = res;
           this.biography = data.biography;
           this.selectedInterests = data.attributes;
+          this.avatar = data.avatar;
         }).catch((err) => {
           this.error = err.data.error;
+        }).then(() => {
+          this.loading = false;
         });
 
       this.$http.get('/attributes')
@@ -116,6 +152,10 @@ export default {
         }).catch((err) => {
           this.error = err.data.error;
         });
+    },
+    saveAvatar(avatar) {
+      this.editAvatar = false;
+      this.avatar = avatar;
     },
   },
   computed: {
