@@ -2,7 +2,8 @@ const sequelize = require("../db/sequelize"),
     UserReport = sequelize.user_report,
     Sequelize = require("sequelize"),
     BadRequestException = require("../exceptions/bad-request-exception"),
-    InternalErrorException = require("../exceptions/internal-error-exception");
+    InternalErrorException = require("../exceptions/internal-error-exception"),
+    PediatricSupportException = require("../exceptions/pediatric-support-exception");
 
 exports.createUserReport = async function (reporterId, reportedId, description) {
     try {
@@ -12,7 +13,7 @@ exports.createUserReport = async function (reporterId, reportedId, description) 
             status: "pending",
             description: description
         });
-        await userReport.save();
+        return await userReport.save();
     } catch (e) {
         if (e instanceof Sequelize.ValidationError) {
             let errorMessage = "The following values are invalid:";
@@ -44,9 +45,40 @@ exports.getUserReports = async function (status) {
 }
 
 exports.getUserReport = async function(reportId) {
-    
+    try {
+        let report = await UserReport.findOne({
+            where: {
+                id: reportId
+            }
+        });
+
+        if(!report) {
+            throw new BadRequestException("The user report could not be found.");
+        }
+
+        return report;
+    } catch(e) {
+        if(e instanceof PediatricSupportException) {
+            throw e;
+        }
+        throw new InternalErrorException("A problem occurred when retrieving user reports", e);
+    }
 }
 
 exports.updateUserReport = async function (reportId, status) {
+    let report = await this.getUserReport(reportId);
 
+    try {
+        report.status = status;
+        await report.save();
+    } catch(e) {
+        if (e instanceof Sequelize.ValidationError) {
+            let errorMessage = "The following values are invalid:";
+            e.errors.forEach((error) => {
+                errorMessage += `\n${error.path}: ${error.message}`;
+            });
+            throw new BadRequestException(errorMessage);
+        }
+        throw new InternalErrorException("A problem occurred when updating the user report", e);
+    }
 }

@@ -104,7 +104,9 @@ describe('Reports', () => {
             await userService.signUp(patientTwo.username, patientTwo.password, patientTwo.lastName, patientTwo.firstName, patientTwo.email, patientTwo.type);
         
             let users = await User.findAll({
-                where: {},
+                where: {
+                    type: 'patient'
+                },
                 attributes: ['id', 'username', 'password'],
                 order: [['id', 'DESC']]
             });
@@ -148,6 +150,52 @@ describe('Reports', () => {
             let body = res.body;
             assert.exists(body);
             body.should.have.length(1);
+        });
+    });
+
+    describe("/PUT reports", () => {
+        var report;
+
+        beforeEach(async () => {
+            await userService.signUp(admin.username, admin.password, admin.lastName, admin.firstName, admin.email, admin.type);
+            await userService.signUp(patientOne.username, patientOne.password, patientOne.lastName, patientOne.firstName, patientOne.email, patientOne.type);
+            await userService.signUp(patientTwo.username, patientTwo.password, patientTwo.lastName, patientTwo.firstName, patientTwo.email, patientTwo.type);
+        
+            let users = await User.findAll({
+                where: {
+                    type: 'patient'
+                },
+                attributes: ['id', 'username', 'password'],
+                order: [['id', 'DESC']]
+            });
+            let userOne = users[0];
+            let userTwo = users[1];
+
+            report = await reportService.createUserReport(userOne.id,userTwo.id, "description");
+        });
+
+        it('it should update the report', async () => {
+            let res = await chai.request(server)
+                .post("/api/authenticate/login")
+                .send({
+                    username: admin.username,
+                    password: admin.password
+                });
+            let token = res.body.token;
+
+            let status = 'resolved';
+
+            res = await chai.request(server)
+                .put("/api/reports/"+report.id)
+                .send({
+                    status: status
+                })
+                .set("Authorization", token);
+            
+            res.should.have.status(200);
+
+            let updatedReport = await reportService.getUserReport(report.id);
+            updatedReport.status.should.be.eql(status);
         });
     });
 });

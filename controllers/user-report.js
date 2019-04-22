@@ -33,7 +33,7 @@ router.put('/:id', permissions.ADMIN, async function(req, res, next) {
         let reportId = req.params.id;
         let status = req.body.status;
 
-        await reportService.updateUserReport(userid, interests, biography, avatar);
+        await reportService.updateUserReport(reportId, status);
         res.sendStatus(200);
     } catch(e) {
         next(e);
