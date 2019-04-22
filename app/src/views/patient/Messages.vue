@@ -40,7 +40,7 @@
           v-bind:userAvatar="userAvatar"
           v-bind:messages="selectedConversation.messages"
           v-bind:error="error"
-          v-bind:otherUserId="$route.params.id"
+          v-bind:otherUserId="selectedConversation.otherUserId"
           v-on:sendMessage="sendMessage($event)"
         />
       </div>

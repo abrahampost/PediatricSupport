@@ -28,6 +28,7 @@
     <ViewReportModal
       v-if="showReportModal"
       v-on:close="showReportModal=false"
+      v-on:resolve="resolveReport()"
       v-bind:messages="messages"
       v-bind:reporterAvatar="reporterAvatar"
       v-bind:reportedAvatar="reportedAvatar"
@@ -70,11 +71,28 @@ export default {
           if (err && err.data && err.data.error) {
             this.error = err.data.error;
           } else {
-            this.error = "Unable to load reports.";
+            this.error = "Unable to retrieve reports.";
           }
         });
     },
-    resolveReport() {},
+    resolveReport() {
+      this.error = "";
+      this.$http
+        .put("/reports/"+this.selectedReport.id, {
+          status: 'resolved'
+        })
+        .then(() => {
+          this.showReportModal = false;
+          this.getReports();
+        })
+        .catch(err => {
+          if (err && err.data && err.data.error) {
+            this.error = err.data.error;
+          } else {
+            this.error = "Unable to resolve report.";
+          }
+        });
+    },
     showReport(report) {
       if (report.status === "resolved") {
         return;

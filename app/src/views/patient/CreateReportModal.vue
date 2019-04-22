@@ -31,7 +31,7 @@
 export default {
   name: 'CreateReportModal',
   props: {
-    otherUserId: String,
+    otherUserId: Number,
   },
   data() {
     return {
