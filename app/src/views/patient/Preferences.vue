@@ -68,6 +68,9 @@
             {{ message }}
           </div>
         </div>
+        <div class="manual">
+          <a href="/PatientManual.pdf" download>Patient Manual</a>
+        </div>
       </div>
     </div>
     <EditAvatarModal
@@ -86,7 +89,7 @@ export default {
   name: 'PatientPreferences',
   components: {
     EditAvatarModal,
-    Avatar
+    Avatar,
   },
   mounted() {
     this.loadInfo();
@@ -189,5 +192,10 @@ export default {
 
 .red.window.close.outline.icon:hover {
   font-weight: bolder;
+}
+
+.manual {
+  margin-top: 3em;
+  font-size: 1.5em;
 }
 </style>

@@ -1,6 +1,6 @@
 {
-  "name": "app",
-  "short_name": "app",
+  "name": "PediatricSupport",
+  "short_name": "PediatricSupport",
   "icons": [
     {
       "src": "./img/icons/android-chrome-192x192.png",
