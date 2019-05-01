@@ -39,5 +39,5 @@ run `npm install` to install all frontend dependencies
 * [vue](https://vuejs.org)
 * [vue-router](https://router.vuejs.org)
 
-NOTE: Must have `.env` file in root level of repository with database information in order to run. File must contain `DATABASE_URL`, `SIGN_KEY`, and `TEST_DATABSE_URL` (if you want to test on an actual postgres instance).
-NOTE: Must have `.env` file in root level of repository with database information in order to run. File must contain `DATABASE_URL`, `SIGN_KEY`, `TEST_DATABASE_URL`, `EMAIL_USER`, and `EMAIL_PASSWORD` (if you want have any questions message Abe).
+NOTE: Must have `.env` file in root level of repository with database information in order to run (alternately, can set environment variables yourself). File must contain `DATABASE_URL`, `SIGN_KEY`, and `TEST_DATABSE_URL` (if you want to test on an actual postgres instance).
+NOTE: Must have `.env` file in root level of repository with database information in order to run. File must contain `DATABASE_URL`, `SIGN_KEY`, `TEST_DATABASE_URL`, `EMAIL_USER`, and `EMAIL_PASSWORD`
